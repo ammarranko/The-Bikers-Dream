@@ -16,6 +16,7 @@ Detailed information on how to compile and deploy the application. Platform requ
 
 
 ## Running the app
+(Requirements: jdk-25, Maven 3.5.6, React)
 1. Open two terminals
 2. 
     - Navigate to the frontend directory in one of them. 
