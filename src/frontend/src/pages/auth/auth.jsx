@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import './auth.css';
-import logo from '../assets/logo.png';
+import logo from '../../assets/logo.png';
 
 const Auth = () => {
     const [isLogin, setIsLogin] = useState(true);
