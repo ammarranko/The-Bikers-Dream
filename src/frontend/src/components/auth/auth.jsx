@@ -8,9 +8,13 @@ const Auth = () => {
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
+        username: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        address: '',
+        city: '',
+        postalCode: '',
     });
 
 
@@ -46,9 +50,13 @@ const Auth = () => {
         setFormData({
             firstName: '',
             lastName: '',
+            username: '',
             email: '',
             password: '',
-            confirmPassword: ''
+            confirmPassword: '',
+            address: '',
+            city: '',
+            postalCode: '',
         });
     };
 
@@ -86,6 +94,14 @@ const Auth = () => {
                                         />
                                     </div>
                                 )}
+                                <input
+                                    type="text"
+                                    name="username"
+                                    value={formData.username}
+                                    onChange={handleInputChange}
+                                    placeholder="Username"
+                                    className="form-input"
+                                />  
 
                                 <input
                                     type="email"
@@ -95,7 +111,7 @@ const Auth = () => {
                                     placeholder="Email"
                                     className="form-input"
                                 />
-
+                                <div className="name-row">
                                 <input
                                     type="password"
                                     name="password"
@@ -115,6 +131,36 @@ const Auth = () => {
                                         className="form-input"
                                     />
                                 )}
+                                </div>
+
+                                <input
+                                    type="text"
+                                    name="address"
+                                    value={formData.address}
+                                    onChange={handleInputChange}
+                                    placeholder="Address"
+                                    className="form-input"
+                                />
+                            
+                            <div className="name-row">
+                                <input
+                                    type="text"
+                                    name="city"
+                                    value={formData.city}
+                                    onChange={handleInputChange}
+                                    placeholder="City"
+                                    className="form-input"
+                                />
+                                
+                                <input
+                                    type="text"
+                                    name="postalCode"
+                                    value={formData.postalCode}
+                                    onChange={handleInputChange}
+                                    placeholder="Postal Code"
+                                    className="form-input"
+                                />
+                            </div>
 
                                 <button type="submit" className="submit-btn">
                                     {isLogin ? 'Login' : 'Sign Up'}
