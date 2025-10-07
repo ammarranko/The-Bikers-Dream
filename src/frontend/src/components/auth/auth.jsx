@@ -64,7 +64,7 @@ const Auth = () => {
                     password: formData.password
                 });
 
-                const { token, email, fullName } = response.data || {};
+                const { token, email, fullName, role } = response.data || {};
 
                 // Ensure we actually received a valid token from the server
                 if (!token || token === 'undefined' || token === 'null') {
@@ -76,6 +76,7 @@ const Auth = () => {
                 localStorage.setItem('jwt_token', token);
                 localStorage.setItem('user_email', email);
                 localStorage.setItem('user_full_name', fullName);
+                localStorage.setItem('user_role', role);
 
                 // Set default header for future requests
                 axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;

@@ -7,12 +7,14 @@ const Home = () => {
 
     // Retrieve full name from localStorage
     const fullName = localStorage.getItem('user_full_name');
+    const role = localStorage.getItem('user_role');
 
     const handleLogout = () => {
         try {
             localStorage.removeItem('jwt_token');
             localStorage.removeItem('user_email');
             localStorage.removeItem('user_full_name');
+            localStorage.removeItem('user_role');
             delete axios.defaults.headers.common['Authorization'];
         } finally {
             // Navigate to login page and trigger auth logout handling if present
@@ -22,9 +24,11 @@ const Home = () => {
 
     return (
         <div style={{ padding: '16px' }}>
-            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <header style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                 <h1>Hello{fullName ? `, ${fullName}` : ''}!</h1>
-                <button onClick={handleLogout} style={{ padding: '8px 12px', cursor: 'pointer' }}>
+                <h1>Hello{role ? `, ${role}` : ''}!</h1>
+
+                <button onClick={handleLogout} style={{padding: '8px 12px', cursor: 'pointer'}}>
                     Logout
                 </button>
             </header>
