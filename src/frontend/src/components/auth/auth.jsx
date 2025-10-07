@@ -9,8 +9,10 @@ const initialForm = {
     email: '',
     password: '',
     confirmPassword: '',
-    address: '', // Add address field
-    username: '' // Add username field
+    username: '',
+    street: '',
+    city: '',
+    postalCode: ''
 };
 
 const Auth = () => {
@@ -88,13 +90,14 @@ const Auth = () => {
                     setError('Passwords do not match');
                     return;
                 }
-
+                const address = `${formData.street}, ${formData.city}, ${formData.postalCode}`;
                 // Call registration endpoint (expects fullName, email, password, address)
                 await axios.post("http://localhost:8080/api/register", {
                     fullName: formData.fullName,
                     email: formData.email,
                     password: formData.password,
-                    address: formData.address // Send address
+                    address: address,
+                    username: formData.username
                 });
 
                 // On successful registration, switch to login mode
@@ -111,17 +114,8 @@ const Auth = () => {
 
   const toggleMode = () => {
     setIsLogin(!isLogin);
-    setFormData({
-      firstName: "",
-      lastName: "",
-      username: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      address: "",
-      city: "",
-      postalCode: "",
-    });
+    setFormData(initialForm);
+    setError('');
   };
 
     return (
@@ -151,32 +145,19 @@ const Auth = () => {
                                         />
                                     </div>
                                 )}
-
                                 {!isLogin && (
                                     <input
                                         type="text"
                                         name="username"
                                         value={formData.username}
                                         onChange={handleInputChange}
-                                        placeholder="write your username"
+                                        placeholder="username"
                                         className="form-input"
                                         required={!isLogin}
                                     />
                                 )}
-                                {/* Address field for signup */}
-                                {!isLogin && (
-                                    <div className="address-row">
-                                        <input
-                                            type="text"
-                                            name="address"
-                                            value={formData.address}
-                                            onChange={handleInputChange}
-                                            placeholder="Address"
-                                            className="form-input"
-                                            required={!isLogin}
-                                        />
-                                    </div>
-                                )}
+                                {/* Address fields for signup */}
+
                                 <input
                                     type="email"
                                     name="email"
@@ -207,7 +188,37 @@ const Auth = () => {
                                     />
                                 )}
 
-
+                                {!isLogin && (
+                                    <div className="address-row">
+                                        <input
+                                            type="text"
+                                            name="street"
+                                            value={formData.street}
+                                            onChange={handleInputChange}
+                                            placeholder="Street"
+                                            className="form-input"
+                                            required={!isLogin}
+                                        />
+                                        <input
+                                            type="text"
+                                            name="city"
+                                            value={formData.city}
+                                            onChange={handleInputChange}
+                                            placeholder="City"
+                                            className="form-input"
+                                            required={!isLogin}
+                                        />
+                                        <input
+                                            type="text"
+                                            name="postalCode"
+                                            value={formData.postalCode}
+                                            onChange={handleInputChange}
+                                            placeholder="Postal Code"
+                                            className="form-input"
+                                            required={!isLogin}
+                                        />
+                                    </div>
+                                )}
                                 <button type="submit" className="submit-btn" disabled={isLoading}>
                                     {isLoading ? 'Processing...' : (isLogin ? 'Login' : 'Sign Up')}
                                 </button>
