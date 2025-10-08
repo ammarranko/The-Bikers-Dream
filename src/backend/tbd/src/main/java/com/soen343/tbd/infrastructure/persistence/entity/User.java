@@ -1,4 +1,5 @@
-package com.soen343.tbd.entity;
+package com.soen343.tbd.infrastructure.persistence.entity;
+
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
@@ -58,6 +59,23 @@ public class User {
         this.created_at = created_at;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+
     @Column(name = "full_name") // if column name has underscore
     private String fullName;
 
@@ -68,4 +86,8 @@ public class User {
     private String role;
 
     private Timestamp created_at;
+    private String username;
+    private String address;
+
+
 }
