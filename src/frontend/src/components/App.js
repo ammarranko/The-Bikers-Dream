@@ -6,6 +6,10 @@ import Home from './home/Home.jsx';
 import ProtectedRoute from './ProtectedRoute.jsx';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Test from "./test/Test";
+import Home from './home/Home.jsx';
+import ProtectedRoute from './ProtectedRoute.jsx';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Test from "./test/Test";
 
 function App() {
   return (

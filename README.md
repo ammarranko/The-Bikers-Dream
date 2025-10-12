@@ -11,11 +11,9 @@ SOEN 343 project
 @ammarranko|Ammar Ranko|40281232
 @nicoledesigns|Nicole Antoun|40284018
 
-## Team Members
+## Running the app
 Detailed information on how to compile and deploy the application. Platform requirements are specified.
 
-
-## Running the app
 (Requirements: jdk-25, Maven 3.5.6, React)
 1. Open two terminals
 2. 
