@@ -3,6 +3,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import StationMarker from '../StationMarker';
 
 // This ensures that default Leaflet markers render correctly (sometimes React breaks the implicit defaults)
 delete L.Icon.Default.prototype._getIconUrl;
@@ -25,9 +26,8 @@ const Map = () => {
     useEffect(() => {
         async function fetchStations() {
             try {
-                
                 const response = await axios.get("http://localhost:8080/api/stations/allStations/details");
-                console.log("Received Response with data: ", response.data)
+                console.log("Received initial response with data: ", response.data)
                 setStations(response.data);
             } catch (error) {
                 console.error("Error fetching station:", error);
@@ -53,16 +53,9 @@ const Map = () => {
 
             {/* Dynamically display all markers for stations on map */}
             {stations &&
-                stations.map((station) => {
-                    return(
-                        <Marker position={station.position.split(",").map(coord => parseFloat(coord.trim()))}>
-                            <Popup>
-                                <b>{station.stationName}</b> <br /> 
-                                {station.capacity} <br />
-                            </Popup>
-                        </Marker>
-                    )
-                })
+                stations.map((station) => (
+                    <StationMarker key={station.stationId} station={station} />
+                ))
             }
         </MapContainer>
     );
