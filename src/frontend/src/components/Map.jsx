@@ -13,12 +13,12 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'), // Shadow under the marker
 });
 
-const Map = () => {
-    // Center of the map, where the map will render first essentially
-    const center = [45.552648, -73.681342]; // These are the coords of Montreal, kinda (found online)
-
+const Map = ({ onClickShowConfirm }) => {
     // State to hold stations data
     const [stations, setStations] = useState([]);
+
+    // Center of the map, where the map will render first essentially
+    const center = [45.552648, -73.681342]; // These are the coords of Montreal, kinda (found online)
 
     // Need to wrap await functions in async methods in order to use them, you also need to use a react hook 
     useEffect(() => {
@@ -52,7 +52,7 @@ const Map = () => {
             {/* Dynamically display all markers for stations on map */}
             {stations &&
                 stations.map((station) => (
-                    <StationMarker key={station.stationId} station={station} />
+                    <StationMarker key={station.stationId} station={station} onClickShowConfirm={onClickShowConfirm} />
                 ))
             }
         </MapContainer>

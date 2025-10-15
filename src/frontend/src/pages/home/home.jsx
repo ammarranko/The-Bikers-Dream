@@ -1,10 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Map from '../../components/Map'
+import ConfirmationPopup from "../../components/confirmationPopup/ConfirmationPopup";
 
 const Home = () => {
     const navigate = useNavigate();
+
+    // State to track whether the user wants to confirm and associated variables
+    const [confirmRental, setConfirmRental] = useState(null);
 
     // Retrieve full name from localStorage
     const fullName = localStorage.getItem('user_full_name');
@@ -23,6 +27,26 @@ const Home = () => {
         }
     };
 
+    /*
+        --- Rental Confirmation Logic ---
+    */
+    const onClickShowConfirm = (dock, bike, station) => {
+        setConfirmRental({dock, bike, station});
+    };
+
+    const handleConfirm = async () => {
+        try {
+            const response = await axios.post("");
+            console.log("Received rental response with data: ", response.data)
+        } catch (error) {
+            console.error("Error in POST for rental:", error);
+        }
+    };
+
+    const handleCancel = () => {
+        setConfirmRental(null);
+    };
+
     return (
         <div style={{ padding: '16px' }}>
             <header style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
@@ -36,8 +60,25 @@ const Home = () => {
 
             <main>
                 <p>Welcome to the app.</p>
-                <Map />
+                <Map onClickShowConfirm={onClickShowConfirm} />
+
+                {confirmRental && (
+                    <ConfirmationPopup
+                        message={`You are about to rent a bike! 🚲
+
+                                    Station: ${confirmRental.station.stationName} (ID: ${confirmRental.station.stationId})
+                                    Dock: ${confirmRental.dock.dockId}
+                                    Bike: ${confirmRental.bike.bikeId}
+
+                                    Do you want to proceed with this rental?`
+                                }
+                        onConfirm={handleConfirm}
+                        onCancel={handleCancel}
+                    />
+                )}
             </main>
+
+            
         </div>
     );
 };

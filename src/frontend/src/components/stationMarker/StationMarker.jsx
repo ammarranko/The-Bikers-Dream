@@ -3,10 +3,9 @@ import React, { useState } from 'react';
 import "./StationMarker.css"
 
 
-function StationMarker({ station }) {
+function StationMarker({ station, onClickShowConfirm }) {
     // State to track the current selected dock
     const [selectedDock, setSelectedDock] = useState(null);
-
     
     return (
         <Marker
@@ -67,6 +66,7 @@ function StationMarker({ station }) {
                             { selectedDock.bike && !(selectedDock.bike?.status === "RESERVED") && (
                             <button
                             className="button-19"
+                            onClick={() => onClickShowConfirm(selectedDock, selectedDock.bike, station)}
                             >
                                 Rent This Bike
                             </button>

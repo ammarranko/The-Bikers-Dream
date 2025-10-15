@@ -1,20 +1,37 @@
 package com.soen343.tbd.domain.model;
 
+import java.sql.Timestamp;
+
 import com.soen343.tbd.domain.model.ids.BillId;
 import com.soen343.tbd.domain.model.ids.TripId;
 import com.soen343.tbd.domain.model.ids.UserId;
 
 public class Bill {
-    private BillId billId;
+    private final BillId billId;
     private Double cost;
     private TripId tripId;
     private UserId userId;
 
-    public Bill(BillId billId, Double cost, TripId tripId, UserId userId){
-        this.billId = billId;
-        this.cost = cost;
-        this.tripId = tripId;
-        this.userId = userId;
+    // cost per minute
+    private static final double COST_PER_MINUTE = 0.5;
+
+    // Constructor computes cost automatically based on Trip duration
+    public Bill(Trip trip) {
+        this.billId = null; // Automatically set by db
+        this.tripId = trip.getTripId();
+        this.userId = trip.getUserId();
+        this.cost = calculateCost(trip.getStartTime(), trip.getEndTime());
+    }
+
+    // Method to calculate cost from start and end timestamps
+    private Double calculateCost(Timestamp startTime, Timestamp endTime) {
+        if (startTime == null || endTime == null) {
+            return 0.0; // Trip hasn't ended yet
+        }
+        // Duration in minutes
+        long durationMillis = endTime.getTime() - startTime.getTime();
+        double durationMinutes = durationMillis / 60000.0;
+        return durationMinutes * COST_PER_MINUTE;
     }
 
     /* 
