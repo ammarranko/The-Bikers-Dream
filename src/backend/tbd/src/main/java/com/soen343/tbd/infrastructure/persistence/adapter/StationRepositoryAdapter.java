@@ -38,5 +38,5 @@ public class StationRepositoryAdapter implements StationRepository {
             .stream()
             .map(stationMapper::toDomain)
             .toList();
-}
+    }
 }

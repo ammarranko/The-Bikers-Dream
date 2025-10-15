@@ -1,7 +1,6 @@
 package com.soen343.tbd;
 
-import com.soen343.tbd.infrastructure.persistence.entity.User;
-import com.soen343.tbd.repository.UserRepository;
+import com.soen343.tbd.domain.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,18 +20,15 @@ public class StartupFetch {
                 var users = repo.findAll();
                 logger.info("Query executed successfully");
 
-                // Convert to list to check size
-                var userList = new java.util.ArrayList<User>();
-                users.forEach(userList::add);
-                logger.info("Found {} users in database", userList.size());
+                logger.info("Found {} users in database", users.size());
 
-                if (userList.isEmpty()) {
+                if (users.isEmpty()) {
                     logger.info("No users found in the database.");
                 } else {
                     logger.info("Found users in database:");
-                    userList.forEach(user -> {
+                    users.forEach(user -> {
                         logger.info("User data: ID={}, Email={}, Name={}",
-                            user.getId(),
+                            user.getUserId(),
                             user.getEmail(),
                             user.getFullName()
                         );

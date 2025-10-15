@@ -88,7 +88,7 @@ public class UserEntity {
     }
 
     public void setCreatedAt(Timestamp created_at) {
-        this.createdAt = createdAt;
+        this.createdAt = created_at;
     }
 
     public Timestamp getUpdatedAt() { return updatedAt; }

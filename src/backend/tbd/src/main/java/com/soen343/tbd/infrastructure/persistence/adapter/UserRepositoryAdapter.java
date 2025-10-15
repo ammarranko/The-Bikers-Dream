@@ -7,6 +7,7 @@ import com.soen343.tbd.infrastructure.persistence.mapper.UserMapper;
 import com.soen343.tbd.infrastructure.persistence.repository.JpaUserRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -35,6 +36,14 @@ public class UserRepositoryAdapter implements UserRepository {
     public Optional<User> findByUsername(String username) {
         return jpaUserRepository.findByUsername(username)
                 .map(userMapper::toDomain);
+    }
+
+    @Override
+    public List<User> findAll() {
+        return jpaUserRepository.findAll()
+            .stream()
+            .map(userMapper::toDomain)
+            .toList();
     }
 
     @Override

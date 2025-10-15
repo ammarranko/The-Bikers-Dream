@@ -64,7 +64,7 @@ function StationMarker({ station }) {
                             </div>
                             
                             {/* Rent button */}
-                            { selectedDock.bike && (
+                            { selectedDock.bike && !(selectedDock.bike?.status === "RESERVED") && (
                             <button
                             className="button-19"
                             >
