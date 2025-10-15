@@ -1,9 +1,9 @@
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import StationMarker from '../StationMarker';
+import StationMarker from './stationMarker/StationMarker';
 
 // This ensures that default Leaflet markers render correctly (sometimes React breaks the implicit defaults)
 delete L.Icon.Default.prototype._getIconUrl;
@@ -19,8 +19,6 @@ const Map = () => {
 
     // State to hold stations data
     const [stations, setStations] = useState([]);
-
-
 
     // Need to wrap await functions in async methods in order to use them, you also need to use a react hook 
     useEffect(() => {

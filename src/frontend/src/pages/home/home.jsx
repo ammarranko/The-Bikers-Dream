@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Map from '../../components/map/Map'
+import Map from '../../components/Map'
 
 const Home = () => {
     const navigate = useNavigate();
