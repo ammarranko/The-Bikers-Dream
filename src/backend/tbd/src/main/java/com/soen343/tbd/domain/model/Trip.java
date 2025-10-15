@@ -10,7 +10,7 @@ import com.soen343.tbd.domain.model.ids.TripId;
 import com.soen343.tbd.domain.model.ids.UserId;
 
 public class Trip {
-    private TripId tripId;
+    private final TripId tripId;
     private TripStatus status;
     private BikeId bikeId;
     private UserId userId;
@@ -79,5 +79,37 @@ public class Trip {
     public StationId getEndStationId() { return endStationId; }
     public Timestamp getStartTime() { return startTime; }
     public Timestamp getEndTime() { return endTime; }
-    public Bill getBill() { return bill; }
+    public BillId getBillId() { return billId; }
+
+    public void setStatus(TripStatus status) {
+        this.status = status;
+    }
+
+    public void setBikeId(BikeId bikeId) {
+        this.bikeId = bikeId;
+    }
+
+    public void setUserId(UserId userId) {
+        this.userId = userId;
+    }
+
+    public void setStartStationId(StationId startStationId) {
+        this.startStationId = startStationId;
+    }
+
+    public void setEndStationId(StationId endStationId) {
+        this.endStationId = endStationId;
+    }
+
+    public void setStartTime(Timestamp startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setEndTime(Timestamp endTime) {
+        this.endTime = endTime;
+    }
+
+    public void setBillId(BillId billId) {
+        this.billId = billId;
+    }
 }
