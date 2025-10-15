@@ -38,6 +38,19 @@ public class StationEntity {
     @OneToMany(mappedBy = "station", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<DockEntity> docks;
 
+    @OneToMany(mappedBy = "startStation", fetch = FetchType.LAZY)
+    private List<TripEntity> startedTrips;
+
+    @OneToMany(mappedBy = "endStation", fetch = FetchType.LAZY)
+    private List<TripEntity> endedTrips;
+
+    
+    /* 
+    -----------------------
+      GETTERS AND SETTERS 
+    -----------------------
+    */
+
     public Long getStationId() {
         return stationId;
     }
@@ -101,4 +114,21 @@ public class StationEntity {
     public void setDocks(List<DockEntity> docks) {
         this.docks = docks;
     }
+
+    public List<TripEntity> getStartedTrips() {
+        return startedTrips;
+    }
+
+    public void setStartedTrips(List<TripEntity> startedTrips) {
+        this.startedTrips = startedTrips;
+    }
+
+    public List<TripEntity> getEndedTrips() {
+        return endedTrips;
+    }
+
+    public void setEndedTrips(List<TripEntity> endedTrips) {
+        this.endedTrips = endedTrips;
+    }
+
 }

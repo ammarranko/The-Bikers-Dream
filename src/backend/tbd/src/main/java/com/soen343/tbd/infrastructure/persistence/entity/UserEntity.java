@@ -2,6 +2,8 @@ package com.soen343.tbd.infrastructure.persistence.entity;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 import java.sql.Timestamp;
 
 @Entity
@@ -34,6 +36,19 @@ public class UserEntity {
 
     @Column(name = "updated_at")
     private Timestamp updatedAt;
+
+    @OneToMany(mappedBy="user", fetch = FetchType.LAZY)
+    List<BillEntity> bills;
+
+    @OneToMany(mappedBy="user", fetch = FetchType.LAZY)
+    List<TripEntity> trips;
+
+
+    /* 
+    -----------------------
+      GETTERS AND SETTERS 
+    -----------------------
+    */
 
     public String getFullName() {
         return fullName;
@@ -94,5 +109,21 @@ public class UserEntity {
     public Timestamp getUpdatedAt() { return updatedAt; }
 
     public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
+
+    public List<BillEntity> getBills() {
+        return bills;
+    }
+
+    public void setBills(List<BillEntity> bills) {
+        this.bills = bills;
+    }
+
+    public List<TripEntity> getTrips() {
+        return trips;
+    }
+
+    public void setTrips(List<TripEntity> trips) {
+        this.trips = trips;
+    }
 
 }

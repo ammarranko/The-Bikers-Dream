@@ -28,6 +28,13 @@ public class BikeEntity {
     @Column(name = "reservation_expiry")
     private Timestamp reservationExpiry;
 
+    
+    /* 
+    -----------------------
+      GETTERS AND SETTERS 
+    -----------------------
+    */
+
     public Long getBikeId() {
         return bikeId;
     }

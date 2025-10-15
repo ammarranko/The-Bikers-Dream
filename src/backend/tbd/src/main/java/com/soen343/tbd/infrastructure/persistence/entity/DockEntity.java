@@ -19,6 +19,13 @@ public class DockEntity {
     @Column(name = "dock_status", nullable = false)
     private DockStatus status;
 
+    
+    /* 
+    -----------------------
+      GETTERS AND SETTERS 
+    -----------------------
+    */
+
     public Long getDockId() {
         return dockId;
     }
