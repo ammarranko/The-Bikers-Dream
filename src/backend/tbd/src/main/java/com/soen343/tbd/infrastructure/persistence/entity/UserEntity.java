@@ -11,7 +11,8 @@ import java.sql.Timestamp;
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "user_id")
+    private Long userId;
 
     @Column(name = "full_name") // if column name has underscore
     private String fullName;
@@ -58,12 +59,12 @@ public class UserEntity {
         this.fullName = fullName;
     }
 
-    public Long getId() {
-        return id;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getEmail() {

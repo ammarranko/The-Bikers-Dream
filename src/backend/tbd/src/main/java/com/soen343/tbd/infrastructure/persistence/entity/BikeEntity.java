@@ -5,6 +5,7 @@ import com.soen343.tbd.domain.model.enums.BikeType;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
 @Table(name = "bikes")
@@ -28,13 +29,14 @@ public class BikeEntity {
     @Column(name = "reservation_expiry")
     private Timestamp reservationExpiry;
 
+    @OneToMany(mappedBy="bike", fetch = FetchType.LAZY)
+    List<TripEntity> trips;
     
     /* 
     -----------------------
       GETTERS AND SETTERS 
     -----------------------
     */
-
     public Long getBikeId() {
         return bikeId;
     }
@@ -73,6 +75,14 @@ public class BikeEntity {
 
     public void setReservationExpiry(Timestamp reservationExpiry) {
         this.reservationExpiry = reservationExpiry;
+    }
+
+    public List<TripEntity> getTrips() {
+        return trips;
+    }
+
+    public void setTrips(List<TripEntity> trips) {
+        this.trips = trips;
     }
 
 }

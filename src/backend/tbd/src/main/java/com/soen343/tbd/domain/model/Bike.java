@@ -6,6 +6,7 @@ import com.soen343.tbd.domain.model.ids.BikeId;
 import com.soen343.tbd.domain.model.ids.DockId;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 public class Bike {
     private final BikeId bikeId;
@@ -13,13 +14,15 @@ public class Bike {
     private BikeStatus status;
     private BikeType bikeType;
     private Timestamp reservationExpiry;
+    List<Trip> trips;
 
-    public Bike(BikeId bikeId, DockId dockId, BikeStatus status, BikeType bikeType, Timestamp reservationExpiry ) {
+    public Bike(BikeId bikeId, DockId dockId, BikeStatus status, BikeType bikeType, Timestamp reservationExpiry, List<Trip> trips ) {
         this.bikeId = bikeId;
         this.dockId = dockId;
         this.status = status;
         this.bikeType = bikeType;
         this.reservationExpiry = reservationExpiry;
+        this.trips = trips;
     }
 
     public BikeId getBikeId() {
@@ -56,5 +59,13 @@ public class Bike {
 
     public void setBikeType(BikeType bikeType) {
         this.bikeType = bikeType;
+    }
+
+    public List<Trip> getTrips() {
+        return trips;
+    }
+
+    public void setTrips(List<Trip> trips) {
+        this.trips = trips;
     }
 }

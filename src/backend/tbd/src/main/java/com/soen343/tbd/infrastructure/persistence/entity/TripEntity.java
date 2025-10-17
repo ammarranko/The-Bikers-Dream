@@ -10,7 +10,8 @@ import java.sql.Timestamp;
 public class TripEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "trip_id")
+    private Long tripId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status") // if column name has underscore
@@ -47,12 +48,12 @@ public class TripEntity {
       GETTERS AND SETTERS 
     -----------------------
     */
-    public Long getId() {
-        return id;
+    public Long getTripId() {
+        return tripId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setTripId(Long tripId) {
+        this.tripId = tripId;
     }
 
     public TripStatus getStatus() {

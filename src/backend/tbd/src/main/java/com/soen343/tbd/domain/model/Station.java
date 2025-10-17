@@ -6,6 +6,11 @@ import com.soen343.tbd.domain.model.ids.StationId;
 
 import java.util.List;
 
+import com.soen343.tbd.domain.model.enums.DockStatus;
+
+
+// IMPORTANT TODO:
+// NEED TO IMPLEMENT STATION AVAILABILITY LOGIC
 public class Station {
     private final StationId stationId;
     private final String stationName;
@@ -16,10 +21,12 @@ public class Station {
     private final int capacity;     // Total number of docks at the station
     private int numberOfBikesDocked;
     private final List<Dock> docks;
+    private List<Trip> startedTrips;
+    private List<Trip> endedTrips;
 
     public Station(StationId stationId, String stationName, StationAvailability stationAvailability,
                    StationStatus stationStatus, String position, String address, int capacity,
-                   int numberOfBikesDocked, List<Dock> docks) {
+                   int numberOfBikesDocked, List<Dock> docks, List<Trip> startedTrips, List<Trip> endedTrips) {
         this.stationId = stationId;
         this.stationName = stationName;
         this.stationAvailability = stationAvailability;
@@ -27,8 +34,23 @@ public class Station {
         this.position = position;
         this.address = address;
         this.capacity = capacity;
-        this.numberOfBikesDocked = numberOfBikesDocked;
         this.docks = docks;
+        this.startedTrips = startedTrips;
+        this.endedTrips = endedTrips;
+
+        this.numberOfBikesDocked = calculateNumberOfBikes();
+    }
+
+    private int calculateNumberOfBikes(){
+        int numBikes = 0;
+
+        for (Dock dock : docks){
+            if(dock.getStatus().equals(DockStatus.OCCUPIED)){
+                numBikes++;
+            }
+        }
+
+        return numBikes;
     }
 
     public StationId getStationId() {
@@ -71,11 +93,31 @@ public class Station {
         return numberOfBikesDocked;
     }
 
-    public void setNumberOfBikesDocked(int numberOfBikesDocked) {
-        this.numberOfBikesDocked = numberOfBikesDocked;
+    public void incrementBikesDocked(){
+        this.numberOfBikesDocked++;
+    }
+
+    public void decrementBikesDocked(){
+        this.numberOfBikesDocked--;
     }
 
     public List<Dock> getDocks() {
         return docks;
+    }
+
+    public List<Trip> getStartedTrips() {
+        return startedTrips;
+    }
+
+    public void setStartedTrips(List<Trip> startedTrips) {
+        this.startedTrips = startedTrips;
+    }
+
+    public List<Trip> getEndedTrips() {
+        return endedTrips;
+    }
+
+    public void setEndedTrips(List<Trip> endedTrips) {
+        this.endedTrips = endedTrips;
     }
 }

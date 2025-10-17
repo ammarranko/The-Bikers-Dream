@@ -35,7 +35,7 @@ public class StationEntity {
     @Column(name = "capacity", nullable = false)
     private int capacity;
 
-    @OneToMany(mappedBy = "station", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "station", fetch = FetchType.LAZY)
     private List<DockEntity> docks;
 
     @OneToMany(mappedBy = "startStation", fetch = FetchType.LAZY)

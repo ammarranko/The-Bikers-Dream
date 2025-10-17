@@ -3,10 +3,9 @@ import React, { useState } from 'react';
 import "./StationMarker.css"
 
 
-function StationMarker({ station }) {
+function StationMarker({ station, onClickShowConfirmRental, activeBikeRental, onClickShowConfirmReturn }) {
     // State to track the current selected dock
     const [selectedDock, setSelectedDock] = useState(null);
-
     
     return (
         <Marker
@@ -59,17 +58,28 @@ function StationMarker({ station }) {
                                 <p style={{ margin: "0.3em" }}>
                                 Bike ID: {selectedDock.bike?.bikeId || "None"}
                                 <br />
-                                Status: {selectedDock.bike?.status || "Empty"}
+                                Status: {selectedDock.bike?.status || "EMPTY"}
                                 </p>
                             </div>
                             
                             {/* Rent button */}
-                            { selectedDock.bike && !(selectedDock.bike?.status === "RESERVED") && (
+                            { selectedDock.bike && !(selectedDock.bike?.status === "RESERVED") && !activeBikeRental.hasOngoingRental && (
                             <button
                             className="button-19"
+                            onClick={() => onClickShowConfirmRental(selectedDock, selectedDock.bike, station)}
                             >
                                 Rent This Bike
                             </button>
+                            )}
+
+                            {/* Return button */}
+                            { activeBikeRental.hasOngoingRental && selectedDock.dockStatus === "EMPTY" && (
+                                <button
+                                className="button-19-return"
+                                onClick={() => onClickShowConfirmReturn(selectedDock, activeBikeRental.bikeId, station)}
+                                >
+                                    Return Your Bike
+                                </button>
                             )}
 
                             {/* Close button */}

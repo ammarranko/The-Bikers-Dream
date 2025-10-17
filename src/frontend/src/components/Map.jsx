@@ -1,8 +1,6 @@
 import { MapContainer, TileLayer } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import StationMarker from './stationMarker/StationMarker';
 
 // This ensures that default Leaflet markers render correctly (sometimes React breaks the implicit defaults)
@@ -13,27 +11,9 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'), // Shadow under the marker
 });
 
-const Map = () => {
+const Map = ({ onClickShowConfirmRental, activeBikeRental, onClickShowConfirmReturn, stations }) => {
     // Center of the map, where the map will render first essentially
     const center = [45.552648, -73.681342]; // These are the coords of Montreal, kinda (found online)
-
-    // State to hold stations data
-    const [stations, setStations] = useState([]);
-
-    // Need to wrap await functions in async methods in order to use them, you also need to use a react hook 
-    useEffect(() => {
-        async function fetchStations() {
-            try {
-                const response = await axios.get("http://localhost:8080/api/stations/allStations/details");
-                console.log("Received initial response with data: ", response.data)
-                setStations(response.data);
-            } catch (error) {
-                console.error("Error fetching station:", error);
-            }
-        }
-
-        fetchStations();
-    }, []);
 
     // Map size, Leaflet needs a fixed height (forced) or it wont appear
     const size = {
@@ -52,7 +32,9 @@ const Map = () => {
             {/* Dynamically display all markers for stations on map */}
             {stations &&
                 stations.map((station) => (
-                    <StationMarker key={station.stationId} station={station} />
+                    <StationMarker key={`${station.stationId}-${activeBikeRental.bikeId || 'none'}`} 
+                        station={station} onClickShowConfirmRental={onClickShowConfirmRental}
+                        activeBikeRental={activeBikeRental} onClickShowConfirmReturn={onClickShowConfirmReturn} />
                 ))
             }
         </MapContainer>

@@ -84,7 +84,7 @@
     z-index: 10;
 }
 
-/* RENT AND RETURN BUTTON */
+/* RENT BUTTON */
 .button-19 {
   appearance: button;
   background-color: #1899D6;
@@ -146,6 +146,72 @@
 }
 
 .button-19:active {
+  border-width: 4px 0 0;
+  background: none;
+}
+
+/* RETURN BUTTON */
+.button-19-return {
+  appearance: button;
+  background-color: #c14c15;
+  border: solid transparent;
+  border-radius: 16px;
+  border-width: 0 0 4px;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: inline-block;
+  font-family: din-round,sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .8px;
+  line-height: 10px;
+  margin: 5px 0px;
+  outline: none;
+  overflow: visible;
+  padding: 13px 5px;
+  text-align: center;
+  text-transform: uppercase;
+  touch-action: manipulation;
+  transform: translateZ(0);
+  transition: filter .2s;
+  user-select: none;
+  -webkit-user-select: none;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.button-19-return:after {
+  background-clip: padding-box;
+  background-color: #f6611c;
+  border: solid transparent;
+  border-radius: 16px;
+  border-width: 0 0 4px;
+  bottom: -4px;
+  content: "";
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: -1;
+}
+
+.button-19-return,
+.button-19-return:focus {
+  user-select: auto;
+}
+
+.button-19-return:hover:not(:disabled) {
+  filter: brightness(1.1);
+  -webkit-filter: brightness(1.1);
+}
+
+.button-19-return:disabled {
+  cursor: auto;
+}
+
+.button-19-return:active {
   border-width: 4px 0 0;
   background: none;
 }

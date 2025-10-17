@@ -1,8 +1,10 @@
 package com.soen343.tbd.application.service;
 
+import com.soen343.tbd.domain.model.ids.UserId;
 import com.soen343.tbd.domain.model.user.User;
 import com.soen343.tbd.domain.repository.UserRepository;
 import com.soen343.tbd.application.dto.LoginRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,5 +24,10 @@ public class UserService {
             }
         }
         return false;
+    }
+
+    public User getUserWithEmail(String userEmail){
+        return userRepository.findByEmail(userEmail)
+            .orElseThrow(() -> new RuntimeException("No user found with email: " + userEmail));
     }
 }

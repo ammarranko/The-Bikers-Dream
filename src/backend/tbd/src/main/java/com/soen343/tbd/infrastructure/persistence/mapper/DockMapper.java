@@ -7,7 +7,7 @@ import com.soen343.tbd.infrastructure.persistence.entity.DockEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = { DockId.class, StationId.class })
 public interface DockMapper {
 
     // Entity to Domain

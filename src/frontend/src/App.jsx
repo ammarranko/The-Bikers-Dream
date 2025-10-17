@@ -1,15 +1,8 @@
-import logo from "./assets/logo.png";
-import "./App.css";
-import Header from "./components/header/Header.jsx";
-import Auth from "./pages/auth/Auth.jsx";
-import Home from "./pages/home/home.jsx";
-import ProtectedRoute from "./ProtectedRoute.jsx";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import './App.css';
+import Auth from './pages/auth/Auth.jsx';
+import Home from './pages/home/Home.jsx';
+import ProtectedRoute from './ProtectedRoute.jsx';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 function App() {
   return (

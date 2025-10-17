@@ -54,7 +54,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authz -> authz
                         //the only allowed endpoints without authentication ( can be accessed without a token)
-                        .requestMatchers("/api/login", "/api/register", "/api/stations/allStations/details").permitAll()
+                        .requestMatchers("/api/login", "/api/register").permitAll()
                         //all other endpoints require authentication
                         .anyRequest().authenticated())
                 //If any exception occurs, this will handle it by redirecting to 401

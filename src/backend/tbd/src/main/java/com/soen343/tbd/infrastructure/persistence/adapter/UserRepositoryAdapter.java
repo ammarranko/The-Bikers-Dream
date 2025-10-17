@@ -5,10 +5,13 @@ import com.soen343.tbd.domain.model.user.User;
 import com.soen343.tbd.domain.repository.UserRepository;
 import com.soen343.tbd.infrastructure.persistence.mapper.UserMapper;
 import com.soen343.tbd.infrastructure.persistence.repository.JpaUserRepository;
+
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class UserRepositoryAdapter implements UserRepository {
@@ -39,6 +42,7 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<User> findAll() {
         return jpaUserRepository.findAll()
             .stream()

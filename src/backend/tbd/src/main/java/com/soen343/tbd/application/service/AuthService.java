@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Optional;
 
 import com.soen343.tbd.domain.model.user.Rider;
@@ -55,7 +56,8 @@ public class AuthService {
      */
     public void registerUser(String fullName, String email, String password, String address, String username) {
         // Create a new user entity
-        User newUser = new Rider(null, fullName, email, password, address, username, new Timestamp(System.currentTimeMillis()), password);
+        User newUser = new Rider(null, fullName, email, password, address, username, new Timestamp(System.currentTimeMillis()), 
+                        null, new ArrayList<>(), new ArrayList<>());
 
         // Hash the password before saving
         String encodedPassword = passwordEncoder.encode(password);
