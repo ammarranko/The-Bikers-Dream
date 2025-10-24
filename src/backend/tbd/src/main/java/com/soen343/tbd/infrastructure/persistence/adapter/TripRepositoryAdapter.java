@@ -25,7 +25,7 @@ public class TripRepositoryAdapter implements TripRepository {
     private final TripMapper tripMapper;
     private final EntityManager entityManager;
 
-    public TripRepositoryAdapter(JpaTripRepository jpa, TripMapper mapper, EntityManager entityManager){
+    public TripRepositoryAdapter(JpaTripRepository jpa, TripMapper mapper, EntityManager entityManager) {
         this.jpaTripRepository = jpa;
         this.tripMapper = mapper;
         this.entityManager = entityManager;
@@ -34,9 +34,9 @@ public class TripRepositoryAdapter implements TripRepository {
     @Override
     public Optional<Trip> checkRentalsByUserId(UserId userId) {
         return jpaTripRepository.findByUser_UserIdAndStatus(userId.value(), TripStatus.ONGOING)
-            .map(tripMapper::toDomain);
+                .map(tripMapper::toDomain);
     }
-    
+
     @Override
     public Optional<Trip> findById(TripId tripId) {
         return jpaTripRepository.findById(tripId.value())
@@ -61,13 +61,15 @@ public class TripRepositoryAdapter implements TripRepository {
 
         // Set the starting station relationship if startStationId is present
         if (trip.getStartStationId() != null) {
-            StationEntity stationReference = entityManager.getReference(StationEntity.class, trip.getStartStationId().value());
+            StationEntity stationReference = entityManager.getReference(StationEntity.class,
+                    trip.getStartStationId().value());
             tripEntity.setStartStation(stationReference);
         }
 
         // Set the ending station relationship if endStationId is present
         if (trip.getEndStationId() != null) {
-            StationEntity stationReference = entityManager.getReference(StationEntity.class, trip.getEndStationId().value());
+            StationEntity stationReference = entityManager.getReference(StationEntity.class,
+                    trip.getEndStationId().value());
             tripEntity.setEndStation(stationReference);
         }
 
@@ -76,6 +78,14 @@ public class TripRepositoryAdapter implements TripRepository {
             BillEntity billReference = entityManager.getReference(BillEntity.class, trip.getBillId().value());
             tripEntity.setBill(billReference);
         }
+
+        // Persist additional primitive fields that are ignored by the mapper
+        if (trip.getStartTime() != null)
+            tripEntity.setStartTime(trip.getStartTime());
+        if (trip.getEndTime() != null)
+            tripEntity.setEndTime(trip.getEndTime());
+        if (trip.getStatus() != null)
+            tripEntity.setStatus(trip.getStatus());
 
         jpaTripRepository.save(tripEntity);
     }
