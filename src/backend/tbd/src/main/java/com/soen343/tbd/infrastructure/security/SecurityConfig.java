@@ -23,7 +23,8 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // to handle the unauthorized access by redirecting to a specific entry point 401
+    // to handle the unauthorized access by redirecting to a specific entry point
+    // 401
     @Autowired
     private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
@@ -47,28 +48,37 @@ public class SecurityConfig {
 
     @Bean
     // to configure security settings for HTTP requests
-    // only allow the login and register endpoints without authentication, every other endpoint requires authentication
+    // only allow the login and register endpoints without authentication, every
+    // other endpoint requires authentication
 
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authz -> authz
-                        //the only allowed endpoints without authentication ( can be accessed without a token)
+                        // the only allowed endpoints without authentication ( can be accessed without a
+                        // token)
                         .requestMatchers("/api/login", "/api/register").permitAll()
-                        //all other endpoints require authentication
+                        .requestMatchers("/api/stations/stream").permitAll()
+                        // all other endpoints require authentication
                         .anyRequest().authenticated())
-                //If any exception occurs, this will handle it by redirecting to 401
+                // If any exception occurs, this will handle it by redirecting to 401
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        // Add a filter to validate the tokens with every request. It forces tgat tge filter is executed before the UsernamePasswordAuthenticationFilter
+        // Add a filter to validate the tokens with every request. It forces tgat tge
+        // filter is executed before the UsernamePasswordAuthenticationFilter
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-// to configure CORS settings for the application. Instead of at each time telling the backend the react request is coming from localhost3000, we do it once here
+
+    // to configure CORS settings for the application. Instead of at each time
+    // telling the backend the react request is coming from localhost3000, we do it
+    // once here
     @Bean
-    //define the CORS configuration source ( so by default accept all requests from localhost3000)
-    // this is a fallback, so in case the frontend forgets to add the origin in the request, the backend will still accept it thanks to this configuration
+    // define the CORS configuration source ( so by default accept all requests from
+    // localhost3000)
+    // this is a fallback, so in case the frontend forgets to add the origin in the
+    // request, the backend will still accept it thanks to this configuration
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:3000"));
