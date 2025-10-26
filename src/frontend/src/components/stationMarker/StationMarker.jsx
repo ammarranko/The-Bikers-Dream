@@ -3,9 +3,31 @@ import React, { useState } from 'react';
 import "./StationMarker.css"
 
 
-function StationMarker({ station, onClickShowConfirmRental, activeBikeRental, onClickShowConfirmReturn }) {
+function StationMarker({ 
+    station, 
+    onClickShowConfirmRental, 
+    activeBikeRental, 
+    onClickShowConfirmReturn, 
+    toggleStationStatus, 
+    userRole, 
+    rebalanceSource,
+    handleRebalanceSource,
+    handleRebalanceTarget 
+}) {
     // State to track the current selected dock
     const [selectedDock, setSelectedDock] = useState(null);
+
+    // gets bike and source dock/station for rebalancing, retrieve button
+    const handleRetrieve = (dock) => {
+        if (!dock.bike) return;
+        handleRebalanceSource(dock.bike, dock, station.stationId);
+    };
+
+    // gets target dock/station for rebalancing, rebalance button
+    const handleRebalance = (targetDock) => {
+        handleRebalanceTarget(targetDock, station.stationId);
+        setSelectedDock(null);
+    };
     
     return (
         <Marker
@@ -15,6 +37,18 @@ function StationMarker({ station, onClickShowConfirmRental, activeBikeRental, on
             <Popup>
                 <div className="flex flex-col min-w-[220px]">
                     <h4 className="mb-2 font-semibold">{station.stationName}</h4>
+
+                    <p style={{ margin: "0.3em" }}>Status: {station.stationStatus}</p>
+
+                    {/* operator only button */}
+                    {userRole === "OPERATOR" && (
+                        <button
+                            className="button-operator-toggle"
+                            onClick={() => toggleStationStatus(station.stationId, station.stationStatus)}>
+                            {station.stationStatus === "ACTIVE" ? "Set OUT_OF_SERVICE" : "Set ACTIVE"}
+                        </button>
+                    )}
+
 
                     <div className="flex flex-row flex-wrap gap-2 mb-2" style={{ display: 'flex', flexDirection: 'row' }}>
                         {station.docks.map((dock) => {
@@ -79,6 +113,32 @@ function StationMarker({ station, onClickShowConfirmRental, activeBikeRental, on
                                 onClick={() => onClickShowConfirmReturn(selectedDock, activeBikeRental.bikeId, station)}
                                 >
                                     Return Your Bike
+                                </button>
+                            )}
+
+                            {/* operator retrieve source bike button */}
+                            {userRole === "OPERATOR" && 
+                             selectedDock.bike && 
+                             !rebalanceSource.bikeId && 
+                             selectedDock.bike.status !== "RESERVED" && (
+                                <button
+                                    className="button-19"
+                                    onClick={() => handleRetrieve(selectedDock)}
+                                >
+                                    Retrieve This Bike
+                                </button>
+                            )}
+
+                            {/* operator rebalance bike button */}
+                            {userRole === "OPERATOR" && 
+                             rebalanceSource.bikeId &&
+                             selectedDock.dockId !== rebalanceSource.sourceDockId && 
+                             !selectedDock.bike && (
+                                <button
+                                    className="button-19-return"
+                                    onClick={() => handleRebalance(selectedDock)}
+                                >
+                                    Rebalance Bike Here
                                 </button>
                             )}
 
