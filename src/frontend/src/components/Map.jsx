@@ -20,6 +20,9 @@ const Map = ({
   onClickShowCancelReservation,
   activeReservation,
   stations: initialStations,
+  toggleStationStatus, 
+  userRole, 
+  rebalanceBike
 }) => {
   // Center of the map, where the map will render first essentially
   const center = [45.552648, -73.681342]; // These are the coords of Montreal, kinda (found online)
@@ -29,6 +32,44 @@ const Map = ({
     height: "500px",
     width: "50%",
   };
+
+  // bike source for rebalancing, done across whole map so that it works across stations
+  // not sending calls to database in case operation interrupted
+  const [rebalanceSource, setRebalanceSource] = useState({
+      bikeId: null,
+      sourceDockId: null,
+      sourceStationId: null
+  });
+
+  // setting bike source for rebalancing
+  const handleRebalanceSource = (bike, dock, stationId) => {
+      setRebalanceSource({
+          bikeId: bike.bikeId,
+          sourceDockId: dock.dockId,
+          sourceStationId: stationId
+      });
+  };
+
+  // rebalance to a target dock, full dto used
+  const handleRebalanceTarget = async (targetDock, targetStationId) => {
+      if (!rebalanceSource.bikeId) return;
+      
+      const entireRebalance = {
+          bikeId: rebalanceSource.bikeId,
+          sourceDockId: rebalanceSource.sourceDockId,
+          sourceStationId: rebalanceSource.sourceStationId,
+          targetDockId: targetDock.dockId,
+          targetStationId: targetStationId
+      };
+      
+      try {
+          await rebalanceBike(entireRebalance);
+          setRebalanceSource({ bikeId: null, sourceDockId: null, sourceStationId: null });
+      } catch (error) {
+          console.error("Failed to rebalance bike:", error);
+      }
+  };
+
 
   // Anything someone (new user or old) loads map
   useEffect(() => {
@@ -79,6 +120,11 @@ const Map = ({
             onClickShowConfirmRental={onClickShowConfirmRental}
             activeBikeRental={activeBikeRental}
             onClickShowConfirmReturn={onClickShowConfirmReturn}
+            toggleStationStatus={toggleStationStatus}
+            userRole={userRole}
+            rebalanceSource={rebalanceSource}
+            handleRebalanceSource={handleRebalanceSource}
+            handleRebalanceTarget={handleRebalanceTarget}
             onClickShowConfirmReservation={onClickShowConfirmReservation}
             onClickShowCancelReservation={onClickShowCancelReservation}
             activeReservation={activeReservation}

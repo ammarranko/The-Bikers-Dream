@@ -77,6 +77,18 @@ public class Station {
         this.stationStatus = stationStatus;
     }
 
+    /* for operator to change station status 
+     uses the setter
+     also uses the enum so it doesn't take invalid input by accident
+    */
+    public void activateStation() {
+        setStationStatus(StationStatus.ACTIVE);
+    }
+
+    public void deactivateStation() {
+        setStationStatus(StationStatus.OUT_OF_SERVICE);
+    }
+
     public String getPosition() {
         return position;
     }
