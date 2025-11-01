@@ -59,7 +59,12 @@ public class AuthController {
             signupRequest.getEmail(),
             signupRequest.getPassword(),
             signupRequest.getAddress(),
-            signupRequest.getUsername()
+            signupRequest.getUsername(),
+            signupRequest.getCardHolderName(),
+            signupRequest.getCardNumber(),
+            signupRequest.getExpiryMonth(),
+            signupRequest.getExpiryYear(),
+            signupRequest.getCvc()
         );
 
         Map<String, String> response = new HashMap<>();
