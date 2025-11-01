@@ -47,14 +47,9 @@ public class AuthService {
         return passwordMatches;
     }
 
-    /**
-     * Register a new user with the given details
-     *
-     * @param fullName user's full name
-     * @param email    user's email address
-     * @param password user's password (will be encoded)
-     */
-    public void registerUser(String fullName, String email, String password, String address, String username) {
+
+    public void registerUser(String fullName, String email, String password, String address, String username,
+                            String cardHolderName, String cardNumber, String expiryMonth, String expiryYear, String cvc) {
         // Create a new user entity
         User newUser = new Rider(null, fullName, email, password, address, username, new Timestamp(System.currentTimeMillis()), 
                         null, new ArrayList<>(), new ArrayList<>());
@@ -62,6 +57,13 @@ public class AuthService {
         // Hash the password before saving
         String encodedPassword = passwordEncoder.encode(password);
         newUser.setPassword(encodedPassword);
+
+        // Set payment information
+        newUser.setCardHolderName(cardHolderName);
+        newUser.setCardNumber(cardNumber);
+        newUser.setExpiryMonth(expiryMonth);
+        newUser.setExpiryYear(expiryYear);
+        newUser.setCvc(cvc);
 
         // Save the user to the database
         userRepository.save(newUser);

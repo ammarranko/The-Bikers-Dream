@@ -3,7 +3,20 @@ import React, { useState } from 'react';
 import "./StationMarker.css"
 
 //added onClickShowConfirmReservation
-function StationMarker({station, onClickShowConfirmRental, activeBikeRental, onClickShowConfirmReturn, onClickShowConfirmReservation,activeReservation,onClickShowCancelReservation}) {
+function StationMarker({
+    station,
+    onClickShowConfirmRental,
+    activeBikeRental,
+    onClickShowConfirmReturn,
+    onClickShowConfirmReservation,
+    activeReservation,
+    onClickShowCancelReservation,
+    toggleStationStatus,
+    userRole,
+    rebalanceSource,
+    handleRebalanceSource,
+    handleRebalanceTarget
+}) {
     // State to track the current selected dock
     const [selectedDock, setSelectedDock] = useState(null);
 
@@ -99,7 +112,7 @@ function StationMarker({station, onClickShowConfirmRental, activeBikeRental, onC
                             */}
 
                             {/* Rent button */}
-{selectedDock.bike && !activeBikeRental.hasOngoingRental && (
+{selectedDock.bike && !activeBikeRental.hasOngoingRental && userRole !== "OPERATOR" && (
   // Allow rent only if:
   // - The bike is not reserved
   // - OR the bike is the one the user reserved
@@ -128,7 +141,7 @@ function StationMarker({station, onClickShowConfirmRental, activeBikeRental, onC
                                 </button>
                             )}
 {/* Reserve / Cancel button */}
-{selectedDock.bike && (
+{selectedDock.bike && userRole !== "OPERATOR" && (
   <>
     {/* If the user has no active reservation → show Reserve button */}
     {!activeReservation?.hasActiveReservation && (
@@ -160,8 +173,7 @@ function StationMarker({station, onClickShowConfirmRental, activeBikeRental, onC
                             {/* operator retrieve source bike button */}
                             {userRole === "OPERATOR" && 
                              selectedDock.bike && 
-                             !rebalanceSource.bikeId && 
-                             selectedDock.bike.status !== "RESERVED" && (
+                             !rebalanceSource.bikeId && (
                                 <button
                                     className="button-19"
                                     onClick={() => handleRetrieve(selectedDock)}

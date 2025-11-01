@@ -13,6 +13,11 @@ const initialForm = {
   street: "",
   city: "",
   postalCode: "",
+  cardHolderName: "",
+  cardNumber: "",
+  expiryMonth: "",
+  expiryYear: "",
+  cvc: "",
 };
 
 const Auth = () => {
@@ -100,6 +105,11 @@ const Auth = () => {
           password: formData.password,
           address: address,
           username: formData.username,
+          cardHolderName: formData.cardHolderName,
+          cardNumber: formData.cardNumber,
+          expiryMonth: formData.expiryMonth,
+          expiryYear: formData.expiryYear,
+          cvc: formData.cvc,
         });
 
         // On successful registration, switch to login mode
@@ -219,6 +229,57 @@ const Auth = () => {
                       className="form-input"
                       required={!isLogin}
                     />
+                  </div>
+                )}
+                {!isLogin && (
+                  <div className="payment-row">
+                    <input
+                      type="text"
+                      name="cardHolderName"
+                      value={formData.cardHolderName}
+                      onChange={handleInputChange}
+                      placeholder="Card Holder Name"
+                      className="form-input"
+                      required={!isLogin}
+                    />
+                    <input
+                      type="text"
+                      name="cardNumber"
+                      value={formData.cardNumber}
+                      onChange={handleInputChange}
+                      placeholder="Card Number"
+                      className="form-input"
+                      required={!isLogin}
+                    />
+                    <div className="expiry-cvc-row">
+                      <input
+                        type="text"
+                        name="expiryMonth"
+                        value={formData.expiryMonth}
+                        onChange={handleInputChange}
+                        placeholder="MM"
+                        className="form-input expiry-input"
+                        required={!isLogin}
+                      />
+                      <input
+                        type="text"
+                        name="expiryYear"
+                        value={formData.expiryYear}
+                        onChange={handleInputChange}
+                        placeholder="YY"
+                        className="form-input expiry-input"
+                        required={!isLogin}
+                      />
+                      <input
+                        type="text"
+                        name="cvc"
+                        value={formData.cvc}
+                        onChange={handleInputChange}
+                        placeholder="CVC"
+                        className="form-input"
+                        required={!isLogin}
+                      />
+                    </div>
                   </div>
                 )}
                 <button

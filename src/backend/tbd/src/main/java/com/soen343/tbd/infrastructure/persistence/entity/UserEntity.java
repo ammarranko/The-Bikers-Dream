@@ -38,6 +38,21 @@ public class UserEntity {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
+    @Column(name = "cardholder_name")
+    private String cardHolderName;
+
+    @Column(name = "card_number")
+    private String cardNumber;
+
+    @Column(name = "expiry_month")
+    private String expiryMonth;
+
+    @Column(name = "expiry_year")
+    private String expiryYear;
+
+    @Column(name = "cvc")
+    private String cvc;
+
     @OneToMany(mappedBy="user", fetch = FetchType.LAZY)
     List<BillEntity> bills;
 
@@ -110,6 +125,46 @@ public class UserEntity {
     public Timestamp getUpdatedAt() { return updatedAt; }
 
     public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
+
+    public String getCardHolderName() {
+        return cardHolderName;
+    }
+
+    public void setCardHolderName(String cardHolderName) {
+        this.cardHolderName = cardHolderName;
+    }
+
+    public String getCardNumber() {
+        return cardNumber;
+    }
+
+    public void setCardNumber(String cardNumber) {
+        this.cardNumber = cardNumber;
+    }
+
+    public String getExpiryMonth() {
+        return expiryMonth;
+    }
+
+    public void setExpiryMonth(String expiryMonth) {
+        this.expiryMonth = expiryMonth;
+    }
+
+    public String getExpiryYear() {
+        return expiryYear;
+    }
+
+    public void setExpiryYear(String expiryYear) {
+        this.expiryYear = expiryYear;
+    }
+
+    public String getCvc() {
+        return cvc;
+    }
+
+    public void setCvc(String cvc) {
+        this.cvc = cvc;
+    }
 
     public List<BillEntity> getBills() {
         return bills;

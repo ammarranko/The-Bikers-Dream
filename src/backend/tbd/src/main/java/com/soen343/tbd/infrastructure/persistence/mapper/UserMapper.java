@@ -46,7 +46,7 @@ public abstract class UserMapper {
                         .collect(Collectors.toList())
                     : null;
 
-            return new Rider(
+            Rider rider = new Rider(
                     userId,
                     entity.getFullName(),
                     entity.getEmail(),
@@ -58,8 +58,17 @@ public abstract class UserMapper {
                     bills,
                     trips
             );
+
+            // Set payment information
+            rider.setCardHolderName(entity.getCardHolderName());
+            rider.setCardNumber(entity.getCardNumber());
+            rider.setExpiryMonth(entity.getExpiryMonth());
+            rider.setExpiryYear(entity.getExpiryYear());
+            rider.setCvc(entity.getCvc());
+
+            return rider;
         } else if ("OPERATOR".equals(entity.getRole())) {
-            return new Operator(
+            Operator operator = new Operator(
                     userId,
                     entity.getFullName(),
                     entity.getEmail(),
@@ -68,6 +77,9 @@ public abstract class UserMapper {
                     entity.getUsername(),
                     entity.getCreatedAt()
             );
+
+
+            return operator;
         }
 
         throw new IllegalArgumentException("Unknown role: " + entity.getRole());

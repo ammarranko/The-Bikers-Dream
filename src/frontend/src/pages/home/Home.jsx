@@ -83,20 +83,7 @@ const [activeReservation, setActiveReservation] = useState({
         fetchActiveReservation(); // added reservation
     }, []);
 
-
-
-
-    // Track time left until reservation expires
-const [timeLeft, setTimeLeft] = useState(null);
-
-// Update the countdown every second
-useEffect(() => {
-  if (!activeReservation?.expiresAt) {
-    setTimeLeft(null);
-    return;
-  }
-
-  // operator can toggle station status
+    // operator can toggle station status
     const toggleStationStatus = async (stationId, currentStatus) => {
         const newStatus = currentStatus === "ACTIVE" ? "OUT_OF_SERVICE" : "ACTIVE";
 
@@ -133,35 +120,34 @@ useEffect(() => {
         }
     };
 
-  /*
-        --- Rental Confirmation Logic ---
-    */
-  const onClickShowConfirmRental = (dock, bike, station) => {
-    setConfirmRental({
-      active: true,
-      dock: dock,
-      bike: bike,
-      station: station,
-    });
-  };
-  const interval = setInterval(() => {
-    const now = new Date();
-    const expiry = new Date(activeReservation.expiresAt);
-    const diffMs = expiry - now;
+    // Track time left until reservation expires
+    const [timeLeft, setTimeLeft] = useState(null);
 
-    if (diffMs <= 0) {
-      clearInterval(interval);
-      setTimeLeft("Expired");
-      fetchActiveReservation(); // refresh state automatically
-    } else {
-      const minutes = Math.floor(diffMs / 60000);
-      const seconds = Math.floor((diffMs % 60000) / 1000);
-      setTimeLeft(`${minutes}m ${seconds}s`);
-    }
-  }, 1000);
+    // Update the countdown every second
+    useEffect(() => {
+        if (!activeReservation?.expiresAt) {
+            setTimeLeft(null);
+            return;
+        }
 
-  return () => clearInterval(interval);
-}, [activeReservation]);
+        const interval = setInterval(() => {
+            const now = new Date();
+            const expiry = new Date(activeReservation.expiresAt);
+            const diffMs = expiry - now;
+
+            if (diffMs <= 0) {
+                clearInterval(interval);
+                setTimeLeft("Expired");
+                fetchActiveReservation(); // refresh state automatically
+            } else {
+                const minutes = Math.floor(diffMs / 60000);
+                const seconds = Math.floor((diffMs % 60000) / 1000);
+                setTimeLeft(`${minutes}m ${seconds}s`);
+            }
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [activeReservation]);
 
 // Function to check if user has an active reservation
 const fetchActiveReservation = async () => {
@@ -588,11 +574,18 @@ useEffect(() => {
           )}
 
                 
-                <Map onClickShowConfirmRental={onClickShowConfirmRental} activeBikeRental={activeBikeRental}
-                    onClickShowConfirmReturn={onClickShowConfirmReturn} stations={stations} 
-                    setStations={setStations} onClickShowConfirmReservation={handleShowReservation} 
-                    activeReservation={activeReservation}   onClickShowCancelReservation={() => setShowCancelReservationPopup(true)}
-                   // added reservation
+                <Map
+                    onClickShowConfirmRental={onClickShowConfirmRental}
+                    activeBikeRental={activeBikeRental}
+                    onClickShowConfirmReturn={onClickShowConfirmReturn}
+                    stations={stations}
+                    setStations={setStations}
+                    onClickShowConfirmReservation={handleShowReservation}
+                    activeReservation={activeReservation}
+                    onClickShowCancelReservation={() => setShowCancelReservationPopup(true)}
+                    toggleStationStatus={toggleStationStatus}
+                    userRole={role}
+                    rebalanceBike={rebalanceBike}
                 />
                                 {/* --- Available Bikes for Reservation --- */}
                                 <div style={{ marginTop: "20px" }}>
