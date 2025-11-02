@@ -1,8 +1,11 @@
 package com.soen343.tbd.application.dto;
 
+import com.soen343.tbd.domain.model.enums.BikeType;
+
 public class TripDetailsDTO {
     private Long tripId;
     private Long bikeId;
+    private BikeType bikeType;
     private Long userId;
     private Long startStationId;
     private Long endStationId;
@@ -16,7 +19,7 @@ public class TripDetailsDTO {
 
     public TripDetailsDTO(Long tripId, Long bikeId, Long userId, Long startStationId,
                           Long endStationId, String startTime, String endTime,
-                          String status, Long billId) {
+                          String status, Long billId, BikeType bikeType) {
         this.tripId = tripId;
         this.bikeId = bikeId;
         this.userId = userId;
@@ -26,6 +29,7 @@ public class TripDetailsDTO {
         this.endTime = endTime;
         this.status = status;
         this.billId = billId;
+        this.bikeType = bikeType;
     }
 
     public Long getTripId() {
@@ -98,6 +102,14 @@ public class TripDetailsDTO {
 
     public void setBillId(Long billId) {
         this.billId = billId;
+    }
+
+    public void setBikeType(BikeType bikeType) {
+        this.bikeType = bikeType;
+    }
+
+    public BikeType getBikeType() {
+        return bikeType;
     }
 }
 
