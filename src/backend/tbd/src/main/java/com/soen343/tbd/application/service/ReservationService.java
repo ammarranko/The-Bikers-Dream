@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.soen343.tbd.application.dto.StationDetailsDTO;
+import com.soen343.tbd.application.observer.StationSubject;
 import com.soen343.tbd.domain.model.Reservation;
 import com.soen343.tbd.domain.model.enums.BikeStatus;
 import com.soen343.tbd.domain.model.enums.ReservationStatus;
@@ -23,7 +25,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
-
 @Service
 public class ReservationService {
 
@@ -33,16 +34,21 @@ public class ReservationService {
     private final BikeRepository bikeRepository;
     private final UserRepository userRepository;
     private final StationRepository stationRepository;
-
+    private final StationService stationService;
+    private final StationSubject stationPublisher;
 
     public ReservationService(ReservationRepository reservationRepository,
-                              BikeRepository bikeRepository,
-                              UserRepository userRepository,
-                              StationRepository stationRepository) {
+            BikeRepository bikeRepository,
+            UserRepository userRepository,
+            StationRepository stationRepository,
+            StationSubject stationPublisher,
+            StationService stationService) {
         this.reservationRepository = reservationRepository;
         this.bikeRepository = bikeRepository;
         this.userRepository = userRepository;
         this.stationRepository = stationRepository;
+        this.stationService = stationService;
+        this.stationPublisher = stationPublisher;
     }
 
     // -------------------------
@@ -50,43 +56,39 @@ public class ReservationService {
     // -------------------------
     @Transactional
     public Reservation createReservation(BikeId bikeId, StationId stationId, UserId userId) {
-        logger.info("Starting reservation creation for BikeId={}, StationId={}, UserId={}", 
-                    bikeId.value(), stationId.value(), userId.value());
-       
-       try {
-         // Check if user already has an active reservation
-        if (reservationRepository.checkActiveReservationByUserId(userId).isPresent()) {
-            throw new RuntimeException("User already has an active reservation");
-        }
-       } catch (Exception e) {
+        logger.info("Starting reservation creation for BikeId={}, StationId={}, UserId={}",
+                bikeId.value(), stationId.value(), userId.value());
+
+        try {
+            // Check if user already has an active reservation
+            if (reservationRepository.checkActiveReservationByUserId(userId).isPresent()) {
+                throw new RuntimeException("User already has an active reservation");
+            }
+        } catch (Exception e) {
             logger.error("New reservation unable to be created...", e.getMessage());
             throw new RuntimeException("Failed to create reservation", e);
-       }
-
+        }
 
         // Fetch entities
         Bike selectedBike = bikeRepository.findById(bikeId)
-            .orElseThrow(() -> new RuntimeException("Bike not found: " + bikeId.value()));
+                .orElseThrow(() -> new RuntimeException("Bike not found: " + bikeId.value()));
         Station selectedStation = stationRepository.findById(stationId)
-            .orElseThrow(() -> new RuntimeException("Station not found: " + stationId.value()));
-        
+                .orElseThrow(() -> new RuntimeException("Station not found: " + stationId.value()));
+
         logger.info("Found bike: {}, station: {}",
                 selectedBike.getBikeId().value(),
                 selectedStation.getStationId().value());
-    
-         // Update bike status
-        selectedBike.setStatus(BikeStatus.RESERVED);
-        bikeRepository.save(selectedBike);  
-        Reservation newReservation= null;
+
+        Reservation newReservation = null;
 
         // Create and save reservation
         try {
             Timestamp reservedAt = Timestamp.from(Instant.now());
             Timestamp expiresAt = Timestamp.from(Instant.now().plus(5, ChronoUnit.MINUTES));
 
-        // Create reservation using domain constructor
-        newReservation = new Reservation(bikeId, stationId, userId, reservedAt, expiresAt);
-newReservation.setStatus(ReservationStatus.ACTIVE);
+            // Create reservation using domain constructor
+            newReservation = new Reservation(bikeId, stationId, userId, reservedAt, expiresAt);
+            newReservation.setStatus(ReservationStatus.ACTIVE);
 
             // Update bike status to RESERVED
             selectedBike.setStatus(BikeStatus.RESERVED);
@@ -97,7 +99,10 @@ newReservation.setStatus(ReservationStatus.ACTIVE);
 
             // Retrieve saved reservation
             newReservation = reservationRepository.checkActiveReservationByUserId(userId)
-                                .orElse(null);
+                    .orElse(null);
+
+            // Notify all observers about station update
+            notifyAllUsers(selectedStation.getStationId());
         } catch (Exception e) {
             logger.warn("Reservation creation failed: {}", e.getMessage());
         }
@@ -147,9 +152,13 @@ newReservation.setStatus(ReservationStatus.ACTIVE);
 
             // Update bike status
             Bike bike = bikeRepository.findById(cancelReservation.getBikeId())
-                        .orElseThrow(() -> new RuntimeException("Bike not found: " + cancelReservation.getBikeId().value()));
+                    .orElseThrow(
+                            () -> new RuntimeException("Bike not found: " + cancelReservation.getBikeId().value()));
             bike.setStatus(BikeStatus.AVAILABLE);
             bikeRepository.save(bike);
+
+            // Notify
+            // notifyAllUsers(selectedStation.getStationId());
 
             logger.info("Reservation {} cancelled successfully", reservationId.value());
         } catch (Exception e) {
@@ -178,4 +187,15 @@ newReservation.setStatus(ReservationStatus.ACTIVE);
             logger.info("Reservation {} expired, bike set to AVAILABLE", reservationId.value());
         }
     }
+
+    private void notifyAllUsers(StationId stationId) {
+        try {
+            stationService.getStationWithDetails(stationId.value())
+                    .ifPresent(stationPublisher::notifyObservers);
+            logger.debug("Notified all users about station update: {}", stationId.value());
+        } catch (Exception e) {
+            logger.warn("Failed to notify users for station: {}", stationId.value(), e);
+        }
+    }
+
 }
