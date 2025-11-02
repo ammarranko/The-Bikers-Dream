@@ -1,5 +1,6 @@
 package com.soen343.tbd.infrastructure.persistence.adapter;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
@@ -41,6 +42,20 @@ public class TripRepositoryAdapter implements TripRepository {
     public Optional<Trip> findById(TripId tripId) {
         return jpaTripRepository.findById(tripId.value())
                 .map(tripMapper::toDomain);
+    }
+
+    @Override
+    public Optional<Trip> findByTripIdAndEmail(TripId tripId, String email) {
+        return jpaTripRepository.findByTripIdAndUser_Email(tripId.value(), email)
+                .map(tripMapper::toDomain);
+    }
+
+    @Override
+    public List<Trip> findTripByEmail(String email) {
+        return jpaTripRepository.findByUser_Email(email)
+                .stream()
+                .map(tripMapper::toDomain)
+                .collect(java.util.stream.Collectors.toList());
     }
 
     @Override
