@@ -58,7 +58,7 @@ function StationMarker({ station, onClickShowConfirmRental, activeBikeRental, on
                                 <p style={{ margin: "0.3em" }}>
                                 Bike ID: {selectedDock.bike?.bikeId || "None"}
                                 <br />
-                                Status: {selectedDock.bike?.status || "EMPTY"}
+                                Bike Status: {selectedDock.bike?.status || "EMPTY"}
                                 </p>
                             </div>
                             
