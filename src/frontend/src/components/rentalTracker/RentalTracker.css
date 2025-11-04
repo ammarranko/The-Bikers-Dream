@@ -1,0 +1,45 @@
+.rental-tracker {
+    padding: 20px;
+    border-radius: 15px;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.rental-tracker h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+}
+
+.no-rental {
+    background: linear-gradient(to bottom right, #f8f9fa, #e9ecef);
+}
+
+.no-rental p {
+    color: #6c757d;
+    margin: 10px 0;
+}
+
+.active-rental {
+    background: linear-gradient(to bottom right, #e3f2fd, #bbdefb);
+}
+
+.rental-info {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 15px;
+    border-radius: 10px;
+    margin: 15px 0;
+}
+
+.rental-info p {
+    margin: 8px 0;
+    color: #2c3e50;
+}
+
+.helper-text {
+    font-size: 0.9em;
+    color: #5c6b7a;
+    font-style: italic;
+    margin-top: 15px;
+}

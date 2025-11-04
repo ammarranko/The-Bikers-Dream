@@ -1,0 +1,107 @@
+.nav-sidebar {
+    position: fixed;
+    left: -250px;
+    top: 0;
+    width: 250px;
+    height: 100vh;
+    background: #2c3e50;
+    color: white;
+    transition: 0.3s ease-in-out;
+    z-index: 2;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+}
+
+.nav-sidebar.open {
+    left: 0;
+}
+
+.nav-toggle {
+    position: fixed;
+    left: 20px;
+    top: 15px;
+    z-index: 3;
+    background: #2c3e50;
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.nav-toggle:hover {
+    background: #34495e;
+}
+
+.nav-content {
+    padding: 60px 20px 20px;
+}
+
+.nav-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav-item {
+    padding: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: 0.2s;
+    border-radius: 8px;
+    margin-bottom: 5px;
+}
+
+.nav-item:hover {
+    background: #34495e;
+}
+
+.nav-item.active {
+    background: #3498db;
+}
+
+.nav-item i {
+    width: 20px;
+    text-align: center;
+}
+
+.user-profile {
+    padding: 20px;
+    border-top: 1px solid #34495e;
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #3498db;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.profile-name {
+    font-weight: bold;
+    margin: 0;
+}
+
+.profile-role {
+    font-size: 0.8em;
+    color: #bdc3c7;
+    margin: 0;
+}
