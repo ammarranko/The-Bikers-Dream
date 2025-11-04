@@ -16,9 +16,6 @@ public interface ReservationMapper {
     @Mapping(target = "bikeId", expression = "java(e.getBikeId() != null ? new BikeId(e.getBikeId()) : null)")
     @Mapping(target = "userId", expression = "java(e.getUserId() != null ? new UserId(e.getUserId()) : null)")
     @Mapping(target = "startStationId", expression = "java(e.getStartStationId() != null ? new StationId(e.getStartStationId()) : null)")
-    @Mapping(target = "reservedAt", source = "reservedAt")
-    @Mapping(target = "expiresAt", source = "expiresAt")
-    @Mapping(target = "status", source = "status")
     Reservation toDomain(ReservationEntity e);
 
     // ---------------------------
@@ -31,8 +28,5 @@ public interface ReservationMapper {
     @Mapping(target = "bike", ignore = true)          // will be set in service layer
     @Mapping(target = "user", ignore = true)          // will be set in service layer
     @Mapping(target = "startStation", ignore = true)  // will be set in service layer
-    @Mapping(target = "reservedAt", source = "reservedAt")
-    @Mapping(target = "expiresAt", source = "expiresAt")
-    @Mapping(target = "status", source = "status")
     ReservationEntity toEntity(Reservation d);
 }

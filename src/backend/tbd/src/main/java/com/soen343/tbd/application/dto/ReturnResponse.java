@@ -7,32 +7,38 @@ public class ReturnResponse {
     private Long tripId;
     private Long bikeId;
     private Long userId;
+    private String  userFullName;
+    private String userEmail;
     private String startStationName;
     private String endStationName;
     private Timestamp startTime;
     private Timestamp endTime;
-    private Double durationMinutes;
+    private Long durationMinutes;
 
     // Bill information
     private Long billId;
+    private String pricingStrategy;
     private Double baseFare;
     private Double perMinuteRate;
     private Double totalAmount;
 
-    public ReturnResponse(Long tripId, Long bikeId, Long userId,
+    public ReturnResponse(Long tripId, Long bikeId, Long userId, String userFullName, String userEmail,
                          String startStationName, String endStationName,
-                         Timestamp startTime, Timestamp endTime, Double durationMinutes,
-                         Long billId, Double baseFare, Double perMinuteRate,
+                         Timestamp startTime, Timestamp endTime, Long durationMinutes,
+                         Long billId, String pricingStrategy, Double baseFare, Double perMinuteRate,
                          Double totalAmount) {
         this.tripId = tripId;
         this.bikeId = bikeId;
         this.userId = userId;
+        this.userFullName = userFullName;
+        this.userEmail = userEmail;
         this.startStationName = startStationName;
         this.endStationName = endStationName;
         this.startTime = startTime;
         this.endTime = endTime;
         this.durationMinutes = durationMinutes;
         this.billId = billId;
+        this.pricingStrategy = pricingStrategy;
         this.baseFare = baseFare;
         this.perMinuteRate = perMinuteRate;
         this.totalAmount = totalAmount;
@@ -60,6 +66,22 @@ public class ReturnResponse {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getUserFullName() {
+        return userFullName;
+    }
+
+    public void setUserFullName(String userFullName) {
+        this.userFullName = userFullName;
+    }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 
     public String getStartStationName() {
@@ -94,11 +116,11 @@ public class ReturnResponse {
         this.endTime = endTime;
     }
 
-    public Double getDurationMinutes() {
+    public Long getDurationMinutes() {
         return durationMinutes;
     }
 
-    public void setDurationMinutes(Double durationMinutes) {
+    public void setDurationMinutes(Long durationMinutes) {
         this.durationMinutes = durationMinutes;
     }
 
@@ -108,6 +130,14 @@ public class ReturnResponse {
 
     public void setBillId(Long billId) {
         this.billId = billId;
+    }
+
+    public String getPricingStrategy() {
+        return pricingStrategy;
+    }
+
+    public void setPricingStrategy(String pricingStrategy) {
+        this.pricingStrategy = pricingStrategy;
     }
 
     public Double getBaseFare() {

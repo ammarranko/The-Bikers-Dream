@@ -2,6 +2,7 @@ package com.soen343.tbd.application.controller;
 
 import java.util.Map;
 
+import com.soen343.tbd.domain.model.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,16 +131,23 @@ public class TripController {
         // Use Trip's calculateDurationInMinutes method
         double durationMinutes = trip.calculateDurationInMinutes();
 
+        User user = userService.getUserById(trip.getUserId());
+        String userFullName = user.getFullName();
+        String userEmail = user.getEmail();
+
         return new ReturnResponse(
                 trip.getTripId().value(),
                 trip.getBikeId().value(),
                 trip.getUserId().value(),
+                userFullName,
+                userEmail,
                 startStationName,
                 endStationName,
                 trip.getStartTime(),
                 trip.getEndTime(),
-                durationMinutes,
+                Math.round(durationMinutes),
                 bill.getBillId().value(),
+                pricingStrategy.getPricingTypeName(),
                 pricingStrategy.getBaseFee(),
                 pricingStrategy.getPerMinuteRate(),
                 bill.getCost()

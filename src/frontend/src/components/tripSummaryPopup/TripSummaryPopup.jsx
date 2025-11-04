@@ -17,13 +17,13 @@ const TripSummaryPopup = ({ tripSummary, onClose }) => {
                     </div>
 
                     <div className="trip-summary-row">
-                        <span className="trip-summary-label">Trip ID</span>
-                        <span className="trip-summary-value">#{tripSummary.tripId}</span>
+                        <span className="trip-summary-label">Rider Name</span>
+                        <span className="trip-summary-value">{tripSummary.userFullName}</span>
                     </div>
 
                     <div className="trip-summary-row">
-                        <span className="trip-summary-label">Bike ID</span>
-                        <span className="trip-summary-value">#{tripSummary.bikeId}</span>
+                        <span className="trip-summary-label">Email</span>
+                        <span className="trip-summary-value">{tripSummary.userEmail}</span>
                     </div>
 
                     <div className="divider"></div>
@@ -52,6 +52,11 @@ const TripSummaryPopup = ({ tripSummary, onClose }) => {
                     <div className="trip-summary-row">
                         <span className="trip-summary-label">Bill ID</span>
                         <span className="trip-summary-value">#{tripSummary.billId}</span>
+                    </div>
+
+                    <div className="trip-summary-row">
+                        <span className="trip-summary-label">Pricing Type</span>
+                        <span className="trip-summary-value">{tripSummary.pricingStrategy}</span>
                     </div>
 
                     <div className="divider"></div>

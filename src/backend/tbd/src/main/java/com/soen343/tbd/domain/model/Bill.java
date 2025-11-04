@@ -1,17 +1,16 @@
 package com.soen343.tbd.domain.model;
 
-import java.sql.Timestamp;
-
+import com.soen343.tbd.domain.model.enums.BillStatus;
 import com.soen343.tbd.domain.model.ids.BillId;
 import com.soen343.tbd.domain.model.ids.TripId;
 import com.soen343.tbd.domain.model.ids.UserId;
-import com.soen343.tbd.domain.model.pricing.PricingStrategy;
 
 public class Bill {
     private BillId billId;
     private Double cost;
     private TripId tripId;
     private UserId userId;
+    private BillStatus status;
 
     // Constructor computes cost automatically based on Trip duration and pricing strategy
     public Bill(Trip trip) {
@@ -19,6 +18,7 @@ public class Bill {
         this.tripId = trip.getTripId();
         this.userId = trip.getUserId();
         this.cost = calculateCost(trip);
+        this.status = BillStatus.PENDING;
     }
 
     // Default constructor for mapper
@@ -37,14 +37,46 @@ public class Bill {
       GETTERS AND SETTERS 
     -----------------------
     */
-    public BillId getBillId() { return billId; }
-    public void setBillId(BillId billId) { this.billId = billId; }
-    public Double getCost() { return cost; }
-    public void setCost(Double cost) { this.cost = cost; }
-    public TripId getTripId() { return tripId; }
-    public void setTripId(TripId tripId) { this.tripId = tripId; }
-    public UserId getUserId() { return userId; }
-    public void setUserId(UserId userId) { this.userId = userId; }
+
+    public BillId getBillId() {
+        return billId;
+    }
+
+    public void setBillId(BillId billId) {
+        this.billId = billId;
+    }
+
+    public Double getCost() {
+        return cost;
+    }
+
+    public void setCost(Double cost) {
+        this.cost = cost;
+    }
+
+    public TripId getTripId() {
+        return tripId;
+    }
+
+    public void setTripId(TripId tripId) {
+        this.tripId = tripId;
+    }
+
+    public UserId getUserId() {
+        return userId;
+    }
+
+    public void setUserId(UserId userId) {
+        this.userId = userId;
+    }
+
+    public BillStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(BillStatus status) {
+        this.status = status;
+    }
 }
 
 

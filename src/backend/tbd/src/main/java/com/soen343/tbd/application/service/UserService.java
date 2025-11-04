@@ -30,4 +30,9 @@ public class UserService {
         return userRepository.findByEmail(userEmail)
             .orElseThrow(() -> new RuntimeException("No user found with email: " + userEmail));
     }
+
+    public User getUserById(UserId userId){
+        return userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("No user found with id: " + userId.value()));
+    }
 }

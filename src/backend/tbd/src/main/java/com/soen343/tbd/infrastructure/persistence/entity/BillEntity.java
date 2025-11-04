@@ -20,6 +20,9 @@ public class BillEntity {
     @Column(name = "user_id", insertable = false, updatable = false)
     private Long userId;
 
+    @Column(name = "status")
+    private String status;
+
     // Relationship entities (lazy loaded only when explicitly accessed)
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trip_id")
@@ -66,6 +69,14 @@ public class BillEntity {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     // Relationship entity getters (may trigger lazy loading)

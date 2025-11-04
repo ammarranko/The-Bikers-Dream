@@ -4,4 +4,5 @@ public interface PricingStrategy {
     double calculateCost(double durationInMinutes);
     double getBaseFee();
     double getPerMinuteRate();
+    String getPricingTypeName();
 }
