@@ -13,9 +13,9 @@ public interface ReservationMapper {
     // Entity → Domain
     // ---------------------------
     @Mapping(target = "reservationId", expression = "java(e.getReservationId() != null ? new ReservationId(e.getReservationId()) : null)")
-    @Mapping(target = "bikeId", expression = "java(e.getBike() != null && e.getBike().getBikeId() != null ? new BikeId(e.getBike().getBikeId()) : null)")
-    @Mapping(target = "userId", expression = "java(e.getUser() != null && e.getUser().getUserId() != null ? new UserId(e.getUser().getUserId()) : null)")
-    @Mapping(target = "startStationId", expression = "java(e.getStartStation() != null && e.getStartStation().getStationId() != null ? new StationId(e.getStartStation().getStationId()) : null)")
+    @Mapping(target = "bikeId", expression = "java(e.getBikeId() != null ? new BikeId(e.getBikeId()) : null)")
+    @Mapping(target = "userId", expression = "java(e.getUserId() != null ? new UserId(e.getUserId()) : null)")
+    @Mapping(target = "startStationId", expression = "java(e.getStartStationId() != null ? new StationId(e.getStartStationId()) : null)")
     @Mapping(target = "reservedAt", source = "reservedAt")
     @Mapping(target = "expiresAt", source = "expiresAt")
     @Mapping(target = "status", source = "status")
@@ -25,6 +25,9 @@ public interface ReservationMapper {
     // Domain → Entity
     // ---------------------------
     @Mapping(target = "reservationId", expression = "java(d.getReservationId() != null ? d.getReservationId().value() : null)")
+    @Mapping(target = "bikeId", expression = "java(d.getBikeId() != null ? d.getBikeId().value() : null)")
+    @Mapping(target = "userId", expression = "java(d.getUserId() != null ? d.getUserId().value() : null)")
+    @Mapping(target = "startStationId", expression = "java(d.getStartStationId() != null ? d.getStartStationId().value() : null)")
     @Mapping(target = "bike", ignore = true)          // will be set in service layer
     @Mapping(target = "user", ignore = true)          // will be set in service layer
     @Mapping(target = "startStation", ignore = true)  // will be set in service layer

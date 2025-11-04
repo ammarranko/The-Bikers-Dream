@@ -14,15 +14,26 @@ public class ReservationEntity {
     @Column(name = "reservation_id")
     private Long reservationId;
 
-    @ManyToOne
+    // Direct ID columns to avoid lazy loading
+    @Column(name = "bike_id", insertable = false, updatable = false)
+    private Long bikeId;
+
+    @Column(name = "start_station_id", insertable = false, updatable = false)
+    private Long startStationId;
+
+    @Column(name = "user_id", insertable = false, updatable = false)
+    private Long userId;
+
+    // Relationship entities (lazy loaded only when explicitly accessed)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bike_id")
     private BikeEntity bike;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "start_station_id")
     private StationEntity startStation;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
@@ -46,6 +57,17 @@ public class ReservationEntity {
     public Long getReservationId() { return reservationId; }
     public void setReservationId(Long reservationId) { this.reservationId = reservationId; }
 
+    // Direct ID getters (no lazy loading)
+    public Long getBikeId() { return bikeId; }
+    public void setBikeId(Long bikeId) { this.bikeId = bikeId; }
+
+    public Long getStartStationId() { return startStationId; }
+    public void setStartStationId(Long startStationId) { this.startStationId = startStationId; }
+
+    public Long getUserId() { return userId; }
+    public void setUserId(Long userId) { this.userId = userId; }
+
+    // Relationship entity getters (may trigger lazy loading)
     public BikeEntity getBike() { return bike; }
     public void setBike(BikeEntity bike) { this.bike = bike; }
 

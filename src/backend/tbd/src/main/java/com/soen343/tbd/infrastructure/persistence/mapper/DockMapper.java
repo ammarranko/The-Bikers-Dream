@@ -12,11 +12,12 @@ public interface DockMapper {
 
     // Entity to Domain
     @Mapping(target = "dockId", expression = "java(new DockId(e.getDockId()))")
-    @Mapping(target = "stationId", expression = "java(e.getStation() != null ? new StationId(e.getStation().getStationId()) : null)")
+    @Mapping(target = "stationId", expression = "java(e.getStationId() != null ? new StationId(e.getStationId()) : null)")
     Dock toDomain(DockEntity e);
 
     // Domain to Entity - station relationship is handled separately in the adapter
     @Mapping(target = "dockId", expression = "java(d.getDockId() != null ? d.getDockId().value() : null)")
+    @Mapping(target = "stationId", expression = "java(d.getStationId() != null ? d.getStationId().value() : null)")
     @Mapping(target = "station", ignore = true)
     DockEntity toEntity(Dock d);
 }
