@@ -101,29 +101,30 @@ public class ReservationService {
             bikeRepository.save(selectedBike);
 
             reservationRepository.save(newReservation);
+
             logger.info("Reservation created successfully: ReservationId={}", newReservation.getReservationId());
 
             // Retrieve saved reservation
             newReservation = reservationRepository.checkActiveReservationByUserId(userId)
                     .orElse(null);
-
+            
             // Create event for reservation creation
             eventService.createEventForEntity(
-                    EntityType.RESERVATION,
-                    newReservation.getReservationId().value(),
-                    "Reservation created",
-                    EntityStatus.NONE,
-                    EntityStatus.RES_ACTIVE,
-                    "System");
+                EntityType.RESERVATION,
+                newReservation.getReservationId().value(),
+                "Reservation created",
+                EntityStatus.NONE,
+                EntityStatus.RES_ACTIVE,
+                "System");
             
             // Create event for bike status change
             eventService.createEventForEntity(
-                    EntityType.BIKE,
-                    selectedBike.getBikeId().value(),
-                    "Bike reserved",
-                    EntityStatus.AVAILABLE,
-                    EntityStatus.RESERVED,
-                    "System");
+                EntityType.BIKE,
+                selectedBike.getBikeId().value(),
+                "Bike reserved",
+                EntityStatus.AVAILABLE,
+                EntityStatus.RESERVED,
+                "System");
 
             // Notify all observers about station update
             notifyAllUsers(selectedStation.getStationId());

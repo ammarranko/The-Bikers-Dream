@@ -7,7 +7,7 @@ import com.soen343.tbd.domain.model.helpers.Event;
 import com.soen343.tbd.infrastructure.persistence.entity.EventEntity;
 import com.soen343.tbd.domain.model.ids.EventId;
 
-@Mapper(componentModel = "spring", uses = { EventId.class })
+@Mapper(componentModel = "spring", imports = { EventId.class })
 public interface EventMapper {
     // Entity to Domain
     @Mapping(target = "eventId", expression = "java(new EventId(e.getEventId()))")

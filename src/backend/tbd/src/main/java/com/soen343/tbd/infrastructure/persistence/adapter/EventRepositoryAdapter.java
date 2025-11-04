@@ -3,7 +3,9 @@ package com.soen343.tbd.infrastructure.persistence.adapter;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.soen343.tbd.domain.model.enums.EntityType;
 import com.soen343.tbd.domain.model.helpers.Event;
@@ -14,10 +16,14 @@ import com.soen343.tbd.infrastructure.persistence.repository.JpaEventRepository;
 
 @Repository
 public class EventRepositoryAdapter  implements EventRepository{
+    @Autowired
     JpaEventRepository jpaEventRepository;
+
+    @Autowired
     EventMapper eventMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public List<Event> findEventsByEntityType(EntityType entityType) {
         return jpaEventRepository.findAllByEntityType(entityType)
                 .stream()
@@ -26,6 +32,7 @@ public class EventRepositoryAdapter  implements EventRepository{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Event> findEventsByEntityId(Long entityId) {
         return jpaEventRepository.findAllByEntityId(entityId)
                 .stream()
@@ -41,6 +48,7 @@ public class EventRepositoryAdapter  implements EventRepository{
 
     @Override
     public void save(Event event) {
-        jpaEventRepository.save(eventMapper.toEntity(event));
+        var eventEntity = eventMapper.toEntity(event);
+        jpaEventRepository.save(eventEntity);
     }
 }
