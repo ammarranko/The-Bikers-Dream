@@ -1,6 +1,6 @@
 import './App.css';
 import Auth from './pages/auth/Auth.jsx';
-import Home from './pages/home/home.jsx';
+import Home from './pages/home/Home.jsx';
 import ProtectedRoute from './ProtectedRoute.jsx';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Pricing from './pages/pricing/Pricing.jsx';

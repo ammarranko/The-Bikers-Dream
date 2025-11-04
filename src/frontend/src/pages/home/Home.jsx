@@ -4,6 +4,7 @@ import axios from 'axios';
 import Map from '../../components/Map'
 import ConfirmationPopup from "../../components/confirmationPopup/ConfirmationPopup";
 import EventPopup from "../../components/eventPopup/EventPopup"
+import TripSummaryPopup from "../../components/tripSummaryPopup/TripSummaryPopup";
 
 const Home = () => {
     const navigate = useNavigate();
@@ -43,6 +44,9 @@ const Home = () => {
 
     // State to track the event popup window for returns
     const [returnSuccessPopup, setReturnSuccessPopup] = useState(false);
+
+    // State to track trip summary data for the popup
+    const [tripSummaryData, setTripSummaryData] = useState(null);
 
     // State to track the event popup window for rentals
     const [rentalSuccessPopup, setRentalSuccessPopup] = useState(false);
@@ -289,9 +293,39 @@ const fetchActiveReservation = async () => {
             reservationId: response.data.reservationId
         });
             setReservationSuccessPopup(true); // Show the reservation success popup
-              // 🔄 Refresh station data so the button color updates right away
-            await fetchStations();  
-              // ✅ Close confirmation popup
+
+            // Update frontend state instead of fetching all stations
+            setStations(prevStations => {
+                // Find the specific station
+                const stationIndex = prevStations.findIndex(s => s.stationId === stationId);
+                if (stationIndex === -1) return prevStations; // Station not found
+
+                const updatedStations = [...prevStations];
+                const station = updatedStations[stationIndex];
+
+                // Update the bike in the specific dock
+                const updatedDocks = station.docks?.map(d => {
+                    if (d.bike?.bikeId === bikeId) {
+                        return {
+                            ...d,
+                            bike: {
+                                ...d.bike,
+                                status: 'RESERVED',
+                                reservationExpiry: response.data.expiresAt
+                            }
+                        };
+                    }
+                    return d;
+                }) || station.docks;
+
+                updatedStations[stationIndex] = {
+                    ...station,
+                    docks: updatedDocks
+                };
+
+                return updatedStations;
+            });
+
             setConfirmReservation({ active: false, bike: null, station: null });
 
         }
@@ -326,6 +360,10 @@ const handleCancelActiveReservation = async () => {
       { reservationId }  // make sure this is a number
     );
 
+    // Store bikeId and stationId before clearing state
+    const cancelledBikeId = activeReservation.bikeId;
+    const cancelledStationId = activeReservation.stationId;
+
     // Update frontend state
     setActiveReservation({
       hasActiveReservation: false,
@@ -337,8 +375,37 @@ const handleCancelActiveReservation = async () => {
     // Clear timer
     setTimeLeft(null);
 
-    // Refresh station data immediately
-    await fetchStations();
+    // Update frontend state instead of fetching all stations
+    setStations(prevStations => {
+        // Find the specific station
+        const stationIndex = prevStations.findIndex(s => s.stationId === cancelledStationId);
+        if (stationIndex === -1) return prevStations; // Station not found
+
+        const updatedStations = [...prevStations];
+        const station = updatedStations[stationIndex];
+
+        // Update the bike in the specific dock
+        const updatedDocks = station.docks?.map(d => {
+            if (d.bike?.bikeId === cancelledBikeId) {
+                return {
+                    ...d,
+                    bike: {
+                        ...d.bike,
+                        status: 'AVAILABLE',
+                        reservationExpiry: null
+                    }
+                };
+            }
+            return d;
+        }) || station.docks;
+
+        updatedStations[stationIndex] = {
+            ...station,
+            docks: updatedDocks
+        };
+
+        return updatedStations;
+    });
 
     alert("Reservation cancelled successfully.");
   } catch (error) {
@@ -453,7 +520,32 @@ if (activeReservation.hasActiveReservation && activeReservation.bikeId === bikeI
                 dock,
                 station
             });
-            fetchStations();
+
+            // Update frontend state instead of fetching all stations
+            setStations(prevStations => {
+                // Find the specific station
+                const stationIndex = prevStations.findIndex(s => s.stationId === stationId);
+                if (stationIndex === -1) return prevStations; // Station not found
+
+                const updatedStations = [...prevStations];
+                const station = updatedStations[stationIndex];
+
+                // Update the specific dock
+                const updatedDocks = station.docks?.map(d => {
+                    if (d.dockId === dockId) {
+                        return { ...d, status: 'EMPTY', bike: null };
+                    }
+                    return d;
+                }) || station.docks;
+
+                updatedStations[stationIndex] = {
+                    ...station,
+                    numberOfBikesDocked: station.numberOfBikesDocked - 1,
+                    docks: updatedDocks
+                };
+
+                return updatedStations;
+            });
         } catch (error) {
             console.error("Full error object:", error);
             console.error("Error response:", error.response);
@@ -508,6 +600,7 @@ if (activeReservation.hasActiveReservation && activeReservation.bikeId === bikeI
 
     const handleCancelEventReturn = () => {
         setReturnSuccessPopup(false);
+        setTripSummaryData(null);
     };
 
     const handleConfirmReturn = async () => {
@@ -526,6 +619,9 @@ if (activeReservation.hasActiveReservation && activeReservation.bikeId === bikeI
             });
             console.log("Received return bike response with data: ", response.data)
 
+            // Store the trip summary data from the response
+            setTripSummaryData(response.data);
+
             setConfirmReturn({
                 active: false,
                 dock: null,
@@ -542,22 +638,48 @@ if (activeReservation.hasActiveReservation && activeReservation.bikeId === bikeI
                 dock: null,
                 station: null
             });
-    
-    await fetchStations();
 
-    // Reset reservation state so new reservations can be made
-      setActiveReservation({
-        hasActiveReservation: false,
-        bikeId: null,
-        stationId: null,
-        expiresAt: null,
-        reservationId: null
-    });
-    setReservationSuccessPopup(false);
-    setTimeLeft(null);
+            // Reset reservation state so new reservations can be made
+            setActiveReservation({
+                hasActiveReservation: false,
+                bikeId: null,
+                stationId: null,
+                expiresAt: null,
+                reservationId: null
+            });
+            setReservationSuccessPopup(false);
+            setTimeLeft(null);
 
-        // Refresh stations
-           // fetchStations();
+            // Update frontend state instead of fetching all stations
+            setStations(prevStations => {
+                // Find the specific station
+                const stationIndex = prevStations.findIndex(s => s.stationId === stationId);
+                if (stationIndex === -1) return prevStations; // Station not found
+
+                const updatedStations = [...prevStations];
+                const station = updatedStations[stationIndex];
+
+                // Update the specific dock
+                const updatedDocks = station.docks?.map(d => {
+                    if (d.dockId === dockId) {
+                        const returnedBike = {
+                            bikeId: bikeId,
+                            dockId: dockId,
+                            isRented: false
+                        };
+                        return { ...d, status: 'OCCUPIED', bike: returnedBike };
+                    }
+                    return d;
+                }) || station.docks;
+
+                updatedStations[stationIndex] = {
+                    ...station,
+                    numberOfBikesDocked: station.numberOfBikesDocked + 1,
+                    docks: updatedDocks
+                };
+
+                return updatedStations;
+            });
         } catch (error) {
             console.error("Full error object:", error);
             console.error("Error response:", error.response);
@@ -672,10 +794,10 @@ if (activeReservation.hasActiveReservation && activeReservation.bikeId === bikeI
                     />
                 )}
 
-                {returnSuccessPopup && (
-                    <EventPopup
-                        message={`Bike Return Successful! 🔙🚲`}
-                        onCancel={handleCancelEventReturn}
+                {returnSuccessPopup && tripSummaryData && (
+                    <TripSummaryPopup
+                        tripSummary={tripSummaryData}
+                        onClose={handleCancelEventReturn}
                     />
                 )}
 

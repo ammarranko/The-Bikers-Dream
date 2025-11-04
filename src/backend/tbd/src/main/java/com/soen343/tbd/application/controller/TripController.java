@@ -1,13 +1,11 @@
 package com.soen343.tbd.application.controller;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,14 +16,17 @@ import com.soen343.tbd.application.dto.CheckRentalResponse;
 import com.soen343.tbd.application.dto.RentRequest;
 import com.soen343.tbd.application.dto.RentResponse;
 import com.soen343.tbd.application.dto.ReturnRequest;
+import com.soen343.tbd.application.dto.ReturnResponse;
 import com.soen343.tbd.application.service.TripService;
 import com.soen343.tbd.application.service.UserService;
+import com.soen343.tbd.domain.model.Bill;
 import com.soen343.tbd.domain.model.Trip;
 import com.soen343.tbd.domain.model.ids.BikeId;
 import com.soen343.tbd.domain.model.ids.DockId;
 import com.soen343.tbd.domain.model.ids.StationId;
 import com.soen343.tbd.domain.model.ids.TripId;
 import com.soen343.tbd.domain.model.ids.UserId;
+import com.soen343.tbd.domain.model.pricing.PricingStrategy;
 
 @RestController
 @RequestMapping("api/trips")
@@ -97,7 +98,7 @@ public class TripController {
     }
     
     @PostMapping("/return")
-    public ResponseEntity<String> returnBike(@RequestBody ReturnRequest request) {
+    public ResponseEntity<ReturnResponse> returnBike(@RequestBody ReturnRequest request) {
         logger.info("Received bike rental return request: TripId-{}, BikeId-{}, DockId-{}, User Email-{}, StationId-{}", 
             request.getTripId(), request.getBikeId(), request.getDockId(), request.getUserEmail(), request.getStationId());
         
@@ -108,14 +109,40 @@ public class TripController {
         StationId sId = new StationId(request.getStationId());
 
         try {
-            tripService.returnBikeService(tId, bId, dId, uId, sId);
+            ReturnResponse returnResponse = createReturnResponse(tripService.returnBikeService(tId, bId, dId, uId, sId));
 
             logger.info("Successfully Returned Bike with BikeId: {}", request.getBikeId());
-            return ResponseEntity.ok("Bike Returned successfully");
+            return ResponseEntity.ok(returnResponse);
         } catch (Exception e) {
             logger.warn("Bike unable to be returned, BikeId: {}", request.getBikeId());
             return ResponseEntity.notFound().build();
         }
     }
-    
+
+    private ReturnResponse createReturnResponse(Map<String, Object> response) {
+        // Extract data from the response map
+        Trip trip = (Trip) response.get("resultingTrip");
+        Bill bill = (Bill) response.get("resultingBill");
+        String startStationName = (String) response.get("startStationName");
+        String endStationName = (String) response.get("endStationName");
+        PricingStrategy pricingStrategy = (PricingStrategy) response.get("pricingStrategy");
+
+        // Use Trip's calculateDurationInMinutes method
+        double durationMinutes = trip.calculateDurationInMinutes();
+
+        return new ReturnResponse(
+                trip.getTripId().value(),
+                trip.getBikeId().value(),
+                trip.getUserId().value(),
+                startStationName,
+                endStationName,
+                trip.getStartTime(),
+                trip.getEndTime(),
+                durationMinutes,
+                bill.getBillId().value(),
+                pricingStrategy.getBaseFee(),
+                pricingStrategy.getPerMinuteRate(),
+                bill.getCost()
+        );
+    }
 }
