@@ -26,7 +26,7 @@ logging:
 #    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     com.zaxxer.hikari: INFO
     com.zaxxer.hikari.pool.HikariPool: WARN
-
+    
 server:
   error:
     include-message: always

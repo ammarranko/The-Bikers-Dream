@@ -38,20 +38,6 @@ public class DockRepositoryAdapter implements DockRepository {
                 .map(dockMapper::toDomain);
     }
 
-    // @Override
-    // public void save(Dock dock) {
-    //     DockEntity dockEntity = dockMapper.toEntity(dock);
-
-    //     // Set the station relationship if stationId is present
-    //     if (dock.getStationId() != null) {
-    //         StationEntity stationReference = entityManager.getReference(StationEntity.class, dock.getStationId().value());
-    //         dockEntity.setStation(stationReference);
-    //     }
-    //     logger.info("Station ID of dockEntity: {}", dockEntity.getStation().getStationId());
-    //     jpaDockRepository.save(dockEntity);
-    // }
-
-    //TEST CODE
     @Override
     public void save(Dock dock) {
         DockEntity existingDockEntity = jpaDockRepository.findById(dock.getDockId().value())

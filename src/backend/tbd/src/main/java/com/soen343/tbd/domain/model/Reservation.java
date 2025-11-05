@@ -18,13 +18,13 @@ public class Reservation {
     private ReservationStatus status;
 
     public Reservation(BikeId bikeId, StationId startStationId, UserId userId, Timestamp reservedAt, Timestamp expiresAt) {
-    this.bikeId = bikeId;
-    this.startStationId = startStationId;
-    this.userId = userId;
-    this.reservedAt = reservedAt;
-    this.expiresAt = expiresAt;
-    this.status = ReservationStatus.ACTIVE;
-}
+        this.bikeId = bikeId;
+        this.startStationId = startStationId;
+        this.userId = userId;
+        this.reservedAt = reservedAt;
+        this.expiresAt = expiresAt;
+        this.status = ReservationStatus.ACTIVE;
+    }
 
 
     // Constructor for new active reservation

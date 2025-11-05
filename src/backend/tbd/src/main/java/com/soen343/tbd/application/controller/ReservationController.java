@@ -2,6 +2,7 @@ package com.soen343.tbd.application.controller;
 
 import com.soen343.tbd.application.dto.ReservationRequest;
 import com.soen343.tbd.application.dto.ReservationResponse;
+import com.soen343.tbd.application.service.EventService;
 import com.soen343.tbd.application.service.ReservationService;
 import com.soen343.tbd.application.service.UserService;
 import com.soen343.tbd.domain.model.Reservation;
@@ -26,10 +27,12 @@ public class ReservationController {
 
     private final ReservationService reservationService;
     private final UserService userService;
+    private final EventService eventService;
 
-    public ReservationController(ReservationService reservationService, UserService userService) {
+    public ReservationController(ReservationService reservationService, UserService userService, EventService eventService) {
         this.reservationService = reservationService;
         this.userService = userService;
+        this.eventService = eventService;
     }
 
     // --- Create Reservation ---

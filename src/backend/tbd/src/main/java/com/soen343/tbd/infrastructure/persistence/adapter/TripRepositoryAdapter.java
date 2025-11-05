@@ -12,7 +12,6 @@ import com.soen343.tbd.domain.repository.TripRepository;
 import com.soen343.tbd.infrastructure.persistence.entity.BikeEntity;
 import com.soen343.tbd.infrastructure.persistence.entity.BillEntity;
 import com.soen343.tbd.infrastructure.persistence.entity.StationEntity;
-import com.soen343.tbd.infrastructure.persistence.entity.TripEntity;
 import com.soen343.tbd.infrastructure.persistence.entity.UserEntity;
 import com.soen343.tbd.infrastructure.persistence.mapper.TripMapper;
 import com.soen343.tbd.infrastructure.persistence.repository.JpaTripRepository;

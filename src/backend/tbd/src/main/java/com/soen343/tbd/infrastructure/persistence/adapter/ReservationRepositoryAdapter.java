@@ -5,7 +5,6 @@ import com.soen343.tbd.domain.model.ids.ReservationId;
 import com.soen343.tbd.domain.model.ids.UserId;
 import com.soen343.tbd.domain.repository.ReservationRepository;
 import com.soen343.tbd.infrastructure.persistence.entity.BikeEntity;
-import com.soen343.tbd.infrastructure.persistence.entity.ReservationEntity;
 import com.soen343.tbd.infrastructure.persistence.entity.UserEntity;
 import com.soen343.tbd.infrastructure.persistence.mapper.ReservationMapper;
 import com.soen343.tbd.infrastructure.persistence.repository.JpaReservationRepository;

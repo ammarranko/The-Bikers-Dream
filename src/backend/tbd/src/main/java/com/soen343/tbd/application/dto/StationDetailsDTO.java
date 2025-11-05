@@ -37,7 +37,7 @@ public class StationDetailsDTO {
     private String address;
     private int capacity;
     private int numberOfBikesDocked;
-    private List<DockWithBikeDTO> docks;
+    private final List<DockWithBikeDTO> docks;
 
     public StationDetailsDTO(Station station, List<Dock> docks, List<Bike> bikes) {
         this.stationId = station.getStationId().value();

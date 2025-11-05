@@ -7,6 +7,8 @@ import com.soen343.tbd.domain.repository.StationRepository;
 import com.soen343.tbd.domain.model.Bike;
 import com.soen343.tbd.domain.model.Dock;
 import com.soen343.tbd.domain.model.enums.DockStatus;
+import com.soen343.tbd.domain.model.enums.EntityStatus;
+import com.soen343.tbd.domain.model.enums.EntityType;
 import com.soen343.tbd.domain.model.ids.BikeId;
 import com.soen343.tbd.domain.model.ids.DockId;
 import com.soen343.tbd.domain.repository.BikeRepository;
@@ -28,11 +30,13 @@ public class OperatorService {
     private final StationRepository stationRepository;
     private final BikeRepository bikeRepository;
     private final DockRepository dockRepository;
-    
-    public OperatorService(BikeRepository bikeRepository, DockRepository dockRepository, StationRepository stationRepository) {
+    private final EventService eventService;
+
+    public OperatorService(BikeRepository bikeRepository, DockRepository dockRepository, StationRepository stationRepository, EventService eventService) {
         this.bikeRepository = bikeRepository;
         this.dockRepository = dockRepository;
         this.stationRepository = stationRepository;
+        this.eventService = eventService;
     }
 
     // allows operator toggle between active/outOFservice for station
@@ -40,6 +44,9 @@ public class OperatorService {
         // get station
         Station station = stationRepository.findById(stationId)
             .orElseThrow(() -> new RuntimeException("Station not found, ID: " + stationId.value()));
+
+        // Current status
+        StationStatus currentStatus = station.getStationStatus();
 
         switch (newStatus) {
             case ACTIVE:
@@ -54,6 +61,16 @@ public class OperatorService {
                 logger.warn("Not a station status: {}", newStatus);
                 throw new IllegalArgumentException("Not a station status: " + newStatus);
         }
+
+        // Create event for station status change
+        eventService.createEventForEntity(
+                EntityType.STATION,
+                station.getStationId().value(),
+                "Station status changed",
+                EntityStatus.fromSpecificStatus(currentStatus),
+                EntityStatus.fromSpecificStatus(newStatus),
+                "System"
+        );
 
         // save updated station
         stationRepository.save(station);
@@ -96,20 +113,78 @@ public class OperatorService {
         dockRepository.save(sourceDock);
         logger.info("Source dock {} empty", sourceDockId.value());
 
+        // Create event for dock status change - source dock
+        eventService.createEventForEntity(
+                EntityType.DOCK,
+                sourceDock.getDockId().value(),
+                "Dock status changed",
+                EntityStatus.OCCUPIED,
+                EntityStatus.EMPTY,
+                "System"
+        );
+
         // target dock occupied
         targetDock.setStatus(DockStatus.OCCUPIED);
         dockRepository.save(targetDock);
         logger.info("Target dock {} occupied", targetDockId.value());
 
+        // Create event for dock status change - target dock
+        eventService.createEventForEntity(
+                EntityType.DOCK,
+                targetDock.getDockId().value(),
+                "Dock status changed",
+                EntityStatus.EMPTY,
+                EntityStatus.OCCUPIED,
+                "System"
+        );
+
+        // decrease source station count
+
+        // Deterimine previous status for event logging
+        EntityStatus previousStatus = EntityStatus.fromSpecificStatus(sourceStation.getStationStatus());
+
+        sourceStation.decrementBikesDocked();
+        stationRepository.save(sourceStation);
+        logger.info("Source station {} bike count--", sourceStationId.value());
+
+        // Determine new status for event logging
+        EntityStatus newStatus = EntityStatus.fromSpecificStatus(sourceStation.getStationStatus());
+
+        // Only create event if status has changed
+        if (previousStatus != newStatus) {
+            // Create event for station bike count change - source station
+            eventService.createEventForEntity(
+                EntityType.STATION,
+                sourceStation.getStationId().value(),
+                "Station bike count changed",
+                previousStatus,
+                newStatus,
+                "System");
+        }
+
         // increase target station count
+
+        // Determine previous status for event logging
+        previousStatus = EntityStatus.fromSpecificStatus(targetStation.getStationStatus());
+
         targetStation.incrementBikesDocked();
         stationRepository.save(targetStation);
         logger.info("Target station {} bike count++", targetStationId.value());
 
-        // decrease source station count
-        sourceStation.decrementBikesDocked();
-        stationRepository.save(sourceStation);
-        logger.info("Source station {} bike count--", sourceStationId.value());
+        // Determine new status for event logging
+        newStatus = EntityStatus.fromSpecificStatus(targetStation.getStationStatus());
+
+        // Only create event if status has changed
+        if (previousStatus != newStatus) {
+            // Create event for station bike count change - target station
+            eventService.createEventForEntity(
+                EntityType.STATION,
+                targetStation.getStationId().value(),
+                "Station bike count changed",
+                previousStatus,
+                newStatus,
+                "System");
+        }
 
     }
 }

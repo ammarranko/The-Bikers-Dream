@@ -9,6 +9,8 @@ import com.soen343.tbd.application.dto.StationDetailsDTO;
 import com.soen343.tbd.application.observer.StationSubject;
 import com.soen343.tbd.domain.model.Reservation;
 import com.soen343.tbd.domain.model.enums.BikeStatus;
+import com.soen343.tbd.domain.model.enums.EntityStatus;
+import com.soen343.tbd.domain.model.enums.EntityType;
 import com.soen343.tbd.domain.model.enums.ReservationStatus;
 import com.soen343.tbd.domain.model.ids.BikeId;
 import com.soen343.tbd.domain.model.ids.StationId;
@@ -36,19 +38,22 @@ public class ReservationService {
     private final StationRepository stationRepository;
     private final StationService stationService;
     private final StationSubject stationPublisher;
+    private final EventService eventService;
 
     public ReservationService(ReservationRepository reservationRepository,
             BikeRepository bikeRepository,
             UserRepository userRepository,
             StationRepository stationRepository,
             StationSubject stationPublisher,
-            StationService stationService) {
+            StationService stationService,
+            EventService eventService) {
         this.reservationRepository = reservationRepository;
         this.bikeRepository = bikeRepository;
         this.userRepository = userRepository;
         this.stationRepository = stationRepository;
         this.stationService = stationService;
         this.stationPublisher = stationPublisher;
+        this.eventService = eventService;
     }
 
     // -------------------------
@@ -96,11 +101,30 @@ public class ReservationService {
             bikeRepository.save(selectedBike);
 
             reservationRepository.save(newReservation);
+
             logger.info("Reservation created successfully: ReservationId={}", newReservation.getReservationId());
 
             // Retrieve saved reservation
             newReservation = reservationRepository.checkActiveReservationByUserId(userId)
                     .orElse(null);
+            
+            // Create event for reservation creation
+            eventService.createEventForEntity(
+                EntityType.RESERVATION,
+                newReservation.getReservationId().value(),
+                "Reservation created",
+                EntityStatus.NONE,
+                EntityStatus.RES_ACTIVE,
+                "User_"+userId.value());
+            
+            // Create event for bike status change
+            eventService.createEventForEntity(
+                EntityType.BIKE,
+                selectedBike.getBikeId().value(),
+                "Bike reserved",
+                EntityStatus.AVAILABLE,
+                EntityStatus.RESERVED,
+                "User_"+userId.value());
 
             // Notify all observers about station update
             notifyAllUsers(selectedStation.getStationId());
@@ -157,6 +181,24 @@ public class ReservationService {
                             () -> new RuntimeException("Bike not found: " + cancelReservation.getBikeId().value()));
             bike.setStatus(BikeStatus.AVAILABLE);
             bikeRepository.save(bike);
+            
+            // Create event for reservation cancellation
+            eventService.createEventForEntity(
+                    EntityType.RESERVATION,
+                    cancelReservation.getReservationId().value(),
+                    "Reservation cancelled",
+                    EntityStatus.RES_ACTIVE,
+                    EntityStatus.CANCELLED,
+                    "System");
+            
+            // Create event for bike status change
+            eventService.createEventForEntity(
+                    EntityType.BIKE,
+                    bike.getBikeId().value(),
+                    "Bike made available after reservation cancellation",
+                    EntityStatus.RESERVED,
+                    EntityStatus.AVAILABLE,
+                    "System");  
 
             // Notify
             notifyAllUsers(cancelReservation.getStartStationId());
@@ -184,6 +226,24 @@ public class ReservationService {
                     .orElseThrow(() -> new RuntimeException("Bike not found"));
             bike.setStatus(BikeStatus.AVAILABLE);
             bikeRepository.save(bike);
+
+            // Create event for reservation expiration
+            eventService.createEventForEntity(
+                    EntityType.RESERVATION,
+                    expiredReservation.getReservationId().value(),
+                    "Reservation expired",
+                    EntityStatus.RES_ACTIVE,
+                    EntityStatus.EXPIRED,
+                    "System");
+
+            // Create event for bike status change
+            eventService.createEventForEntity(
+                    EntityType.BIKE,
+                    bike.getBikeId().value(),
+                    "Bike made available after reservation expiration",
+                    EntityStatus.RESERVED,
+                    EntityStatus.AVAILABLE,
+                    "System");
 
             // Notify
             notifyAllUsers(expiredReservation.getStartStationId());

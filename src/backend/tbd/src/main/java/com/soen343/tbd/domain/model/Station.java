@@ -107,10 +107,20 @@ public class Station {
 
     public void incrementBikesDocked(){
         this.numberOfBikesDocked++;
+        if (this.numberOfBikesDocked == this.capacity) {
+            this.stationAvailability = StationAvailability.FULL;
+        } else if (this.numberOfBikesDocked > 0) {
+            this.stationAvailability = StationAvailability.OCCUPIED;
+        }
     }
 
     public void decrementBikesDocked(){
         this.numberOfBikesDocked--;
+        if (this.numberOfBikesDocked < this.capacity) {
+            this.stationAvailability = StationAvailability.EMPTY;
+        } else if (this.numberOfBikesDocked > 0) {
+            this.stationAvailability = StationAvailability.OCCUPIED;
+        }
     }
 
     public List<Dock> getDocks() {

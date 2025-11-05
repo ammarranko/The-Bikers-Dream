@@ -1,19 +1,14 @@
 package com.soen343.tbd.application.observer;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import com.soen343.tbd.application.dto.DockUpdateContextDTO;
 import com.soen343.tbd.application.dto.StationDetailsDTO;
-import com.soen343.tbd.application.dto.StationDetailsDTO.DockWithBikeDTO;
-import com.soen343.tbd.application.service.TripService;
+
 
 // Concrete Subject 
 @Service

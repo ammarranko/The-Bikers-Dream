@@ -1,7 +1,5 @@
 package com.soen343.tbd.application.observer;
 
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import com.soen343.tbd.application.dto.StationDetailsDTO;
 
 // Define contracts for Subscriber (Observer) in Observer pattern
