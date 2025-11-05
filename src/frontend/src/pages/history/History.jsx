@@ -163,7 +163,7 @@ const History = () => {
                                     <h4> Detailed view </h4>
                                     <p>Start Time: {trip.startTime || 'N/A'}</p>
                                     <p>End Time: {trip.endTime || 'N/A'}</p>
-                                    <p>Duration: {Math.round((new Date(trip.endTime) - new Date(trip.startTime)) / 60000)} minutes</p>
+                                    <p>  Duration: {((new Date(trip.endTime) - new Date(trip.startTime)) / 60000).toFixed(10)} minutes</p>
                                     <p>Status: {trip.status || 'N/A'}</p>
                                     <p>Bill ID: {trip.billId || 'N/A'}</p>
                                 </div>
