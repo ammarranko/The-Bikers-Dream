@@ -1,6 +1,7 @@
 import React from 'react';
 import ConfirmationPopup from "./confirmationPopup/ConfirmationPopup";
 import EventPopup from "./eventPopup/EventPopup";
+import TripSummaryPopup from "./tripSummaryPopup/TripSummaryPopup";
 
 const PopupManager = ({
     confirmRental,
@@ -11,6 +12,7 @@ const PopupManager = ({
     reservationSuccessPopup,
     showCancelReservationPopup,
     activeBikeRental,
+    tripSummaryData,
     // handlers
     handleConfirmRental,
     handleCancelConfirmationRental,
@@ -49,10 +51,10 @@ const PopupManager = ({
                 />
             )}
 
-            {returnSuccessPopup && (
-                <EventPopup
-                    message={`Bike Return Successful! 🔙🚲`}
-                    onCancel={handleCancelEventReturn}
+            {returnSuccessPopup && tripSummaryData && (
+                <TripSummaryPopup
+                    tripSummary={tripSummaryData}
+                    onClose={handleCancelEventReturn}
                 />
             )}
 

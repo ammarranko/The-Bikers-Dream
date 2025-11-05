@@ -2,6 +2,7 @@ package com.soen343.tbd.infrastructure.persistence.adapter;
 
 import java.util.Optional;
 
+import com.soen343.tbd.infrastructure.persistence.entity.BillEntity;
 import org.springframework.stereotype.Repository;
 
 import com.soen343.tbd.domain.model.Bill;
@@ -33,7 +34,7 @@ public class BillRepositoryAdapter implements BillRepository {
     }
 
     @Override
-    public void save(Bill bill) {
+    public Bill save(Bill bill) {
         var billEntity = billMapper.toEntity(bill);
 
         // Set the trip relationship if tripId is present
@@ -48,6 +49,7 @@ public class BillRepositoryAdapter implements BillRepository {
             billEntity.setUser(userReference);
         }
 
-        jpaBillRepository.save(billEntity);
+        BillEntity entity = jpaBillRepository.save(billEntity);
+        return billMapper.toDomain(entity);
     }
 }

@@ -14,22 +14,36 @@ public class TripEntity {
     private Long tripId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status") // if column name has underscore
+    @Column(name = "status")
     private TripStatus status;
 
-    @ManyToOne
+    // Direct ID columns to avoid lazy loading
+    @Column(name = "bike_id", insertable = false, updatable = false)
+    private Long bikeId;
+
+    @Column(name = "user_id", insertable = false, updatable = false)
+    private Long userId;
+
+    @Column(name = "start_station_id", insertable = false, updatable = false)
+    private Long startStationId;
+
+    @Column(name = "end_station_id", insertable = false, updatable = false)
+    private Long endStationId;
+
+    // Relationship entities (lazy loaded only when explicitly accessed)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bike_id")
     private BikeEntity bike;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "start_station_id")
     private StationEntity startStation;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "end_station_id")
     private StationEntity endStation;
 
@@ -39,15 +53,18 @@ public class TripEntity {
     @Column(name = "end_time")
     private Timestamp endTime;
 
+    @Column(name = "pricing_strategy")
+    private String pricingStrategy;
+
     @OneToOne(mappedBy="trip", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private BillEntity bill;
 
+    /*
 
-    /* 
-    -----------------------
-      GETTERS AND SETTERS 
+      GETTERS AND SETTERS
     -----------------------
     */
+
     public Long getTripId() {
         return tripId;
     }
@@ -64,6 +81,40 @@ public class TripEntity {
         this.status = status;
     }
 
+    // Direct ID getters (no lazy loading)
+    public Long getBikeId() {
+        return bikeId;
+    }
+
+    public void setBikeId(Long bikeId) {
+        this.bikeId = bikeId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Long getStartStationId() {
+        return startStationId;
+    }
+
+    public void setStartStationId(Long startStationId) {
+        this.startStationId = startStationId;
+    }
+
+    public Long getEndStationId() {
+        return endStationId;
+    }
+
+    public void setEndStationId(Long endStationId) {
+        this.endStationId = endStationId;
+    }
+
+    // Relationship entity getters (may trigger lazy loading)
     public BikeEntity getBike() {
         return bike;
     }
@@ -110,6 +161,14 @@ public class TripEntity {
 
     public void setEndTime(Timestamp endTime) {
         this.endTime = endTime;
+    }
+
+    public String getPricingStrategy() {
+        return pricingStrategy;
+    }
+
+    public void setPricingStrategy(String pricingStrategy) {
+        this.pricingStrategy = pricingStrategy;
     }
 
     public BillEntity getBill() {

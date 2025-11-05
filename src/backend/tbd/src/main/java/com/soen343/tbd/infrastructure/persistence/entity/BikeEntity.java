@@ -14,6 +14,11 @@ public class BikeEntity {
     @Column(name = "bike_id")
     private Long bikeId;
 
+    // Direct ID column to avoid lazy loading
+    @Column(name = "dock_id", insertable = false, updatable = false)
+    private Long dockId;
+
+    // Relationship entity (lazy loaded only when explicitly accessed)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dock_id", referencedColumnName = "dock_id", unique = true)
     private DockEntity dock;
@@ -45,6 +50,16 @@ public class BikeEntity {
         this.bikeId = bikeId;
     }
 
+    // Direct ID getter (no lazy loading)
+    public Long getDockId() {
+        return dockId;
+    }
+
+    public void setDockId(Long dockId) {
+        this.dockId = dockId;
+    }
+
+    // Relationship entity getter (may trigger lazy loading)
     public DockEntity getDock() {
         return dock;
     }

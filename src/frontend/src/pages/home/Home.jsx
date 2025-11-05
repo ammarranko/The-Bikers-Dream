@@ -20,6 +20,7 @@ const Home = () => {
         activeReservation,
         timeLeft,
         activeBikeRental,
+        tripSummaryData,
         // popups & control
         confirmRental,
         rentalSuccessPopup,
@@ -75,6 +76,7 @@ const Home = () => {
         reservationSuccessPopup,
         showCancelReservationPopup,
         activeBikeRental,
+        tripSummaryData,
         handleConfirmRental,
         handleCancelConfirmationRental,
         handleCancelEventRental,

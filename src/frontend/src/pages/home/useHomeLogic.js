@@ -30,6 +30,12 @@ export default function useHomeLogic() {
     const [stations, setStations] = useState([]);
     const [timeLeft, setTimeLeft] = useState(null);
 
+    // Popup states
+    const [rentalSuccessPopup, setRentalSuccessPopup] = useState(false);
+    const [returnSuccessPopup, setReturnSuccessPopup] = useState(false);
+    const [reservationSuccessPopup, setReservationSuccessPopup] = useState(false);
+    const [tripSummaryData, setTripSummaryData] = useState(null);
+
     const fullName = localStorage.getItem('user_full_name');
     const role = localStorage.getItem('user_role');
     let userEmail = localStorage.getItem('user_email');
@@ -48,8 +54,13 @@ export default function useHomeLogic() {
 
     // Handle pop-up actions
     const handleCancelConfirmationRental = () => setConfirmRental({ active: false, dock: null, bike: null, station: null });
+    const handleCancelEventRental = () => setRentalSuccessPopup(false);
     const onClickShowConfirmReturn = (dock, bike, station) => setConfirmReturn({ active: true, dock, bike, station });
     const handleCancelConfirmationReturn = () => setConfirmReturn({ active: false, dock: null, bike: null, station: null });
+    const handleCancelEventReturn = () => {
+        setReturnSuccessPopup(false);
+        setTripSummaryData(null);
+    };
     const handleShowReservation = (bike, station) => setConfirmReservation({ active: true, bike, station });
 
     // Initial data loading
@@ -313,6 +324,7 @@ export default function useHomeLogic() {
                         expiresAt: response.data.expiresAt,
                         reservationId: response.data.reservationId
                     });
+                    setReservationSuccessPopup(true);
                     await fetchStations();
                 }
             } catch (error) {
@@ -416,13 +428,26 @@ export default function useHomeLogic() {
             const dockId = confirmReturn.dock.dockId;
             const stationId = confirmReturn.station.stationId;
             try {
-                await axios.post("http://localhost:8080/api/trips/return", {
+                const response = await axios.post("http://localhost:8080/api/trips/return", {
                     userEmail,
                     tripId,
                     dockId,
                     bikeId,
                     stationId
                 });
+
+                // Store trip summary data
+                setTripSummaryData(response.data);
+                setReturnSuccessPopup(true);
+
+                setActiveBikeRental({
+                    hasOngoingRental: false,
+                    bikeId: null,
+                    tripId: null,
+                    dock: null,
+                    station: null
+                });
+
                 setActiveReservation({
                     hasActiveReservation: false,
                     bikeId: null,
@@ -452,10 +477,14 @@ export default function useHomeLogic() {
         activeReservation,
         timeLeft,
         activeBikeRental,
+        tripSummaryData,
         // Popups & control
         confirmRental,
+        rentalSuccessPopup,
         confirmReturn,
+        returnSuccessPopup,
         confirmReservation,
+        reservationSuccessPopup,
         showCancelReservationPopup,
         // Actions
         handleLogout,
@@ -469,11 +498,14 @@ export default function useHomeLogic() {
         rebalanceBike,
         handleConfirmReservation,
         setConfirmReservation,
+        setReservationSuccessPopup,
         handleCancelActiveReservation,
         setShowCancelReservationPopup,
         handleConfirmRental,
         handleCancelConfirmationRental,
+        handleCancelEventRental,
         handleConfirmReturn,
         handleCancelConfirmationReturn,
+        handleCancelEventReturn,
     };
 }

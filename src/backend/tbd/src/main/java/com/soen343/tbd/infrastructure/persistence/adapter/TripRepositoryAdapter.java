@@ -3,6 +3,7 @@ package com.soen343.tbd.infrastructure.persistence.adapter;
 import java.util.List;
 import java.util.Optional;
 
+import com.soen343.tbd.infrastructure.persistence.entity.*;
 import org.springframework.stereotype.Repository;
 
 import com.soen343.tbd.domain.model.Trip;
@@ -10,10 +11,7 @@ import com.soen343.tbd.domain.model.enums.TripStatus;
 import com.soen343.tbd.domain.model.ids.TripId;
 import com.soen343.tbd.domain.model.ids.UserId;
 import com.soen343.tbd.domain.repository.TripRepository;
-import com.soen343.tbd.infrastructure.persistence.entity.BikeEntity;
-import com.soen343.tbd.infrastructure.persistence.entity.BillEntity;
-import com.soen343.tbd.infrastructure.persistence.entity.StationEntity;
-import com.soen343.tbd.infrastructure.persistence.entity.UserEntity;
+import com.soen343.tbd.infrastructure.persistence.mapper.PricingStrategyConverter;
 import com.soen343.tbd.infrastructure.persistence.mapper.TripMapper;
 import com.soen343.tbd.infrastructure.persistence.repository.JpaTripRepository;
 
@@ -58,7 +56,7 @@ public class TripRepositoryAdapter implements TripRepository {
     }
 
     @Override
-    public void save(Trip trip) {
+    public Trip save(Trip trip) {
         var tripEntity = tripMapper.toEntity(trip);
 
         // Set the bike relationship if tripId is present
@@ -100,7 +98,10 @@ public class TripRepositoryAdapter implements TripRepository {
             tripEntity.setEndTime(trip.getEndTime());
         if (trip.getStatus() != null)
             tripEntity.setStatus(trip.getStatus());
+        if (trip.getPricingStrategy() != null)
+            tripEntity.setPricingStrategy(PricingStrategyConverter.toString(trip.getPricingStrategy()));
 
-        jpaTripRepository.save(tripEntity);
+        TripEntity entity = jpaTripRepository.save(tripEntity);
+        return tripMapper.toDomain(entity);
     }
 }

@@ -8,5 +8,5 @@ import com.soen343.tbd.domain.model.ids.BillId;
 public interface BillRepository {
     Optional<Bill> findById(BillId billId);
 
-    void save(Bill bill);
+    Bill save(Bill bill);
 }

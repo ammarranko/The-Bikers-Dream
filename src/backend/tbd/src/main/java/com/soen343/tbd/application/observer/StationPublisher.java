@@ -38,4 +38,43 @@ public class StationPublisher implements StationSubject {
             }
         }
     }
+
+//    private void sendSSEUpdate(StationDetailsDTO station) {
+//        List<SseEmitter> deadEmitters = new ArrayList<>();
+//        List<DockWithBikeDTO> docks = station.getDocks();
+//
+//        emitters.forEach(emitter -> {
+//            try {
+//                // Send station-level update
+//                emitter.send(SseEmitter.event()
+//                    .name("station-update")
+//                    .data(station));
+//
+//                // Send individual dock updates with context
+//                for (DockWithBikeDTO dock : docks) {
+//                    DockUpdateContextDTO dockUpdate = new DockUpdateContextDTO(
+//                        station.getStationId(),
+//                        station.getStationName(),
+//                        dock
+//                    );
+//                    emitter.send(SseEmitter.event()
+//                        .name("dock-update")
+//                        .data(dockUpdate));
+//                }
+//            } catch (Exception e) {
+//                deadEmitters.add(emitter);
+//                logger.warn("Failed to send update to emitter: " + e.getMessage());
+//                try {
+//                    emitter.complete();
+//                } catch (Exception ex) {
+//                    logger.error("Failed to complete dead emitter: " + ex.getMessage());
+//                }
+//            }
+//        });
+//
+//        if (!deadEmitters.isEmpty()) {
+//            emitters.removeAll(deadEmitters);
+//            logger.info("Removed {} dead emitters", deadEmitters.size());
+//        }
+//    }
 }

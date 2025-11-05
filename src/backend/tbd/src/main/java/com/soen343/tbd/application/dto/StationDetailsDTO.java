@@ -49,8 +49,9 @@ public class StationDetailsDTO {
         this.capacity = station.getCapacity();
         this.numberOfBikesDocked = station.getNumberOfBikesDocked();
 
-        // Map docks with their bikes
+        // Map docks with their bikes, sorted by dockId for consistent ordering
         this.docks = docks.stream()
+                .sorted((d1, d2) -> Long.compare(d1.getDockId().value(), d2.getDockId().value()))
                 .map(dock -> {
                     // Find bike for this dock
                     Bike bike = bikes.stream()

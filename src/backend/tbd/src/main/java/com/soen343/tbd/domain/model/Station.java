@@ -21,12 +21,10 @@ public class Station {
     private final int capacity;     // Total number of docks at the station
     private int numberOfBikesDocked;
     private final List<Dock> docks;
-    private List<Trip> startedTrips;
-    private List<Trip> endedTrips;
 
     public Station(StationId stationId, String stationName, StationAvailability stationAvailability,
                    StationStatus stationStatus, String position, String address, int capacity,
-                   int numberOfBikesDocked, List<Dock> docks, List<Trip> startedTrips, List<Trip> endedTrips) {
+                   int numberOfBikesDocked, List<Dock> docks) {
         this.stationId = stationId;
         this.stationName = stationName;
         this.stationAvailability = stationAvailability;
@@ -35,8 +33,6 @@ public class Station {
         this.address = address;
         this.capacity = capacity;
         this.docks = docks;
-        this.startedTrips = startedTrips;
-        this.endedTrips = endedTrips;
 
         this.numberOfBikesDocked = calculateNumberOfBikes();
     }
@@ -125,21 +121,5 @@ public class Station {
 
     public List<Dock> getDocks() {
         return docks;
-    }
-
-    public List<Trip> getStartedTrips() {
-        return startedTrips;
-    }
-
-    public void setStartedTrips(List<Trip> startedTrips) {
-        this.startedTrips = startedTrips;
-    }
-
-    public List<Trip> getEndedTrips() {
-        return endedTrips;
-    }
-
-    public void setEndedTrips(List<Trip> endedTrips) {
-        this.endedTrips = endedTrips;
     }
 }
