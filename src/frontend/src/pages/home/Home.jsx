@@ -126,39 +126,40 @@ const Home = () => {
                         </h2>
                         <Map {...mapProps} {...popupProps} />
                     </div>
-
-                    <div className="sidebar-container">
-                        <div className="reservation-section">
-                            {activeReservation.hasActiveReservation ? (
-                                <div className="reservation-card">
-                                    <ReservationBanner 
-                                        activeReservation={activeReservation} 
-                                        timeLeft={timeLeft} 
-                                    />
-                                </div>
-                            ) : (
-                                <div className="no-reservation-card">
-                                    <h3>No Active Reservations</h3>
-                                    <p>You currently don't have any bike reservations.</p>
-                                    <p className="helper-text">Click on a station marker to reserve a bike!</p>
-                                </div>
-                            )}
-                        </div>
-                        <div className="rental-section">
-                                {activeBikeRental.hasOngoingRental && activeBikeRental.bikeId ? (
+                    {role === 'RIDER' && (
+                        <div className="sidebar-container">
+                            <div className="reservation-section">
+                                {activeReservation.hasActiveReservation ? (
                                     <div className="reservation-card">
-                                        <RentalTracker activeBikeRental={activeBikeRental} />
+                                        <ReservationBanner 
+                                            activeReservation={activeReservation} 
+                                            timeLeft={timeLeft} 
+                                        />
                                     </div>
                                 ) : (
                                     <div className="no-reservation-card">
-                                        <h3>No Active Rentals</h3>
-                                        <p>You don't have any bikes rented at the moment.</p>
-                                        <p className="helper-text">Find an available bike on the map to start riding!</p>
+                                        <h3>No Active Reservations</h3>
+                                        <p>You currently don't have any bike reservations.</p>
+                                        <p className="helper-text">Click on a station marker to reserve a bike!</p>
                                     </div>
                                 )}
-                                
+                            </div>
+                            
+                            <div className="rental-section">
+                                    {activeBikeRental.hasOngoingRental && activeBikeRental.bikeId ? (
+                                        <div className="reservation-card">
+                                            <RentalTracker activeBikeRental={activeBikeRental} />
+                                        </div>
+                                    ) : (
+                                        <div className="no-reservation-card">
+                                            <h3>No Active Rentals</h3>
+                                            <p>You don't have any bikes rented at the moment.</p>
+                                            <p className="helper-text">Find an available bike on the map to start riding!</p>
+                                        </div>
+                                    )}
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
             <PopupManager {...popupProps} />

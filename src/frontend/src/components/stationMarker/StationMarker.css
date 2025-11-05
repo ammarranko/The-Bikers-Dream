@@ -246,3 +246,40 @@
 .button-19-cancel:hover {
   background-color: #b02a37;
 }
+
+/* Operator toggle button */
+.button-operator-toggle {
+    display: inline-block;
+    width: 100%;
+    margin-top: 1em;
+    padding: 0.6em 1em;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.button-operator-toggle:hover {
+    transform: scale(1.02);
+}
+
+/* Specific states */
+.button-out-of-service {
+    background-color: #dc2626; /* red-600 */
+    color: white;
+}
+
+.button-out-of-service:hover {
+    background-color: #b91c1c; /* darker red */
+}
+
+.button-activate {
+    background-color: #16a34a; /* green-600 */
+    color: white;
+}
+
+.button-activate:hover {
+    background-color: #15803d; /* darker green */
+}
