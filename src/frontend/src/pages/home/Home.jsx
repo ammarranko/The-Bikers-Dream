@@ -96,6 +96,11 @@ const Home = () => {
         navigate('/billing');
     };
 
+    const handleHomeClick = () => {
+        // Already on home page, could refresh if needed
+        window.location.reload();
+    };
+
     return (
         <div className="home-container">
             {isLoading && <LoadingSpinner message={loadingMessage} />}
@@ -105,6 +110,8 @@ const Home = () => {
                 role={role}
                 handleLogout={handleLogout}
                 handleBillingClick={handleBillingClick}
+                handleHomeClick={handleHomeClick}
+                activePage="home"
             />
 
             <div className="content-wrapper">

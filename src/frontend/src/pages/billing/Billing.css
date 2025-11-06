@@ -1,8 +1,59 @@
 /* Billing Page Styles */
 
+/* Filter Controls */
+.filter-controls {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-group label {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.filter-group label i {
+    color: #3498db;
+}
+
+.filter-select {
+    padding: 8px 12px;
+    border: 2px solid #ced4da;
+    border-radius: 8px;
+    font-size: 0.95em;
+    font-weight: 500;
+    color: #2c3e50;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 180px;
+}
+
+.filter-select:hover {
+    border-color: #3498db;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
 /* Scrollable billing content area */
 .billing-content {
-    max-height: 700px;
+    max-height: calc(100vh + 100px);
     overflow-y: auto;
     padding-right: 10px;
 }
@@ -213,7 +264,7 @@
     width: 100%;
     margin-top: 15px;
     padding: 14px;
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    background: #3498db;
     color: white;
     border: none;
     border-radius: 10px;
@@ -229,8 +280,7 @@
 }
 
 .pay-now-btn:hover {
-    background: linear-gradient(135deg, #2980b9 0%, #21618c 100%);
-    transform: translateY(-2px);
+    background: #2b79ae;
     box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
 }
 
@@ -296,12 +346,12 @@
     padding: 8px 12px;
     border-radius: 8px;
     transition: all 0.2s ease;
+    transform: rotate(90deg);
 }
 
 .close-btn:hover {
     background: #e74c3c;
     color: white;
-    transform: rotate(90deg);
 }
 
 .close-btn:disabled {
@@ -481,11 +531,10 @@
 .cancel-payment-btn:hover:not(:disabled) {
     background: #bdc3c7;
     color: #2c3e50;
-    transform: translateY(-2px);
 }
 
 .submit-payment-btn {
-    background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+    background: #238f28;
     color: white;
     display: flex;
     align-items: center;
@@ -495,9 +544,8 @@
 }
 
 .submit-payment-btn:hover:not(:disabled) {
-    background: linear-gradient(135deg, #229954 0%, #1e8449 100%);
+    background: #1d7721;
     box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
-    transform: translateY(-2px);
 }
 
 .submit-payment-btn:active:not(:disabled) {
@@ -525,47 +573,11 @@
 }
 
 .summary-stat strong {
-    color: #3498db;
+    color: #2c3e50;
     font-weight: 700;
 }
 
-/* Error and empty states */
-.error-message {
-    text-align: center;
-    padding: 50px 20px;
-    color: #e74c3c;
-}
-
-.error-message i {
-    font-size: 3.5em;
-    margin-bottom: 20px;
-    opacity: 0.8;
-}
-
-.error-message p {
-    font-size: 1.1em;
-    font-weight: 600;
-}
-
-.retry-btn {
-    margin-top: 20px;
-    padding: 12px 24px;
-    background: linear-gradient(135deg, #3498db, #2980b9);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 700;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
-}
-
-.retry-btn:hover {
-    background: linear-gradient(135deg, #2980b9, #21618c);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
-}
-
+/* Empty state */
 .empty-message {
     text-align: center;
     padding: 70px 20px;
