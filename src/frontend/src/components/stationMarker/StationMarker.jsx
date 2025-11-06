@@ -16,12 +16,17 @@ function StationMarker({
     userRole,
     rebalanceSource,
     handleRebalanceSource,
-    handleRebalanceTarget
+    handleRebalanceTarget,
+    handleBikeMaintain,
+    bikesUnderMaintenance,
+    setActiveBikeMaintenanceRemoval,
+    activeBikeMaintenanceRemoval,
+    handleRemoveFromMaintenance
 }) {
     // State to track the current selected dock
     const [selectedDock, setSelectedDock] = useState(null);
 
-    // Update selectedDock when its data changes in the station
+    // Update selectedDock when its data changes in the station or when its bike goes under maintenance
     useEffect(() => {
         if (!selectedDock) return;
         
@@ -30,7 +35,7 @@ function StationMarker({
         if (updatedDock) {
             setSelectedDock(updatedDock);
         }
-    }, [station, selectedDock?.dockId]);
+    }, [station, selectedDock?.dockId, bikesUnderMaintenance]);
 
     // gets bike and source dock/station for rebalancing, retrieve button
     const handleRetrieve = (dock) => {
@@ -43,6 +48,19 @@ function StationMarker({
         handleRebalanceTarget(targetDock, station.stationId);
         setSelectedDock(null);
     };
+
+    // gets bike and source dock/station for rebalancing, retrieve button
+    const handleMaintain = (bike) => {
+        if (!bike) return;
+        handleBikeMaintain(bike, selectedDock, station.stationId);
+    };
+
+    // Handle the removal of a bike from maintenance
+    const handleConfirmRemoval = async (bikeId, dock) => {
+        await handleRemoveFromMaintenance(bikeId, dock.dockId);
+        setActiveBikeMaintenanceRemoval(null);
+    };
+
     
     return (
         <Marker
@@ -74,21 +92,27 @@ function StationMarker({
                         </button>
                     )}
 
-
+                    {station.stationStatus === "OUT_OF_SERVICE" && userRole !== "OPERATOR" ? (
+                        <p style={{ color: "red", marginTop: "1.5em", fontWeight: "bold" }}>
+                            This station is currently out of service.
+                        </p>
+                    ) : (
                     <div className="flex flex-row flex-wrap gap-2 mb-2" style={{ display: 'flex', flexDirection: 'row', marginTop: "1.5em" }}>
                         {station.docks.map((dock) => {
                             const hasBike = dock.bike !== null;
-                            const isReserved = dock.bike?.status === "RESERVED"; // or BikeStatus.RESERVED if you have enum mapping
+                            const isReserved = dock.bike?.status === "RESERVED";
 
                             return (
                                 // Small boxes to represent the bikes in a station
                                 <div
                                 key={dock.dockId}
 
-                                // Show bike ID on hover (with 'reserved' next to it if its reserved)
+                                // Show bike ID on hover (with status next to it)
                                 title={
                                     hasBike
-                                    ? `Bike ID: ${dock.bike.bikeId}${isReserved ? " (Reserved)" : ""}`
+                                    ? `Bike ID: ${dock.bike.bikeId}
+                                        ${isReserved ? " (Reserved)" : ""}
+                                      `
                                     : "Empty Dock"
                                 }
 
@@ -108,7 +132,7 @@ function StationMarker({
                         );
                         })}
                     </div>
-                    
+                    )}
                     {/* Display the dock info on selection */}
                     {selectedDock && (
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -203,6 +227,17 @@ function StationMarker({
                                 </button>
                             )}
 
+                            {/* operator set maintenance bike button */}
+                            {userRole === "OPERATOR" && selectedDock.bike && (
+                                <button
+                                    className="button-19-return"
+                                    onClick={() => handleMaintain(selectedDock.bike)}
+                                >
+                                    Set Bike as Under Maintenance
+                                </button>
+                            )}
+
+
                             {/* operator rebalance bike button */}
                             {userRole === "OPERATOR" && rebalanceSource.bikeId && selectedDock.dockId !== rebalanceSource.sourceDockId && 
                              !selectedDock.bike && selectedDock.dockStatus !== "OUT_OF_SERVICE" && (
@@ -214,6 +249,17 @@ function StationMarker({
                                 </button>
                             )}
 
+                            {/* operator rebalance bike button */}
+                            {userRole === "OPERATOR" && activeBikeMaintenanceRemoval &&
+                             !selectedDock.bike && selectedDock.dockStatus !== "OUT_OF_SERVICE" && (
+                                <button
+                                    className="button-19-service"
+                                    onClick={() => handleConfirmRemoval(activeBikeMaintenanceRemoval, selectedDock)}
+                                >
+                                    Place Bike Back In Service
+                                </button>
+                            )}
+
                             {/* Close button */}
                             <button
                             className="button-28" 
@@ -222,7 +268,7 @@ function StationMarker({
                                 setSelectedDock(null);
                             }}
                             >
-                            Close
+                                Close
                             </button>
                         </div>
                     )}

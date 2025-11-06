@@ -4,12 +4,22 @@ import com.soen343.tbd.application.dto.StatusRequest;
 import com.soen343.tbd.application.service.OperatorService;
 import com.soen343.tbd.domain.model.enums.StationStatus;
 import com.soen343.tbd.domain.model.ids.StationId;
+import com.soen343.tbd.domain.model.ids.BikeId;
+import com.soen343.tbd.domain.model.ids.DockId;
 import com.soen343.tbd.application.dto.OperatorRebalanceDTO;
+import com.soen343.tbd.application.dto.SetMaintenanceDTO;
+import com.soen343.tbd.application.dto.FetchBikeMaintenanceResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import com.soen343.tbd.application.dto.RemoveMaintenanceDTO;
+
 
 /* 1 operator able to change station status: active/outOFservice
  2 operator can rebalance a bike (move from one dock to another) */
@@ -62,6 +72,55 @@ public class OperatorController {
             return ResponseEntity.internalServerError().body("An unexpected error occurred");
         }
     }
+
+    @PostMapping("/maintenance/set")
+    public ResponseEntity<?> setBikeForMaintenance(@RequestBody SetMaintenanceDTO setMaintenanceDTO){
+        BikeId bikeId = new BikeId(setMaintenanceDTO.getBikeId());
+        try {
+            operatorService.setBikeForMaintenance(bikeId);
+            logger.info("Bike with ID: {} set to maintenance", bikeId);
+            return ResponseEntity.ok("Bike with ID: " + bikeId + " set to maintenance");
+        } catch (IllegalArgumentException e) {
+            logger.error("Failed setting bike to maintenance: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Unexpected error during setting bike to maintenance", e);
+            return ResponseEntity.internalServerError().body("An unexpected error occurred");
+        }
+    }
+
+    @GetMapping("maintenance/bikes_under_maintenance")
+    public ResponseEntity<?> getBikesUnderMaintenance() {
+        try {
+            var bikesUnderMaintenance = operatorService.getBikesUnderMaintenance();
+            logger.info("Fetched bikes under maintenance successfully");
+            return ResponseEntity.ok(bikesUnderMaintenance.stream()
+                    .map(bike -> new FetchBikeMaintenanceResponse(bike))
+                    .toList());
+        } catch (Exception e) {
+            logger.error("Unexpected error during fetching bikes under maintenance", e);
+            return ResponseEntity.internalServerError().body("An unexpected error occurred");
+        }
+    }
+
+    @PostMapping("maintenance/remove")
+    public ResponseEntity<?> removeBikeFromMaintenance(@RequestBody RemoveMaintenanceDTO removeMaintenanceDTO){
+        BikeId bikeId = new BikeId(removeMaintenanceDTO.getBikeId());
+        DockId dockId = new DockId(removeMaintenanceDTO.getDockId());
+        try {
+            operatorService.removeBikeFromMaintenance(bikeId, dockId);
+            logger.info("Bike with ID: {} removed from maintenance", bikeId);
+            return ResponseEntity.ok("Bike with ID: " + bikeId + " removed from maintenance");
+        } catch (IllegalArgumentException e) {
+            logger.error("Failed removing bike from maintenance: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Unexpected error during removing bike from maintenance", e);
+            return ResponseEntity.internalServerError().body("An unexpected error occurred");
+        }
+    }
+    
+    
 }
 
 /* dont mind this

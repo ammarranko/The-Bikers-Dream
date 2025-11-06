@@ -6,6 +6,7 @@ import RentalTracker from '../../components/rentalTracker/RentalTracker';
 import NavigationBar from '../../components/navigationBar/NavigationBar';
 import PopupManager from '../../components/PopupManager';
 import LoadingSpinner from '../../components/loadingSpinner/LoadingSpinner';
+import MaintenanceTracker from '../../components/maintenanceTracker/MaintenanceTracker';
 import './Home.css';
 
 const Home = () => {
@@ -20,6 +21,8 @@ const Home = () => {
         activeReservation,
         timeLeft,
         activeBikeRental,
+        bikesUnderMaintenance,
+        activeBikeMaintenanceRemoval,
         // popups & control
         confirmRental,
         rentalSuccessPopup,
@@ -48,10 +51,15 @@ const Home = () => {
         handleCancelEventRental,
         handleConfirmReturn,
         handleCancelConfirmationReturn,
-        handleCancelEventReturn
+        handleCancelEventReturn,
+        handleBikeMaintain,
+        handleRemoveFromMaintenance,
+        setActiveBikeMaintenanceRemoval
     } = useHomeLogic();
 
     const mapProps = {
+        bikesUnderMaintenance,
+        activeBikeMaintenanceRemoval,
         onClickShowConfirmRental,
         activeBikeRental,
         onClickShowConfirmReturn,
@@ -62,7 +70,10 @@ const Home = () => {
         onClickShowCancelReservation,
         toggleStationStatus,
         userRole,
-        rebalanceBike
+        rebalanceBike,
+        handleBikeMaintain,
+        setActiveBikeMaintenanceRemoval,
+        handleRemoveFromMaintenance
     };
 
     const popupProps = {
@@ -116,16 +127,28 @@ const Home = () => {
                 </div>
 
                 <div className="dashboard-grid">
-                    <div className="map-container">
-                        <h2 className="map-title">
-                            {stations && stations.length > 0 ? (
-                                `Available Stations (${stations.length})`
-                            ) : (
-                                'Loading Stations...'
-                            )}
-                        </h2>
-                        <Map {...mapProps} {...popupProps} />
+                    <div className="map-column">
+                        <div className="map-container">
+                            <h2 className="map-title">
+                                {stations && stations.length > 0 ? (
+                                    `Available Stations (${stations.length})`
+                                ) : (
+                                    'Loading Stations...'
+                                )}
+                            </h2>
+                            <Map {...mapProps} {...popupProps} />
+                        </div>
+                        
+                        {/* Show maintenance tracker for operators */}
+                        {role === 'OPERATOR' && stations && stations.length > 0 && (
+                            <MaintenanceTracker 
+                                bikesUnderMaintenance={bikesUnderMaintenance} 
+                                activeBikeMaintenanceRemoval={activeBikeMaintenanceRemoval}
+                                setActiveBikeMaintenanceRemoval={setActiveBikeMaintenanceRemoval}
+                            />
+                        )}
                     </div>
+
                     {role === 'RIDER' && (
                         <div className="sidebar-container">
                             <div className="reservation-section">

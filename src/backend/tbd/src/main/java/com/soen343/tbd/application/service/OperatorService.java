@@ -1,5 +1,7 @@
 package com.soen343.tbd.application.service;
 
+import java.util.List;
+
 import com.soen343.tbd.domain.model.Station;
 import com.soen343.tbd.domain.model.enums.StationStatus;
 import com.soen343.tbd.domain.model.ids.StationId;
@@ -19,6 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.soen343.tbd.domain.model.enums.BikeStatus;
 
 /* 1 operator able to change station status: active/outOFservice
  2 operator can rebalance a bike (move from one dock to another) */
@@ -186,5 +190,64 @@ public class OperatorService {
                 "System");
         }
 
+    }
+
+    @Transactional
+    public void setBikeForMaintenance(BikeId bikeId){
+        // get bike
+        Bike bike = bikeRepository.findById(bikeId)
+            .orElseThrow(() -> new RuntimeException("Bike not found, ID: " + bikeId.value()));
+
+        // Determine previous status for event logging
+        EntityStatus previousStatus = EntityStatus.fromSpecificStatus(bike.getStatus());
+
+        // set bike for maintenance
+        bike.setStatus(BikeStatus.MAINTENANCE);
+        bike.setDockId(null); // remove bike from dock
+        bikeRepository.save(bike);
+
+        // Create event for bike status change
+        eventService.createEventForEntity(
+                EntityType.BIKE,
+                bike.getBikeId().value(),
+                "Bike status changed",
+                previousStatus,
+                EntityStatus.MAINTENANCE,
+                "Operator"
+        );
+
+        logger.info("Bike ID: {} set for maintenance", bike.getBikeId());
+    }
+
+    @Transactional(readOnly = true)
+    public List<Bike> getBikesUnderMaintenance(){
+        return bikeRepository.findByStatus(BikeStatus.MAINTENANCE);
+    }
+
+    @Transactional
+    public void removeBikeFromMaintenance(BikeId bikeId, DockId dockId){
+        // get bike
+        Bike bike = bikeRepository.findById(bikeId)
+            .orElseThrow(() -> new RuntimeException("Bike not found, ID: " + bikeId.value()));
+
+        // Determine previous status for event logging
+        EntityStatus previousStatus = EntityStatus.fromSpecificStatus(bike.getStatus());
+
+        // set bike to available
+        bike.setStatus(BikeStatus.AVAILABLE);
+        bike.setDockId(dockId);
+        bikeRepository.save(bike);
+
+        // Create event for bike status change
+        eventService.createEventForEntity(
+                EntityType.BIKE,
+                bike.getBikeId().value(),
+                "Bike status changed",
+                previousStatus,
+                EntityStatus.AVAILABLE,
+                "Operator"
+        );
+
+        logger.info("Bike ID: {} removed from maintenance, placed in dock ID: {}", bike.getBikeId(), dockId.value());
     }
 }

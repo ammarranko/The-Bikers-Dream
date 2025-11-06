@@ -31,7 +31,12 @@ const Map = ({
   stations: initialStations,
   toggleStationStatus, 
   userRole, 
-  rebalanceBike
+  rebalanceBike,
+  handleBikeMaintain,
+  bikesUnderMaintenance,
+  setActiveBikeMaintenanceRemoval,
+  activeBikeMaintenanceRemoval,
+  handleRemoveFromMaintenance
 }) => {
   // Center of the map, where the map will render first essentially
   const center = [45.552648, -73.681342]; // These are the coords of Montreal, kinda (found online)
@@ -122,6 +127,11 @@ const Map = ({
               onClickShowConfirmReservation={onClickShowConfirmReservation}
               onClickShowCancelReservation={onClickShowCancelReservation}
               activeReservation={activeReservation}
+              handleBikeMaintain={handleBikeMaintain}
+              bikesUnderMaintenance={bikesUnderMaintenance}
+              setActiveBikeMaintenanceRemoval={setActiveBikeMaintenanceRemoval}
+              activeBikeMaintenanceRemoval={activeBikeMaintenanceRemoval}
+              handleRemoveFromMaintenance={handleRemoveFromMaintenance}
             />
           );
         })};

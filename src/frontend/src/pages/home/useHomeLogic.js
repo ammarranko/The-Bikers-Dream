@@ -27,8 +27,10 @@ export default function useHomeLogic() {
 
     const [activeBikeRental, setActiveBikeRental] = useState({ hasOngoingRental: false, bikeId: null, tripId: null, dock: null, station: null });
     const [activeReservation, setActiveReservation] = useState({ hasActiveReservation: false, bikeId: null, stationId: null, expiresAt: null, reservationId: null });
+    const [activeBikeMaintenanceRemoval, setActiveBikeMaintenanceRemoval] = useState(null);
     const [stations, setStations] = useState([]);
     const [timeLeft, setTimeLeft] = useState(null);
+    const [bikesUnderMaintenance, setBikesUnderMaintenance] = useState([]);
 
     const fullName = localStorage.getItem('user_full_name');
     const role = localStorage.getItem('user_role');
@@ -59,7 +61,8 @@ export default function useHomeLogic() {
                 await Promise.all([
                     fetchStations(),
                     fetchActiveRental(),
-                    fetchActiveReservation()
+                    fetchActiveReservation(),
+                    fetchBikesUnderMaintenance()
                 ]);
             });
         };
@@ -275,6 +278,16 @@ export default function useHomeLogic() {
         }
     };
 
+    const fetchBikesUnderMaintenance = async () => {
+        try {
+            const response = await axios.get("http://localhost:8080/api/operator/maintenance/bikes_under_maintenance");
+            setBikesUnderMaintenance(response.data);
+        } catch (error) {
+            console.error("Error fetching bikes under maintenance:", error);
+            setBikesUnderMaintenance([]);
+        }
+    };
+
     const checkRental = async () => {
         try {
             const response = await axios.post("http://localhost:8080/api/trips/checkRental", { userEmail });
@@ -435,6 +448,44 @@ export default function useHomeLogic() {
         });
     };
 
+    const handleBikeMaintain = async (bike) => {
+        await withLoading('Updating bike maintenance status...', async () => {
+            try {
+                await axios.post('http://localhost:8080/api/operator/maintenance/set', { bikeId: bike.bikeId });
+
+                setBikesUnderMaintenance(currentBikes => {
+                    const isAlreadyUnderMaintenance = currentBikes.some(b => b.bikeId === bike.bikeId);
+                    if (!isAlreadyUnderMaintenance) {
+                        return [...currentBikes, bike];
+                    }
+                    return currentBikes;
+                });
+                
+                await fetchStations();
+            } catch (error) {
+                console.error("Error updating bike maintenance status:", error);
+                alert(`Failed to update bike maintenance status: ${error.response?.data || error.message}`);
+            }
+        });
+    };
+
+    const handleRemoveFromMaintenance = async (bikeId, dockId) => {
+        await withLoading('Removing bike from maintenance...', async () => {
+            try {
+                await axios.post('http://localhost:8080/api/operator/maintenance/remove', { bikeId, dockId });
+
+                setBikesUnderMaintenance(currentBikes => {
+                    return currentBikes.filter(b => b.bikeId !== bikeId);
+                });
+
+                await fetchStations();
+            } catch (error) {
+                console.error("Error removing bike from maintenance:", error);
+                alert(`Failed to remove bike from maintenance: ${error.response?.data || error.message}`);
+            }
+        });
+    };
+
     return {
         // Loading states
         isLoading,
@@ -448,6 +499,8 @@ export default function useHomeLogic() {
         activeReservation,
         timeLeft,
         activeBikeRental,
+        bikesUnderMaintenance,
+        activeBikeMaintenanceRemoval, 
         // Popups & control
         confirmRental,
         confirmReturn,
@@ -470,5 +523,8 @@ export default function useHomeLogic() {
         handleCancelConfirmationRental,
         handleConfirmReturn,
         handleCancelConfirmationReturn,
+        handleBikeMaintain,
+        handleRemoveFromMaintenance,
+        setActiveBikeMaintenanceRemoval
     };
 }
