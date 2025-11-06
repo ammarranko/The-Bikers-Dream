@@ -1,5 +1,6 @@
 package com.soen343.tbd.application.dto;
 
+import com.soen343.tbd.domain.model.Bill;
 import com.soen343.tbd.domain.model.enums.BikeType;
 
 public class TripDetailsDTO {
@@ -13,13 +14,16 @@ public class TripDetailsDTO {
     private String endTime;
     private String status;
     private Long billId;
-
-    public TripDetailsDTO() {
-    }
+    private Double billCost;
+    private Double baseFare;
+    private Double perMinuteRate;
+    private Double totalAmount;
+    private Bill bill;
 
     public TripDetailsDTO(Long tripId, Long bikeId, Long userId, Long startStationId,
                           Long endStationId, String startTime, String endTime,
-                          String status, Long billId, BikeType bikeType) {
+                          String status, Long billId, BikeType bikeType, Bill bill,
+                          Double baseFare, Double perMinuteRate) {
         this.tripId = tripId;
         this.bikeId = bikeId;
         this.userId = userId;
@@ -30,8 +34,16 @@ public class TripDetailsDTO {
         this.status = status;
         this.billId = billId;
         this.bikeType = bikeType;
+        this.bill = bill;
+        this.billCost = bill != null ? bill.getCost() : null;
+        this.baseFare = baseFare;
+        this.perMinuteRate = perMinuteRate;
     }
 
+    public TripDetailsDTO() {
+    }
+
+    // Getters and Setters
     public Long getTripId() {
         return tripId;
     }
@@ -111,5 +123,44 @@ public class TripDetailsDTO {
     public BikeType getBikeType() {
         return bikeType;
     }
-}
 
+    public Double getBillCost() {
+        return billCost;
+    }
+
+    public void setBillCost(Double billCost) {
+        this.billCost = billCost;
+    }
+
+    public Double getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(Double totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public Double getBaseFare() {
+        return baseFare;
+    }
+
+    public void setBaseFare(Double baseFare) {
+        this.baseFare = baseFare;
+    }
+
+    public Double getPerMinuteRate() {
+        return perMinuteRate;
+    }
+
+    public void setPerMinuteRate(Double perMinuteRate) {
+        this.perMinuteRate = perMinuteRate;
+    }
+
+    public Bill getBill() {
+        return bill;
+    }
+
+    public void setBill(Bill bill) {
+        this.bill = bill;
+    }
+}

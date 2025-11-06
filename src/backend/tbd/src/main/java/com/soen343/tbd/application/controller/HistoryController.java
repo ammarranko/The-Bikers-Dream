@@ -4,6 +4,7 @@ import com.soen343.tbd.application.service.HistoryService;
 import com.soen343.tbd.application.dto.TripDetailsDTO;
 import com.soen343.tbd.domain.model.Trip;
 import com.soen343.tbd.domain.model.Bike;
+import com.soen343.tbd.domain.model.Bill;
 import com.soen343.tbd.domain.model.enums.BikeType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -71,8 +72,22 @@ public class HistoryController {
             BikeType bikeType = null;
             if (trip.getBikeId() != null) {
                 Optional<Bike> bike = historyService.getBikeById(trip.getBikeId().value());
-                bikeType = bike.get().getBikeType();
+                if (bike.isPresent()) {
+                    bikeType = bike.get().getBikeType();
+                }
             }
+
+            // Get bill object safely
+            Bill bill = null;
+            if (trip.getBillId() != null) {
+                Optional<Bill> billOptional = historyService.getBillById(trip.getBillId().value());
+                if (billOptional.isPresent()) {
+                    bill = billOptional.get();
+                }
+            }
+
+            // Get pricing info from trip's pricing strategy
+
 
             // Build response DTO with trip details
             TripDetailsDTO response = new TripDetailsDTO(
@@ -85,7 +100,10 @@ public class HistoryController {
                     trip.getEndTime() != null ? trip.getEndTime().toString() : null,
                     trip.getStatus() != null ? trip.getStatus().toString() : null,
                     trip.getBillId() != null ? trip.getBillId().value() : null,
-                    bikeType
+                    bikeType,
+                    bill,
+                    trip.getPricingStrategy() != null ? trip.getPricingStrategy().getBaseFee() : null,
+                    trip.getPricingStrategy() != null ? trip.getPricingStrategy().getPerMinuteRate() : null
             );
             tripResponse.add(response);
         }

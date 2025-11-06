@@ -174,6 +174,27 @@ const History = () => {
                                     <p>Duration: {((new Date(trip.endTime) - new Date(trip.startTime)) / 60000).toFixed(2)} minutes</p>
                                     <p>Status: {trip.status || 'N/A'}</p>
                                     <p>Bill ID: {trip.billId || 'N/A'}</p>
+                                    <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+                                        <div>
+                                            <p style={{margin: '5px 0'}}>BaseFare: ${trip.baseFare || 'N/A'}</p>
+                                            <p style={{margin: '5px 0'}}>PerMinuteRate: ${trip.perMinuteRate || 'N/A'}</p>
+                                            <p style={{margin: '5px 0'}}>Bill Cost: ${trip.billCost ? trip.billCost.toFixed(2) : 'N/A'}</p>
+                                        </div>
+                                        {trip.billId && (
+                                            <button 
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    backgroundColor: '#007bff',
+                                                    color: 'white',
+                                                    border: 'none',
+                                                    borderRadius: '4px',
+                                                    cursor: 'pointer'
+                                                }}
+                                                onClick={() => alert(`Viewing bill #${trip.billId}`)}>
+                                                View Bill
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             )}
 

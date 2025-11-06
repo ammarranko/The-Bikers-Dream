@@ -1,10 +1,13 @@
 package com.soen343.tbd.application.service;
 
 import com.soen343.tbd.domain.model.Bike;
+import com.soen343.tbd.domain.model.Bill;
 import com.soen343.tbd.domain.model.Trip;
 import com.soen343.tbd.domain.model.ids.BikeId;
+import com.soen343.tbd.domain.model.ids.BillId;
 import com.soen343.tbd.domain.model.ids.TripId;
 import com.soen343.tbd.domain.repository.BikeRepository;
+import com.soen343.tbd.domain.repository.BillRepository;
 import com.soen343.tbd.domain.repository.TripRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,9 @@ public class HistoryService {
 
     @Autowired
     private BikeRepository bikeRepository;
+
+    @Autowired
+    private BillRepository billRepository;
 
 
     // Get a trip by trip ID and user email (not used for now, as I changed my implementation decision mid-way, but keeping it in case it's needed later)
@@ -48,4 +54,8 @@ public class HistoryService {
         return bikeRepository.findById(domainBikeId);
     }
 
+    public Optional<Bill> getBillById(Long billId) {
+        BillId domainBillId = new BillId(billId);
+        return billRepository.findById(domainBillId);
+    }
 }
