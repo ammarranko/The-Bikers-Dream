@@ -31,7 +31,12 @@ const Map = ({
   stations: initialStations,
   toggleStationStatus, 
   userRole, 
-  rebalanceBike
+  rebalanceBike,
+  handleBikeMaintain,
+  bikesUnderMaintenance,
+  setActiveBikeMaintenanceRemoval,
+  activeBikeMaintenanceRemoval,
+  handleRemoveFromMaintenance
 }) => {
   // Center of the map, where the map will render first essentially
   const center = [45.552648, -73.681342]; // These are the coords of Montreal, kinda (found online)
@@ -61,6 +66,11 @@ const Map = ({
           sourceDockId: dock.dockId,
           sourceStationId: stationId
       });
+  };
+
+  // cancel rebalancing
+  const cancelRebalance = () => {
+      setRebalanceSource({ bikeId: null, sourceDockId: null, sourceStationId: null });
   };
 
   // rebalance to a target dock, full dto used
@@ -122,6 +132,12 @@ const Map = ({
               onClickShowConfirmReservation={onClickShowConfirmReservation}
               onClickShowCancelReservation={onClickShowCancelReservation}
               activeReservation={activeReservation}
+              handleBikeMaintain={handleBikeMaintain}
+              bikesUnderMaintenance={bikesUnderMaintenance}
+              setActiveBikeMaintenanceRemoval={setActiveBikeMaintenanceRemoval}
+              activeBikeMaintenanceRemoval={activeBikeMaintenanceRemoval}
+              handleRemoveFromMaintenance={handleRemoveFromMaintenance}
+              cancelRebalance={cancelRebalance}
             />
           );
         })};

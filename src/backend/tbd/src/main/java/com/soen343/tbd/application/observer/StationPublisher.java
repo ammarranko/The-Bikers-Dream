@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.soen343.tbd.application.dto.MaintenanceUpdateDTO;
 import com.soen343.tbd.application.dto.StationDetailsDTO;
 
 
@@ -35,6 +36,19 @@ public class StationPublisher implements StationSubject {
                 observer.update(station);
             } catch (Exception e) {
                 logger.error("Error notifying observer: " + e.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public void notifyMaintenanceChange(MaintenanceUpdateDTO maintenanceUpdate) {
+        logger.debug("Notifying {} observers about maintenance change for bike {}", 
+            observers.size(), maintenanceUpdate.getBikeId());
+        for (StationObserver observer : observers) {
+            try {
+                observer.onMaintenanceUpdate(maintenanceUpdate);
+            } catch (Exception e) {
+                logger.error("Error notifying observer about maintenance update: {}", e.getMessage());
             }
         }
     }

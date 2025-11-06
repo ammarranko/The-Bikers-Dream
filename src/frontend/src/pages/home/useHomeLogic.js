@@ -11,7 +11,7 @@ export default function useHomeLogic() {
 
     // Constants for SSE reconnection
     const MAX_RETRIES = 5;
-    const RETRY_DELAY = 2000; // 2 seconds base delay
+    const RETRY_DELAY = 2000;
 
     const token = localStorage.getItem('jwt_token');
     if (token && token !== "null") {
@@ -27,8 +27,10 @@ export default function useHomeLogic() {
 
     const [activeBikeRental, setActiveBikeRental] = useState({ hasOngoingRental: false, bikeId: null, tripId: null, dock: null, station: null });
     const [activeReservation, setActiveReservation] = useState({ hasActiveReservation: false, bikeId: null, stationId: null, expiresAt: null, reservationId: null });
+    const [activeBikeMaintenanceRemoval, setActiveBikeMaintenanceRemoval] = useState(null);
     const [stations, setStations] = useState([]);
     const [timeLeft, setTimeLeft] = useState(null);
+    const [bikesUnderMaintenance, setBikesUnderMaintenance] = useState([]);
 
     const fullName = localStorage.getItem('user_full_name');
     const role = localStorage.getItem('user_role');
@@ -59,7 +61,8 @@ export default function useHomeLogic() {
                 await Promise.all([
                     fetchStations(),
                     fetchActiveRental(),
-                    fetchActiveReservation()
+                    fetchActiveReservation(),
+                    fetchBikesUnderMaintenance()
                 ]);
             });
         };
@@ -77,7 +80,7 @@ export default function useHomeLogic() {
         eventSource.onopen = () => {
             console.log('SSE connection established');
             setIsConnected(true);
-            setRetryCount(0); // Reset retry count on successful connection
+            setRetryCount(0);
         };
 
         // Handle general messages
@@ -116,14 +119,38 @@ export default function useHomeLogic() {
             );
         });
 
+        // Handle maintenance-specific updates
+        eventSource.addEventListener('maintenance-update', (event) => {
+            const maintenanceData = JSON.parse(event.data);
+            console.log('Maintenance update received:', maintenanceData);
+            
+            setBikesUnderMaintenance(currentBikes => {
+                if (maintenanceData.action === 'ADDED') {
+                    // Add bike to maintenance list if not already there
+                    const isAlreadyInList = currentBikes.some(b => b.bikeId === maintenanceData.bikeId);
+                    if (!isAlreadyInList) {
+                        console.log('DEBUG: Adding bike to maintenance list:', maintenanceData.bikeId);
+                        return [...currentBikes, {
+                            bikeId: maintenanceData.bikeId,
+                            status: maintenanceData.bikeStatus
+                        }];
+                    }
+                    return currentBikes;
+                } else if (maintenanceData.action === 'REMOVED') {
+                    console.log('DEBUG: Removing bike from maintenance list:', maintenanceData.bikeId);
+                    // Remove bike from maintenance list
+                    return currentBikes.filter(b => b.bikeId !== maintenanceData.bikeId);
+                }
+                return currentBikes;
+            });
+        });
+
         // Error handling with auto-reconnect
         eventSource.onerror = (error) => {
             console.error('SSE connection error:', error);
             try { eventSource.close(); } catch (e) { /* ignore */ }
             setIsConnected(false);
 
-            // Implement exponential backoff for retries by incrementing retryCount,
-            // which will re-run this effect and create a new EventSource.
             if (retryCount < MAX_RETRIES) {
                 const timeout = RETRY_DELAY * Math.pow(2, retryCount);
                 console.log(`Retrying SSE connection in ${timeout}ms (attempt ${retryCount + 1}/${MAX_RETRIES})`);
@@ -144,7 +171,7 @@ export default function useHomeLogic() {
                 retryTimer = null;
             }
         };
-    }, [retryCount]); // Re-run effect when retryCount changes to handle reconnection
+    }, [retryCount]);
 
     // Reservation timer effect
     useEffect(() => {
@@ -164,7 +191,6 @@ export default function useHomeLogic() {
                 setActiveReservation({ hasActiveReservation: false, bikeId: null, stationId: null, expiresAt: null, reservationId: null });
                 setTimeLeft(null);
 
-                // Notify backend that reservation expired
                 if (activeReservation.reservationId) {
                     await axios.post("http://localhost:8080/api/reservations/end", 
                         { 
@@ -275,6 +301,16 @@ export default function useHomeLogic() {
         }
     };
 
+    const fetchBikesUnderMaintenance = async () => {
+        try {
+            const response = await axios.get("http://localhost:8080/api/operator/maintenance/bikes_under_maintenance");
+            setBikesUnderMaintenance(response.data);
+        } catch (error) {
+            console.error("Error fetching bikes under maintenance:", error);
+            setBikesUnderMaintenance([]);
+        }
+    };
+
     const checkRental = async () => {
         try {
             const response = await axios.post("http://localhost:8080/api/trips/checkRental", { userEmail });
@@ -373,7 +409,6 @@ export default function useHomeLogic() {
             const dockId = confirmRental.dock.dockId;
             const stationId = confirmRental.station.stationId;
             try {
-                // Cancel reservation first if one exists
                 const reservationId = Number(activeReservation.reservationId);
                 if (reservationId) {
                     await axios.post("http://localhost:8080/api/reservations/end", 
@@ -385,7 +420,6 @@ export default function useHomeLogic() {
                     );
                 }
                 
-                // Then confirm rental
                 await axios.post("http://localhost:8080/api/trips/rent", {
                     bikeId,
                     userEmail,
@@ -439,6 +473,44 @@ export default function useHomeLogic() {
         });
     };
 
+    const handleBikeMaintain = async (bike, stationId) => {
+        await withLoading('Updating bike maintenance status...', async () => {
+            try {
+                await axios.post('http://localhost:8080/api/operator/maintenance/set', { bikeId: bike.bikeId, stationId: stationId });
+
+                // Update bikesUnderMaintenance 
+                setBikesUnderMaintenance(prev => {
+                    const isAlreadyInList = prev.some(b => b.bikeId === bike.bikeId);
+                    if (!isAlreadyInList) {
+                        return [...prev, { bikeId: bike.bikeId, stationId }];
+                    }
+                    return prev;
+                });
+
+                await fetchStations();
+            } catch (error) {
+                console.error("Error updating bike maintenance status:", error);
+                alert(`Failed to update bike maintenance status: ${error.response?.data || error.message}`);
+            }
+        });
+    };
+
+    const handleRemoveFromMaintenance = async (bikeId, dockId, stationId) => {
+        await withLoading('Removing bike from maintenance...', async () => {
+            try {
+                await axios.post('http://localhost:8080/api/operator/maintenance/remove', { bikeId, dockId, stationId });
+
+                // Update bikesUnderMaintenance
+                setBikesUnderMaintenance(prev => prev.filter(bike => bike.bikeId !== bikeId));
+
+                await fetchStations();
+            } catch (error) {
+                console.error("Error removing bike from maintenance:", error);
+                alert(`Failed to remove bike from maintenance: ${error.response?.data || error.message}`);
+            }
+        });
+    };
+
     return {
         // Loading states
         isLoading,
@@ -452,6 +524,8 @@ export default function useHomeLogic() {
         activeReservation,
         timeLeft,
         activeBikeRental,
+        bikesUnderMaintenance,
+        activeBikeMaintenanceRemoval, 
         // Popups & control
         confirmRental,
         confirmReturn,
@@ -475,5 +549,8 @@ export default function useHomeLogic() {
         handleCancelConfirmationRental,
         handleConfirmReturn,
         handleCancelConfirmationReturn,
+        handleBikeMaintain,
+        handleRemoveFromMaintenance,
+        setActiveBikeMaintenanceRemoval
     };
 }

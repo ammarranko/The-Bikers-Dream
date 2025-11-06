@@ -36,6 +36,7 @@ src/frontend/node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+src/frontend/package-lock.json
 
 # Build outputs
 **/build/

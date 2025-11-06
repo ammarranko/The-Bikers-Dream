@@ -1,7 +1,10 @@
 package com.soen343.tbd.infrastructure.persistence.adapter;
 
+import java.util.List;
+
 import com.soen343.tbd.domain.model.Bike;
 import com.soen343.tbd.domain.model.ids.BikeId;
+import com.soen343.tbd.domain.model.enums.BikeStatus;
 import com.soen343.tbd.domain.model.ids.DockId;
 import com.soen343.tbd.domain.repository.BikeRepository;
 import com.soen343.tbd.infrastructure.persistence.entity.DockEntity;
@@ -51,5 +54,13 @@ public class BikeRepositoryAdapter implements BikeRepository {
     public Optional<Bike> findByDockId(DockId dockId) {
         return jpaBikeRepository.findByDock_DockId(dockId.value())
                 .map(b -> bikeMapper.toDomain((BikeEntity) b));
+    }
+
+    @Override
+    public List<Bike> findByStatus(BikeStatus status) {
+        return jpaBikeRepository.findByStatus(status)
+                .stream()
+                .map(bikeEntity -> bikeMapper.toDomain((BikeEntity) bikeEntity))
+                .toList();
     }
 }

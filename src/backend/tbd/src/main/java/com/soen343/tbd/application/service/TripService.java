@@ -17,8 +17,6 @@ import com.soen343.tbd.domain.model.enums.EntityStatus;
 import com.soen343.tbd.domain.model.ids.*;
 import com.soen343.tbd.domain.repository.*;
 
-import jakarta.persistence.Entity;
-
 @Service
 public class TripService {
     private static final Logger logger = LoggerFactory.getLogger(TripService.class);

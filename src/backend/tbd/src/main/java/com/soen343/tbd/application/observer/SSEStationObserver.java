@@ -11,18 +11,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.soen343.tbd.application.dto.DockUpdateContextDTO;
+import com.soen343.tbd.application.dto.MaintenanceUpdateDTO;
 import com.soen343.tbd.application.dto.StationDetailsDTO;
 import com.soen343.tbd.application.dto.StationDetailsDTO.DockWithBikeDTO;
+import com.soen343.tbd.application.dto.StationDetailsDTO.BikeDTO;
 
-// SSE = Server-Sent Events
-// Link between Observer pattern and SSE implementation - Allows real-time updates
 @Component
 public class SSEStationObserver implements StationObserver {
     private static final Logger logger = LoggerFactory.getLogger(SSEStationObserver.class);
     private final List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
 
     public SseEmitter subscribe() {
-        SseEmitter emitter = new SseEmitter(60_000L); // 1 minute timeout
+        SseEmitter emitter = new SseEmitter(60_000L);
         emitters.add(emitter);
 
         emitter.onCompletion(() -> {
@@ -38,7 +38,6 @@ public class SSEStationObserver implements StationObserver {
             emitters.remove(emitter);
         });
 
-        // Send initial heartbeat
         try {
             emitter.send(SseEmitter.event()
                 .name("connected")
@@ -63,26 +62,32 @@ public class SSEStationObserver implements StationObserver {
         List<SseEmitter> deadEmitters = new ArrayList<>();
         List<DockWithBikeDTO> docks = station.getDocks();
 
+
         emitters.forEach(emitter -> {
             try {
-                // Send station update first
                 emitter.send(SseEmitter.event()
                     .name("station-update")
                     .data(station));
                 logger.debug("Sent station update to SSE client");
 
-                // Then send individual dock updates with context
                 for (DockWithBikeDTO dock : docks) {
+                    BikeDTO bike = dock.getBike();
+
                     DockUpdateContextDTO dockUpdate = new DockUpdateContextDTO(
                         station.getStationId(),
                         station.getStationName(),
                         dock
                     );
+
                     emitter.send(SseEmitter.event()
                         .name("dock-update")
                         .data(dockUpdate));
+        
                     logger.debug("Sent dock update for station {}, dock {}", 
                         station.getStationId(), dock.getDockId());
+
+                    logger.debug("Checking bike {} for maintenance updates", 
+                        bike != null ? bike.getBikeId() : "null");  
                 }
             } catch (IOException e) {
                 logger.error("Error sending update to SSE client: " + e.getMessage());
@@ -93,6 +98,35 @@ public class SSEStationObserver implements StationObserver {
         if (!deadEmitters.isEmpty()) {
             emitters.removeAll(deadEmitters);
             logger.debug("Removed {} dead SSE connections. Remaining connections: {}", 
+                deadEmitters.size(), emitters.size());
+        }
+    }
+
+    @Override
+    public void onMaintenanceUpdate(MaintenanceUpdateDTO maintenanceUpdateDTO) {
+        if (emitters.isEmpty()) {
+            logger.debug("No active SSE connections to notify for maintenance update");
+            return;
+        }
+
+        List<SseEmitter> deadEmitters = new ArrayList<>();
+
+        emitters.forEach(emitter -> {
+            try {
+                emitter.send(SseEmitter.event()
+                    .name("maintenance-update")
+                    .data(maintenanceUpdateDTO));
+                logger.debug("Sent maintenance update to SSE client for bike ID: {}", 
+                    maintenanceUpdateDTO.getBikeId());
+            } catch (IOException e) {
+                logger.error("Error sending maintenance update to SSE client: " + e.getMessage());
+                deadEmitters.add(emitter);
+            }
+        });
+
+        if (!deadEmitters.isEmpty()) {
+            emitters.removeAll(deadEmitters);
+            logger.debug("Removed {} dead SSE connections after maintenance update. Remaining connections: {}", 
                 deadEmitters.size(), emitters.size());
         }
     }
