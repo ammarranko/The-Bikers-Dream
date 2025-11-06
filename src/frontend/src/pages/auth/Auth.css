@@ -10,7 +10,7 @@
 }
 
 /* Card Styling */
-.card-header {
+.auth-container .card-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   text-align: center;
@@ -18,13 +18,13 @@
   border: none;
 }
 
-.card-header h4 {
+.auth-container .card-header h4 {
   margin: 0;
   font-weight: 600;
   font-size: 24px;
 }
 
-.card-body {
+.auth-container .card-body {
   padding: 30px;
 }
 

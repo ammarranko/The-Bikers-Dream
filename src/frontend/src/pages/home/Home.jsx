@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Map from '../../components/Map';
 import useHomeLogic from './useHomeLogic';
 import ReservationBanner from '../../components/reservationBanner/ReservationBanner';
@@ -9,6 +10,8 @@ import LoadingSpinner from '../../components/loadingSpinner/LoadingSpinner';
 import './Home.css';
 
 const Home = () => {
+    const navigate = useNavigate();
+
     const {
         // Loading states
         isLoading,
@@ -89,6 +92,10 @@ const Home = () => {
         setShowCancelReservationPopup
     };
 
+    const handleBillingClick = () => {
+        navigate('/billing');
+    };
+
     return (
         <div className="home-container">
             {isLoading && <LoadingSpinner message={loadingMessage} />}
@@ -97,6 +104,7 @@ const Home = () => {
                 fullName={fullName}
                 role={role}
                 handleLogout={handleLogout}
+                handleBillingClick={handleBillingClick}
             />
 
             <div className="content-wrapper">

@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './NavigationBar.css';
 
-function NavigationBar({ fullName, role, handleLogout }) {
+function NavigationBar({ fullName, role, handleLogout, handleBillingClick }) {
     const [isOpen, setIsOpen] = useState(false);
     const sidebarRef = useRef(null);
     const initials = fullName
-        .split(' ')
-        .map(name => name[0])
-        .join('')
-        .toUpperCase();
-    
+        ? fullName
+            .split(' ')
+            .map(name => name[0])
+            .join('')
+            .toUpperCase()
+        : 'U';  // Default to 'U' for User if fullName is null/undefined
+
     // Toggle sidebar when clicking the button
     const handleToggle = (e) => {
         e.stopPropagation(); // prevent closing immediately
@@ -51,7 +53,7 @@ function NavigationBar({ fullName, role, handleLogout }) {
                             <i className="fas fa-home"></i>
                             Home
                         </li>
-                        <li className="nav-item">
+                        <li className="nav-item" onClick={handleBillingClick}>
                             <i className="fas fa-file-invoice-dollar"></i>
                             My Bills
                         </li>
@@ -74,8 +76,8 @@ function NavigationBar({ fullName, role, handleLogout }) {
                             {initials}
                         </div>
                         <div className="profile-info">
-                            <p className="profile-name">{fullName}</p>
-                            <p className="profile-role">{role}</p>
+                            <p className="profile-name">{fullName || 'User'}</p>
+                            <p className="profile-role">{role || 'Guest'}</p>
                         </div>
                     </div>
                 </div>
