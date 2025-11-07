@@ -1,0 +1,33 @@
+.legend-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.legend-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.legend-label {
+  font-size: 1rem;
+}

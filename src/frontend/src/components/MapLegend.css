@@ -1,0 +1,24 @@
+.map-legend-overlay {
+  position: relative;
+  bottom: 300px;
+  left: 22px;
+  background-color: rgba(255,255,255,0.7);
+  border-radius: 3px;
+  padding: 4px 4px;
+  z-index: 10; 
+  max-width: 140px;
+}
+
+.map-legend-overlay img {
+  width: 28px;
+  height: 28px;
+}
+
+.map-legend-overlay h3 {
+  margin: 0 0 4px 0;
+  font-size: 0.9rem;
+}
+
+.map-legend-overlay span {
+  font-size: 0.85rem;
+}
