@@ -51,18 +51,35 @@ function NavigationBar({ fullName, role, handleLogout, handleViewHistory }) {
                             <i className="fas fa-home"></i>
                             Home
                         </li>
-                        <li className="nav-item">
-                            <i className="fas fa-file-invoice-dollar"></i>
-                            My Bills
-                        </li>
-                        <li className="nav-item" onClick={handleViewHistory}>
-                            <i className="fas fa-history"></i>
-                            History
-                        </li>
-                        <li className="nav-item">
-                            <i className="fas fa-cog"></i>
-                            Settings
-                        </li>
+
+                        {role === "RIDER" && (
+                            <li className="nav-item">
+                                <i className="fas fa-file-invoice-dollar"></i>
+                                My Bills
+                            </li>
+                        )}
+
+                        {role === "OPERATOR" && (
+                            <li className="nav-item">
+                                <i className="fas fa-file-invoice-dollar"></i>
+                                All Bills
+                            </li>
+                        )}
+
+                        {role === "RIDER" && (
+                            <li className="nav-item" onClick={handleViewHistory}>
+                                <i className="fas fa-history"></i>
+                                History
+                            </li>
+                        )}    
+                            
+                        {role === "OPERATOR" && (
+                            <li className="nav-item" onClick={handleViewHistory}>
+                                <i className="fas fa-history"></i>
+                                All Trip Histories
+                            </li>
+                        )}  
+
                         <li className="nav-item" onClick={handleLogout}>
                             <i className="fas fa-sign-out-alt"></i>
                             Logout

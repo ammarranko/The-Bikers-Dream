@@ -58,8 +58,9 @@ public class StationPublisher implements StationSubject {
         }
     }
 
+    @Override
     public void notifyOperatorEvent(EventDTO event) {
-        logger.debug("Notifying about operator event: {}", event.getDescription());
+        logger.debug("Notifying about operator event: {}", event.getMetadata());
         sseStationObserver.sendOperatorEvent(event);
     }
 }

@@ -22,6 +22,8 @@ import com.soen343.tbd.domain.repository.StationRepository;
 import com.soen343.tbd.domain.repository.UserRepository;
 import com.soen343.tbd.domain.model.Bike;
 import com.soen343.tbd.domain.model.Station;
+import com.soen343.tbd.domain.model.helpers.Event;
+import com.soen343.tbd.application.dto.EventDTO;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -109,22 +111,32 @@ public class ReservationService {
                     .orElse(null);
             
             // Create event for reservation creation
-            eventService.createEventForEntity(
+            Event createReservationEvent = eventService.createEventForEntity(
                 EntityType.RESERVATION,
                 newReservation.getReservationId().value(),
                 "Reservation created",
                 EntityStatus.NONE,
                 EntityStatus.RES_ACTIVE,
                 "User_"+userId.value());
+
+            // Notify all operators about new reservation event
+            if (createReservationEvent != null) {
+                eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(createReservationEvent));
+            }
             
             // Create event for bike status change
-            eventService.createEventForEntity(
+            Event bikeStatusChangeEvent = eventService.createEventForEntity(
                 EntityType.BIKE,
                 selectedBike.getBikeId().value(),
                 "Bike reserved",
                 EntityStatus.AVAILABLE,
                 EntityStatus.RESERVED,
                 "User_"+userId.value());
+            
+            // Notify all operators about bike status change event
+            if (bikeStatusChangeEvent != null) {
+                eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(bikeStatusChangeEvent));
+            }
 
             // Notify all observers about station update
             notifyAllUsers(selectedStation.getStationId());
@@ -183,22 +195,32 @@ public class ReservationService {
             bikeRepository.save(bike);
             
             // Create event for reservation cancellation
-            eventService.createEventForEntity(
+            Event cancelEvent = eventService.createEventForEntity(
                     EntityType.RESERVATION,
                     cancelReservation.getReservationId().value(),
                     "Reservation cancelled",
                     EntityStatus.RES_ACTIVE,
                     EntityStatus.CANCELLED,
                     "System");
+                
+            // Notify all operators about reservation cancellation event
+            if (cancelEvent != null) {
+                eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(cancelEvent));
+            }
             
             // Create event for bike status change
-            eventService.createEventForEntity(
+            Event bikeStatusChangeEvent = eventService.createEventForEntity(
                     EntityType.BIKE,
                     bike.getBikeId().value(),
                     "Bike made available after reservation cancellation",
                     EntityStatus.RESERVED,
                     EntityStatus.AVAILABLE,
                     "System");  
+            
+            // Notify all operators about bike status change event
+            if (bikeStatusChangeEvent != null) {
+                eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(bikeStatusChangeEvent));
+            }
 
             // Notify
             notifyAllUsers(cancelReservation.getStartStationId());
@@ -228,7 +250,7 @@ public class ReservationService {
             bikeRepository.save(bike);
 
             // Create event for reservation expiration
-            eventService.createEventForEntity(
+            Event expireEvent = eventService.createEventForEntity(
                     EntityType.RESERVATION,
                     expiredReservation.getReservationId().value(),
                     "Reservation expired",
@@ -236,14 +258,24 @@ public class ReservationService {
                     EntityStatus.EXPIRED,
                     "System");
 
+            // Notify all operators about reservation expiration event
+            if (expireEvent != null) {  
+                eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(expireEvent));
+            }
+
             // Create event for bike status change
-            eventService.createEventForEntity(
+            Event bikeStatusChangeEvent = eventService.createEventForEntity(
                     EntityType.BIKE,
                     bike.getBikeId().value(),
                     "Bike made available after reservation expiration",
                     EntityStatus.RESERVED,
                     EntityStatus.AVAILABLE,
                     "System");
+            
+            // Notify all operators about bike status change event
+            if (bikeStatusChangeEvent != null) {
+                eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(bikeStatusChangeEvent));
+            }
 
             // Notify
             notifyAllUsers(expiredReservation.getStartStationId());

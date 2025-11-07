@@ -25,6 +25,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.soen343.tbd.application.dto.EventDTO;
+import com.soen343.tbd.domain.model.helpers.Event;
+
 /* 1 operator able to change station status: active/outOFservice
  2 operator can rebalance a bike (move from one dock to another) */
 @Service
@@ -73,7 +76,7 @@ public class OperatorService {
         }
 
         // Create event for station status change
-        eventService.createEventForEntity(
+        Event event = eventService.createEventForEntity(
                 EntityType.STATION,
                 station.getStationId().value(),
                 "Station status changed",
@@ -85,8 +88,9 @@ public class OperatorService {
         // save updated station
         stationRepository.save(station);
 
-        // Observer update
+        // Observer updates
         notifyAllUsersByStation(station.getStationId());
+        eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(event));
         
         logger.info("Station ID: {} new status: {}", station.getStationId(), newStatus);
     }
@@ -127,7 +131,7 @@ public class OperatorService {
         logger.info("Source dock {} empty", sourceDockId.value());
 
         // Create event for dock status change - source dock
-        eventService.createEventForEntity(
+        Event eventSourceDock = eventService.createEventForEntity(
                 EntityType.DOCK,
                 sourceDock.getDockId().value(),
                 "Dock status changed",
@@ -136,13 +140,16 @@ public class OperatorService {
                 "System"
         );
 
+        // Notify all operators about dock status change event
+        eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(eventSourceDock));
+
         // target dock occupied
         targetDock.setStatus(DockStatus.OCCUPIED);
         dockRepository.save(targetDock);
         logger.info("Target dock {} occupied", targetDockId.value());
 
         // Create event for dock status change - target dock
-        eventService.createEventForEntity(
+        Event eventTargetDock = eventService.createEventForEntity(
                 EntityType.DOCK,
                 targetDock.getDockId().value(),
                 "Dock status changed",
@@ -151,8 +158,10 @@ public class OperatorService {
                 "System"
         );
 
-        // decrease source station count
+        // Notify all operators about dock status change event
+        eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(eventTargetDock));
 
+        // decrease source station count
         // Deterimine previous status for event logging
         EntityStatus previousStatus = EntityStatus.fromSpecificStatus(sourceStation.getStationStatus());
 
@@ -163,10 +172,12 @@ public class OperatorService {
         // Determine new status for event logging
         EntityStatus newStatus = EntityStatus.fromSpecificStatus(sourceStation.getStationStatus());
 
+        Event eventSourceStation = null;
+
         // Only create event if status has changed
         if (previousStatus != newStatus) {
             // Create event for station bike count change - source station
-            eventService.createEventForEntity(
+            eventSourceStation = eventService.createEventForEntity(
                 EntityType.STATION,
                 sourceStation.getStationId().value(),
                 "Station bike count changed",
@@ -175,8 +186,12 @@ public class OperatorService {
                 "System");
         }
 
-        // increase target station count
+        // Notify all operators about station bike count change event if the bike count actually changed
+        if (eventSourceStation != null) {
+            eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(eventSourceStation));
+        }
 
+        // increase target station count
         // Determine previous status for event logging
         previousStatus = EntityStatus.fromSpecificStatus(targetStation.getStationStatus());
 
@@ -187,16 +202,23 @@ public class OperatorService {
         // Determine new status for event logging
         newStatus = EntityStatus.fromSpecificStatus(targetStation.getStationStatus());
 
+        Event eventTargetStation = null;
+
         // Only create event if status has changed
         if (previousStatus != newStatus) {
             // Create event for station bike count change - target station
-            eventService.createEventForEntity(
+            eventTargetStation = eventService.createEventForEntity(
                 EntityType.STATION,
                 targetStation.getStationId().value(),
                 "Station bike count changed",
                 previousStatus,
                 newStatus,
                 "System");
+        }
+
+        // Notify all operators about station bike count change event if the bike count actually changed
+        if (eventTargetStation != null) {
+            eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(eventTargetStation));
         }
 
         // Observer update
@@ -220,7 +242,7 @@ public class OperatorService {
         bikeRepository.save(bike);
 
         // Create event for bike status change
-        eventService.createEventForEntity(
+        Event event = eventService.createEventForEntity(
                 EntityType.BIKE,
                 bike.getBikeId().value(),
                 "Bike status changed",
@@ -228,6 +250,11 @@ public class OperatorService {
                 EntityStatus.MAINTENANCE,
                 "Operator"
         );
+
+        // Notify all operators about bike status change event
+        if (event != null) {
+            eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(event));
+        }
 
         // Maintenance change notification
         stationPublisher.notifyMaintenanceChange(
@@ -267,7 +294,7 @@ public class OperatorService {
         bikeRepository.save(bike);
 
         // Create event for bike status change
-        eventService.createEventForEntity(
+        Event event = eventService.createEventForEntity(
                 EntityType.BIKE,
                 bike.getBikeId().value(),
                 "Bike status changed",
@@ -275,6 +302,11 @@ public class OperatorService {
                 EntityStatus.AVAILABLE,
                 "Operator"
         );
+
+        // Notify all operators about bike status change event
+        if (event != null) {
+            eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(event));
+        }
 
         // Maintenance change notification
         stationPublisher.notifyMaintenanceChange(

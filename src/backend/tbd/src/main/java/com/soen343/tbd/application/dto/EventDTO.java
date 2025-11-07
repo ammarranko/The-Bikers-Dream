@@ -1,32 +1,85 @@
 package com.soen343.tbd.application.dto;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
+import com.soen343.tbd.domain.model.helpers.Event;
 
 public class EventDTO {
+    
+    private Long eventId;
+    private String entityType;
+    private Long entityId;
+    private String triggeredBy;
+    private String metadata;
+    private String previousState;
+    private String newState;
+    private Timestamp occuredAt;
 
-    private String entityType; // ex bike, station or dock
-    private String entityId;
-    private String action;
-    private String userEmail;
-    private String description;
-    private String previousStatus;
-    private String newStatus;
-    private LocalDateTime timestamp;
-
-    public EventDTO(String type, String id, String action, String email, String description, String previousStatus,
-            String newStatus) {
-        this.entityType = type;
-        this.entityId = id;
-        this.action = action;
-        this.userEmail = email;
-        this.description = description;
-        this.previousStatus = previousStatus;
-        this.newStatus = newStatus;
-        this.timestamp = LocalDateTime.now(); // moment status changes = moment event is generated so just generate
-                                              // timestamp at the same time
+    public EventDTO() {
+        this.occuredAt = new Timestamp(System.currentTimeMillis());
     }
 
-    // setters and getters
+    public EventDTO(Long entityId, String entityType, Long eventId, String metadata, 
+                    String newState, String previousState, String triggeredBy, Timestamp occuredAt) {
+        this.entityId = entityId;
+        this.entityType = entityType;
+        this.eventId = eventId;
+        this.metadata = metadata;
+        this.newState = newState;
+        this.occuredAt = occuredAt != null ? occuredAt : new Timestamp(System.currentTimeMillis());
+        this.previousState = previousState;
+        this.triggeredBy = triggeredBy;
+    }
+
+    /**
+     * Convert Event domain model to EventDTO with null safety
+     * @param event The event to convert
+     * @return EventDTO representation of the event
+     * @throws IllegalArgumentException if event is null or missing required fields
+     */
+    public static EventDTO fromEvent(Event event) {
+        if (event == null) {
+            throw new IllegalArgumentException("Cannot create EventDTO from null event");
+        }
+
+        // Safely extract previous state
+        String previousState = event.getPreviousState() != null 
+            ? event.getPreviousState().name() 
+            : null;
+
+        // Safely extract event ID (may be null if not persisted yet)
+        Long eventId = event.getEventId() != null 
+            ? event.getEventId().value() 
+            : null;
+
+        // Validate required fields
+        if (event.getEntityType() == null) {
+            throw new IllegalArgumentException("Event must have an entity type");
+        }
+        if (event.getNewState() == null) {
+            throw new IllegalArgumentException("Event must have a new state");
+        }
+
+        return new EventDTO(
+            event.getEntityId(),
+            event.getEntityType().name(),
+            eventId,
+            event.getMetadata(),
+            event.getNewState().name(),
+            previousState,
+            event.getTriggeredBy(),
+            event.getOccuredAt()
+        );
+    }
+
+    // Getters and setters
+    public Long getEventId() {
+        return eventId;
+    }
+
+    public void setEventId(Long eventId) {
+        this.eventId = eventId;
+    }
+
     public String getEntityType() {
         return entityType;
     }
@@ -35,59 +88,51 @@ public class EventDTO {
         this.entityType = entityType;
     }
 
-    public String getEntityId() {
+    public Long getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(String entityId) {
+    public void setEntityId(Long entityId) {
         this.entityId = entityId;
     }
 
-    public String getAction() {
-        return action;
+    public String getTriggeredBy() {
+        return triggeredBy;
     }
 
-    public void setAction(String action) {
-        this.action = action;
+    public void setTriggeredBy(String triggeredBy) {
+        this.triggeredBy = triggeredBy;
     }
 
-    public String getUserEmail() {
-        return userEmail;
+    public String getMetadata() {
+        return metadata;
     }
 
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
+    public void setMetadata(String metadata) {
+        this.metadata = metadata;
     }
 
-    public String getDescription() {
-        return description;
+    public String getPreviousState() {
+        return previousState;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setPreviousState(String previousState) {
+        this.previousState = previousState;
     }
 
-    public String getPreviousStatus() {
-        return previousStatus;
+    public String getNewState() {
+        return newState;
     }
 
-    public void setPreviousStatus(String previousStatus) {
-        this.previousStatus = previousStatus;
+    public void setNewState(String newState) {
+        this.newState = newState;
     }
 
-    public String getNewStatus() {
-        return newStatus;
+    public Timestamp getOccuredAt() {
+        return occuredAt;
     }
 
-    public void setNewStatus(String newStatus) {
-        this.newStatus = newStatus;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
+    public void setOccuredAt(Timestamp occuredAt) {
+        this.occuredAt = occuredAt;
     }
 }

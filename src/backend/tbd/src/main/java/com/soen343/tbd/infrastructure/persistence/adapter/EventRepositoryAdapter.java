@@ -11,6 +11,7 @@ import com.soen343.tbd.domain.model.enums.EntityType;
 import com.soen343.tbd.domain.model.helpers.Event;
 import com.soen343.tbd.domain.model.ids.EventId;
 import com.soen343.tbd.domain.repository.EventRepository;
+import com.soen343.tbd.infrastructure.persistence.entity.EventEntity;
 import com.soen343.tbd.infrastructure.persistence.mapper.EventMapper;
 import com.soen343.tbd.infrastructure.persistence.repository.JpaEventRepository;
 
@@ -47,8 +48,9 @@ public class EventRepositoryAdapter  implements EventRepository{
     }
 
     @Override
-    public void save(Event event) {
+    public Event save(Event event) {
         var eventEntity = eventMapper.toEntity(event);
-        jpaEventRepository.save(eventEntity);
+        EventEntity savedEntity = jpaEventRepository.save(eventEntity);
+        return eventMapper.toDomain(savedEntity);
     }
 }

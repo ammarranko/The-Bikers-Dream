@@ -129,9 +129,10 @@ public class SSEStationObserver implements StationObserver {
     }
 
     // special method only for operators
+    @Override
     public void sendOperatorEvent(EventDTO event) {
         if (emitters.isEmpty()) {
-            logger.debug("No active SSE connections to notify.");
+            logger.debug("No active Operator SSE connections to notify.");
         }
 
         List<SseEmitter> deadEmitters = new ArrayList<>();

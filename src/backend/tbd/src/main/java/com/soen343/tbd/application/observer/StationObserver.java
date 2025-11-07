@@ -1,5 +1,6 @@
 package com.soen343.tbd.application.observer;
 
+import com.soen343.tbd.application.dto.EventDTO;
 import com.soen343.tbd.application.dto.MaintenanceUpdateDTO;
 import com.soen343.tbd.application.dto.StationDetailsDTO;
 
@@ -9,5 +10,9 @@ public interface StationObserver {
 
     default void onMaintenanceUpdate(MaintenanceUpdateDTO maintenanceUpdate) {
         // Optional method for maintenance updates
+    }
+
+    default void sendOperatorEvent(EventDTO event) {
+        // Optional method for operator events
     }
 }

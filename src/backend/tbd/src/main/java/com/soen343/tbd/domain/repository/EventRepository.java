@@ -14,5 +14,5 @@ public interface EventRepository {
 
     Optional<Event> findById(EventId eventId);
 
-    void save(Event event);
+    Event save(Event event);
 }
