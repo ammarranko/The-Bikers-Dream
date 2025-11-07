@@ -57,14 +57,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         // the only allowed endpoints without authentication ( can be accessed without a
                         // token)
-                        .requestMatchers("/api/login", "/api/register").permitAll()
-                        .requestMatchers("/api/stations/stream", "/api/stations/subscribe").permitAll()
-                        .requestMatchers("/api/stations/**").permitAll()  // <--- for guests map
+                       // .requestMatchers("/api/login", "/api/register").permitAll()
+                       // .requestMatchers("/api/stations/stream", "/api/stations/subscribe").permitAll()
+                       // .requestMatchers("/api/stations/**").permitAll()  // <--- for guests map
+                        .anyRequest().permitAll()).
 
-                        // all other endpoints require authentication
-                        .anyRequest().authenticated())
+
+                // all other endpoints require authentication
+                    //    .anyRequest().authenticated())
                 // If any exception occurs, this will handle it by redirecting to 401
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
+                exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);

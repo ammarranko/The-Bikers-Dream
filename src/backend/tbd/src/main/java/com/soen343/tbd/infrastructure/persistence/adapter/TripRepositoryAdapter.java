@@ -56,6 +56,14 @@ public class TripRepositoryAdapter implements TripRepository {
     }
 
     @Override
+    public List<Trip> findAllTrips() {
+        return jpaTripRepository.findAll()
+                .stream()
+                .map(tripMapper::toDomain)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
     public Trip save(Trip trip) {
         var tripEntity = tripMapper.toEntity(trip);
 
@@ -98,6 +106,8 @@ public class TripRepositoryAdapter implements TripRepository {
             tripEntity.setEndTime(trip.getEndTime());
         if (trip.getStatus() != null)
             tripEntity.setStatus(trip.getStatus());
+        if (trip.getPricingStrategy() != null)
+            tripEntity.setPricingStrategy(PricingStrategyConverter.toString(trip.getPricingStrategy()));
         if (trip.getPricingStrategy() != null)
             tripEntity.setPricingStrategy(PricingStrategyConverter.toString(trip.getPricingStrategy()));
 

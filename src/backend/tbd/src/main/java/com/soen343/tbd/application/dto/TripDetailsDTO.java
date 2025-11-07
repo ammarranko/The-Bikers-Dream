@@ -13,13 +13,17 @@ public class TripDetailsDTO {
     private String endTime;
     private String status;
     private Long billId;
+    private Double billCost;
+    private Double baseFare;
+    private Double perMinuteRate;
+    private String userName;
 
-    public TripDetailsDTO() {
-    }
+
 
     public TripDetailsDTO(Long tripId, Long bikeId, Long userId, Long startStationId,
                           Long endStationId, String startTime, String endTime,
-                          String status, Long billId, BikeType bikeType) {
+                          String status, Long billId, BikeType bikeType,
+                          Double billCost, Double baseFare, Double perMinuteRate, String userName) {
         this.tripId = tripId;
         this.bikeId = bikeId;
         this.userId = userId;
@@ -30,8 +34,15 @@ public class TripDetailsDTO {
         this.status = status;
         this.billId = billId;
         this.bikeType = bikeType;
+        this.billCost = billCost;
+        this.baseFare = baseFare;
+        this.perMinuteRate = perMinuteRate;
+        this.userName = userName;
     }
 
+
+
+    // Getters and Setters
     public Long getTripId() {
         return tripId;
     }
@@ -111,5 +122,35 @@ public class TripDetailsDTO {
     public BikeType getBikeType() {
         return bikeType;
     }
-}
 
+    public Double getBillCost() {
+        return billCost;
+    }
+
+    public void setBillCost(Double billCost) {
+        this.billCost = billCost;
+    }
+
+    public Double getBaseFare() {
+        return baseFare;
+    }
+
+    public void setBaseFare(Double baseFare) {
+        this.baseFare = baseFare;
+    }
+
+    public Double getPerMinuteRate() {
+        return perMinuteRate;
+    }
+
+    public void setPerMinuteRate(Double perMinuteRate) {
+        this.perMinuteRate = perMinuteRate;
+    }
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+}
