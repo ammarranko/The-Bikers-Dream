@@ -73,6 +73,10 @@ function Billing() {
         fetchBillingHistory();
     };
 
+    const handleViewHistory = () => {
+        navigate('/history');
+    };
+
     const formatDate = (timestamp) => {
         const date = new Date(timestamp);
         return date.toLocaleDateString('en-US', {
@@ -213,6 +217,7 @@ function Billing() {
                 handleLogout={handleLogout}
                 handleBillingClick={handleBillingClick}
                 handleHomeClick={handleHomeClick}
+                handleViewHistory={handleViewHistory}
                 activePage="billing"
             />
 
