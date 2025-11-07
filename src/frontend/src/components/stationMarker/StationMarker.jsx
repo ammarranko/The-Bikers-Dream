@@ -51,9 +51,9 @@ function StationMarker({
     };
 
     // gets bike and source dock/station for rebalancing, retrieve button
-    const handleMaintain = (bike) => {
+    const handleMaintain = (bike, dock, station) => {
         if (!bike) return;
-        handleBikeMaintain(bike, station.stationId);
+        handleBikeMaintain(bike, dock.dockId, station.stationId);
     };
 
     // Handle the removal of a bike from maintenance
@@ -242,7 +242,7 @@ function StationMarker({
                             {userRole === "OPERATOR" && selectedDock.bike && (
                                 <button
                                     className="button-19-return"
-                                    onClick={() => handleMaintain(selectedDock.bike)}
+                                    onClick={() => handleMaintain(selectedDock.bike, selectedDock, station)}
                                 >
                                     Set Bike as Under Maintenance
                                 </button>

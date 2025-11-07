@@ -3,6 +3,7 @@ package com.soen343.tbd.application.dto;
 public class SetMaintenanceDTO {
     private Long bikeId;
     private Long stationId;
+    private Long dockId;
 
     public Long getBikeId() {
         return bikeId;
@@ -18,5 +19,13 @@ public class SetMaintenanceDTO {
 
     public void setStationId(Long stationId) {
         this.stationId = stationId;
+    }
+
+    public Long getDockId() {
+        return dockId;
+    }
+
+    public void setDockId(Long dockId) {
+        this.dockId = dockId;
     }
 }

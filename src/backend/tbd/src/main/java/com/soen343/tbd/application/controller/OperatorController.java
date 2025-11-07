@@ -77,9 +77,10 @@ public class OperatorController {
     public ResponseEntity<?> setBikeForMaintenance(@RequestBody SetMaintenanceDTO setMaintenanceDTO){
         BikeId bikeId = new BikeId(setMaintenanceDTO.getBikeId());
         StationId stationId = new StationId(setMaintenanceDTO.getStationId());
+        DockId dockId = new DockId(setMaintenanceDTO.getDockId());
 
         try {
-            operatorService.setBikeForMaintenance(bikeId, stationId);
+            operatorService.setBikeForMaintenance(bikeId, dockId, stationId);
             logger.info("Bike with ID: {} set to maintenance", bikeId);
             return ResponseEntity.ok("Bike with ID: " + bikeId + " set to maintenance");
         } catch (IllegalArgumentException e) {

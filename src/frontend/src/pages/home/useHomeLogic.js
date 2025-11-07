@@ -325,41 +325,6 @@ export default function useHomeLogic() {
         });
     };
 
-    // operator events sse
-    // useEffect (() => {
-    //     if (role !== 'OPERATOR') {console.log("Not an operator, returning."); return;} // only for operators
-        
-    //     let operatorEventSource = null;
-
-    //     try {
-    //         operatorEventSource = new EventSource('http://localhost:8080/api/events/subscribe', {
-    //             withCredentials:true
-    //         });
-
-    //         operatorEventSource.onopen = () => {
-    //             console.log("Operator events SSE connection established.");
-    //         };
-
-    //         operatorEventSource.addEventListener('operator-event', (event) => {
-    //             const eventData = JSON.parse(event.data);
-    //             console.log('OPERATOR EVENT:', eventData);
-
-    //             // for now only keep last 25 events
-    //             setOperatorEvents(prev => [eventData, ...prev].slice(0, 50));
-    //         })
-
-    //         operatorEventSource.onerror = (e) => {
-    //             console.log("Operator events error:");
-    //         };
-
-    //     } catch (e) {console.error("Failed to establish operator events SSE connection.");}
-
-    //     return () => {
-    //         if (operatorEventSource)
-    //             operatorEventSource.close();
-    //     };
-    // }, [role]);
-
     const rebalanceBike = async (rebalanceData) => {
         await withLoading('Rebalancing bike...', async () => {
             try {
@@ -617,10 +582,10 @@ export default function useHomeLogic() {
 
     };
 
-    const handleBikeMaintain = async (bike, stationId) => {
+    const handleBikeMaintain = async (bike, dockId, stationId) => {
         await withLoading('Updating bike maintenance status...', async () => {
             try {
-                await axios.post('http://localhost:8080/api/operator/maintenance/set', { bikeId: bike.bikeId, stationId: stationId });
+                await axios.post('http://localhost:8080/api/operator/maintenance/set', { bikeId: bike.bikeId, dockId: dockId, stationId: stationId });
 
                 // Update bikesUnderMaintenance
                 setBikesUnderMaintenance(prev => {

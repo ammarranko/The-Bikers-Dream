@@ -78,7 +78,14 @@ function NavigationBar({ fullName, role, handleLogout, handleBillingClick, handl
                                 <i className="fas fa-history"></i>
                                 All Trip Histories
                             </li>
-                        )}  
+                        )}
+
+                        {role === "RIDER" && (
+                            <li className={`nav-item ${activePage === 'pricing' ? 'active' : ''}`} onClick={handlePricingClick}>
+                                <i className="fas fa-dollar-sign"></i>
+                                Pricing Plans
+                            </li>
+                        )}
 
                         <li className="nav-item" onClick={handleLogout}>
                             <i className="fas fa-sign-out-alt"></i>

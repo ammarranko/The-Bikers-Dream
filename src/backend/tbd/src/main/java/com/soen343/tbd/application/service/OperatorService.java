@@ -228,7 +228,9 @@ public class OperatorService {
     }
 
     @Transactional
-    public void setBikeForMaintenance(BikeId bikeId, StationId stationId){
+    public void setBikeForMaintenance(BikeId bikeId, DockId dockId, StationId stationId){
+        logger.debug("dockId.value(): {} and stationId.value(): {}", dockId.value(), stationId.value());
+
         // get bike
         Bike bike = bikeRepository.findById(bikeId)
             .orElseThrow(() -> new RuntimeException("Bike not found, ID: " + bikeId.value()));
@@ -256,6 +258,27 @@ public class OperatorService {
             eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(event));
         }
 
+        // Update dock status to EMPTY
+        Dock dock = dockRepository.findById(dockId)
+            .orElseThrow(() -> new RuntimeException("Dock not found, ID: " + dockId.value()));
+        dock.setStatus(DockStatus.EMPTY);
+        dockRepository.save(dock);
+
+        // Create event for dock status change
+        Event dockEvent = eventService.createEventForEntity(
+                EntityType.DOCK,
+                dock.getDockId().value(),
+                "Dock status changed",
+                EntityStatus.OCCUPIED,
+                EntityStatus.EMPTY,
+                "Operator"
+        );
+
+        // Notify all operators about dock status change event
+        if (dockEvent != null) {
+            eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(dockEvent));
+        }
+
         // Maintenance change notification
         stationPublisher.notifyMaintenanceChange(
             new MaintenanceUpdateDTO(
@@ -263,7 +286,7 @@ public class OperatorService {
                 bike.getStatus().name(),
                 stationId.value(),
                 "", // station name not needed here
-                null, // dock id not needed here
+                dockId.value(),
                 "ADDED"
             )
         );
@@ -306,6 +329,27 @@ public class OperatorService {
         // Notify all operators about bike status change event
         if (event != null) {
             eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(event));
+        }
+
+        // Update dock status to OCCUPIED
+        Dock dock = dockRepository.findById(dockId)
+            .orElseThrow(() -> new RuntimeException("Dock not found, ID: " + dockId.value()));
+        dock.setStatus(DockStatus.OCCUPIED);
+        dockRepository.save(dock);
+
+        // Create event for dock status change
+        Event dockEvent = eventService.createEventForEntity(
+                EntityType.DOCK,
+                dock.getDockId().value(),
+                "Dock status changed",
+                EntityStatus.EMPTY,
+                EntityStatus.OCCUPIED,
+                "Operator"
+        );
+
+        // Notify all operators about dock status change event
+        if (dockEvent != null) {
+            eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(dockEvent));
         }
 
         // Maintenance change notification
