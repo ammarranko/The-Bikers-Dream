@@ -38,6 +38,7 @@ const Home = () => {
     showCancelReservationPopup,
     // actions
     handleLogout,
+      handleSwitchRole,
     handleViewHistory,
     fetchStations,
     onClickShowConfirmRental,
@@ -127,6 +128,7 @@ const Home = () => {
                 fullName={fullName}
                 role={role}
                 handleLogout={handleLogout}
+                handleSwitchRole={handleSwitchRole}
                 handleViewHistory={handleViewHistory}
                 handleBillingClick={handleBillingClick}
                 handleHomeClick={handleHomeClick}

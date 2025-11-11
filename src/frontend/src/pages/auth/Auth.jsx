@@ -84,6 +84,7 @@ const Auth = () => {
         localStorage.setItem("user_full_name", fullName);
         localStorage.setItem("user_role", role);
         localStorage.setItem("username", username);
+        localStorage.setItem("actual_user_role", role); // to keep track of actual role if switched
 
         // Set default header for future requests
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;

@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './NavigationBar.css';
 
-function NavigationBar({ fullName, role, handleLogout, handleBillingClick, handleHomeClick, activePage, handleViewHistory, handlePricingClick }) {
+function NavigationBar({ fullName, role, handleLogout, handleBillingClick, handleHomeClick, activePage, handleViewHistory, handlePricingClick,handleSwitchRole }) {
     const [isOpen, setIsOpen] = useState(false);
     const sidebarRef = useRef(null);
+    const actualUserRole = localStorage.getItem('actual_user_role');
     const initials = fullName
         .split(' ')
         .map(name => name[0])
@@ -53,37 +54,49 @@ function NavigationBar({ fullName, role, handleLogout, handleBillingClick, handl
                         </li>
 
                         {role === "RIDER" && (
-                            <li className={`nav-item ${activePage === 'billing' ? 'active' : ''}`} onClick={handleBillingClick}>
+                            <li className={`nav-item ${activePage === 'billing' ? 'active' : ''}`}
+                                onClick={handleBillingClick}>
                                 <i className="fas fa-file-invoice-dollar"></i>
                                 My Bills
                             </li>
                         )}
 
                         {role === "OPERATOR" && (
-                            <li className={`nav-item ${activePage === 'billing' ? 'active' : ''}`} onClick={handleBillingClick}>
+                            <li className={`nav-item ${activePage === 'billing' ? 'active' : ''}`}
+                                onClick={handleBillingClick}>
                                 <i className="fas fa-file-invoice-dollar"></i>
                                 All Bills
                             </li>
                         )}
 
                         {role === "RIDER" && (
-                            <li className={`nav-item ${activePage === 'history' ? 'active' : ''}`} onClick={handleViewHistory}>
+                            <li className={`nav-item ${activePage === 'history' ? 'active' : ''}`}
+                                onClick={handleViewHistory}>
                                 <i className="fas fa-history"></i>
                                 History
                             </li>
-                        )}    
-                            
+                        )}
+
                         {role === "OPERATOR" && (
-                            <li className={`nav-item ${activePage === 'history' ? 'active' : ''}`} onClick={handleViewHistory}>
+                            <li className={`nav-item ${activePage === 'history' ? 'active' : ''}`}
+                                onClick={handleViewHistory}>
                                 <i className="fas fa-history"></i>
                                 All Trip Histories
                             </li>
                         )}
 
                         {role === "RIDER" && (
-                            <li className={`nav-item ${activePage === 'pricing' ? 'active' : ''}`} onClick={handlePricingClick}>
+                            <li className={`nav-item ${activePage === 'pricing' ? 'active' : ''}`}
+                                onClick={handlePricingClick}>
                                 <i className="fas fa-dollar-sign"></i>
                                 Pricing Plans
+                            </li>
+                        )}
+
+                        {actualUserRole === "OPERATOR" && (
+                            <li className="nav-item" onClick={handleSwitchRole}>
+                                <i className="fas fa-exchange-alt"></i>
+                                Switch Role
                             </li>
                         )}
 

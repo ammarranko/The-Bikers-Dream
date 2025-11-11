@@ -493,6 +493,30 @@ export default function useHomeLogic() {
         navigate('/login?logout=1', { replace: true });
     };
 
+    const handleSwitchRole = async () => {
+
+
+
+            const actualRole = localStorage.getItem('actual_user_role');
+
+            // Only allow switching if the user is actually an OPERATOR in the database
+            if (actualRole !== 'OPERATOR') {
+                alert('Only operators can switch roles. You are a rider and cannot become an operator.');
+                return;
+            }
+
+            // If user is an operator, allow switching between OPERATOR and RIDER
+            const currentRole = localStorage.getItem('user_role');
+            if (currentRole === 'RIDER') {
+                localStorage.setItem('user_role', 'OPERATOR');
+            } else {
+                localStorage.setItem('user_role', 'RIDER');
+            }
+            navigate('/home', { replace: true });
+    };
+
+
+
     const handleViewHistory = () => {
         navigate('/history');
     };
@@ -645,6 +669,7 @@ export default function useHomeLogic() {
         showCancelReservationPopup,
         // Actions
         handleLogout,
+        handleSwitchRole,
         handleViewHistory,
         fetchStations,
         onClickShowConfirmRental: (dock, bike, station) => setConfirmRental({ active: true, dock, bike, station }),
