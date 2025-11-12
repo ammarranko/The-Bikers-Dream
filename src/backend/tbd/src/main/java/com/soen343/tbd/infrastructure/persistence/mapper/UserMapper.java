@@ -37,6 +37,7 @@ public abstract class UserMapper {
             rider.setExpiryMonth(entity.getExpiryMonth());
             rider.setExpiryYear(entity.getExpiryYear());
             rider.setCvc(entity.getCvc());
+            rider.setTier(entity.getTier());
 
             return rider;
         } else if ("OPERATOR".equals(entity.getRole())) {
@@ -49,6 +50,7 @@ public abstract class UserMapper {
                     entity.getUsername(),
                     entity.getCreatedAt()
             );
+            operator.setTier(entity.getTier());
 
             return operator;
         }
