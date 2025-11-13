@@ -9,6 +9,7 @@ public class ReturnResponse {
     private Long userId;
     private String  userFullName;
     private String userEmail;
+    private String userTier;
     private String startStationName;
     private String endStationName;
     private Timestamp startTime;
@@ -22,11 +23,13 @@ public class ReturnResponse {
     private Double perMinuteRate;
     private Double totalAmount;
 
+
+
     public ReturnResponse(Long tripId, Long bikeId, Long userId, String userFullName, String userEmail,
-                         String startStationName, String endStationName,
-                         Timestamp startTime, Timestamp endTime, Long durationMinutes,
-                         Long billId, String pricingStrategy, Double baseFare, Double perMinuteRate,
-                         Double totalAmount) {
+                          String startStationName, String endStationName,
+                          Timestamp startTime, Timestamp endTime, Long durationMinutes,
+                          Long billId, String pricingStrategy, Double baseFare, Double perMinuteRate,
+                          Double totalAmount, String userTier) {
         this.tripId = tripId;
         this.bikeId = bikeId;
         this.userId = userId;
@@ -42,6 +45,7 @@ public class ReturnResponse {
         this.baseFare = baseFare;
         this.perMinuteRate = perMinuteRate;
         this.totalAmount = totalAmount;
+        this.userTier = userTier;
     }
 
     public Long getTripId() {
@@ -163,5 +167,11 @@ public class ReturnResponse {
     public void setTotalAmount(Double totalAmount) {
         this.totalAmount = totalAmount;
     }
+    public String getUserTier() {
+        return userTier;
+    }
 
+    public void setUserTier(String userTier) {
+        this.userTier = userTier;
+    }
 }
