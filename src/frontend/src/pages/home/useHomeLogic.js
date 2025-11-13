@@ -286,13 +286,21 @@ export default function useHomeLogic() {
                 setTimeLeft(null);
 
                 if (activeReservation.reservationId) {
-                    await axios.post("http://localhost:8080/api/reservations/end", 
-                        { 
+                    const response = await axios.post("http://localhost:8080/api/reservations/end",
+                        {
                             reservationId,  
                             userEmail
                         },
                         { params: { type: 'EXPIRE' } }
                     );
+
+                    // Update tier in localStorage if returned from backend
+                    if (response.data.userTier) {
+                        localStorage.setItem('tier', response.data.userTier);
+                        console.log('Tier updated after reservation expiration:', response.data.userTier);
+                        // Trigger custom event to notify other components
+                        window.dispatchEvent(new Event('tierUpdated'));
+                    }
                 }
 
                 await Promise.all([fetchStations(), fetchActiveRental()]);
@@ -461,13 +469,14 @@ export default function useHomeLogic() {
                     alert("No reservation to cancel.");
                     return;
                 }
-                await axios.post("http://localhost:8080/api/reservations/end", 
-                    { 
+                await axios.post("http://localhost:8080/api/reservations/end",
+                    {
                         reservationId: activeReservation.reservationId, 
                         userEmail
                     },
                     { params: { type: 'CANCEL' } }
                 );
+
                 setActiveReservation({
                     hasActiveReservation: false,
                     bikeId: null,
@@ -530,8 +539,8 @@ export default function useHomeLogic() {
             try {
                 const reservationId = Number(activeReservation.reservationId);
                 if (reservationId) {
-                    await axios.post("http://localhost:8080/api/reservations/end", 
-                        { 
+                    await axios.post("http://localhost:8080/api/reservations/end",
+                        {
                             reservationId: activeReservation.reservationId, 
                             userEmail
                         },
@@ -576,6 +585,13 @@ export default function useHomeLogic() {
                     bikeId,
                     stationId
                 });
+                //set the updated tier in localStorage if returned from backend
+                if (response.data.userTier) {
+                    localStorage.setItem('tier', response.data.userTier);
+                    console.log('Tier updated after trip finished:', response.data.userTier);
+                    // Trigger custom event to notify other components
+                    window.dispatchEvent(new Event('tierUpdated'));
+                }
 
                 // Store trip summary data
                 setTripSummaryData(response.data);

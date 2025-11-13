@@ -3,15 +3,28 @@ import './NavigationBar.css';
 
 function NavigationBar({ fullName, role, handleLogout, handleBillingClick, handleHomeClick, activePage, handleViewHistory, handlePricingClick,handleSwitchRole }) {
     const [isOpen, setIsOpen] = useState(false);
+    const [userTier, setUserTier] = useState(localStorage.getItem('tier') || 'NONE');
     const sidebarRef = useRef(null);
     const actualUserRole = localStorage.getItem('actual_user_role');
-    const userTier = localStorage.getItem('tier') || 'NONE';
     const initials = fullName
         .split(' ')
         .map(name => name[0])
         .join('')
         .toUpperCase();
     
+    // Listen for tier updates from other components
+    useEffect(() => {
+        const handleTierUpdate = () => {
+            setUserTier(localStorage.getItem('tier') || 'NONE');
+        };
+
+        window.addEventListener('tierUpdated', handleTierUpdate);
+
+        return () => {
+            window.removeEventListener('tierUpdated', handleTierUpdate);
+        };
+    }, []);
+
     // Toggle sidebar when clicking the button
     const handleToggle = (e) => {
         e.stopPropagation(); // prevent closing immediately
