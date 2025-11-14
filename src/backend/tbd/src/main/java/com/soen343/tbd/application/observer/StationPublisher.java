@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.soen343.tbd.application.dto.MaintenanceUpdateDTO;
 import com.soen343.tbd.application.dto.EventDTO;
 import com.soen343.tbd.application.dto.StationDetailsDTO;
+import com.soen343.tbd.domain.model.Bill;
 
 // Concrete Subject 
 @Service
@@ -48,7 +49,7 @@ public class StationPublisher implements StationSubject {
     @Override
     public void notifyMaintenanceChange(MaintenanceUpdateDTO maintenanceUpdate) {
         logger.debug("Notifying {} observers about maintenance change for bike {}",
-            observers.size(), maintenanceUpdate.getBikeId());
+                observers.size(), maintenanceUpdate.getBikeId());
         for (StationObserver observer : observers) {
             try {
                 observer.onMaintenanceUpdate(maintenanceUpdate);
@@ -63,4 +64,5 @@ public class StationPublisher implements StationSubject {
         logger.debug("Notifying about operator event: {}", event.getMetadata());
         sseStationObserver.sendOperatorEvent(event);
     }
+
 }
