@@ -28,7 +28,8 @@ public abstract class UserMapper {
                     entity.getAddress(),
                     entity.getUsername(),
                     entity.getCreatedAt(),
-                    null // payment info (mapped later)
+                    null, // payment info (mapped later)
+                    entity.getFlexMoney()
             );
 
             // Set payment information
@@ -47,7 +48,8 @@ public abstract class UserMapper {
                     entity.getPassword(),
                     entity.getAddress(),
                     entity.getUsername(),
-                    entity.getCreatedAt()
+                    entity.getCreatedAt(), 
+                    entity.getFlexMoney()
             );
 
             return operator;

@@ -8,8 +8,8 @@ public class Rider extends User {
     private String paymentInfo;     // Verify implementation for payment
 
     public Rider(UserId userId, String fullName, String email, String password,
-                 String address, String username, Timestamp createdAt, String paymentInfo) {
-        super(userId, fullName, email, password, address, username, "RIDER", createdAt);
+                 String address, String username, Timestamp createdAt, String paymentInfo, Integer flexmoney) {
+        super(userId, fullName, email, password, address, username, "RIDER", createdAt, flexmoney);
         this.paymentInfo = paymentInfo;
     }
 

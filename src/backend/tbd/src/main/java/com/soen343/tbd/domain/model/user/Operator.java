@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 public class Operator extends User{
 
     public Operator(UserId userId, String fullName, String email, String password,
-                    String address, String username, Timestamp createdAt) {
-        super(userId, fullName, email, password, address, username, "OPERATOR", createdAt);
+                    String address, String username, Timestamp createdAt, Integer flexmoney) {
+        super(userId, fullName, email, password, address, username, "OPERATOR", createdAt, flexmoney);
     }
 }

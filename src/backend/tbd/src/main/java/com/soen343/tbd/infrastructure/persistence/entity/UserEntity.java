@@ -59,6 +59,8 @@ public class UserEntity {
     @OneToMany(mappedBy="user", fetch = FetchType.LAZY)
     List<TripEntity> trips;
 
+    @Column(name = "flexmoney")
+    private Integer flexmoney;
 
     /* 
     -----------------------
@@ -180,6 +182,14 @@ public class UserEntity {
 
     public void setTrips(List<TripEntity> trips) {
         this.trips = trips;
+    }
+
+    public Integer getFlexMoney() {
+        return flexmoney;
+    }
+
+    public void setFlexMoney(Integer flexmoney) {
+        this.flexmoney = flexmoney;
     }
 
 }

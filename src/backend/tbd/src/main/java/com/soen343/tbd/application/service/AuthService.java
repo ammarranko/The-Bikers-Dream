@@ -52,7 +52,7 @@ public class AuthService {
                             String cardHolderName, String cardNumber, String expiryMonth, String expiryYear, String cvc) {
         // Create a new user entity
         User newUser = new Rider(null, fullName, email, password, address, username, new Timestamp(System.currentTimeMillis()), 
-                        null);
+                        null, 0);
 
         // Hash the password before saving
         String encodedPassword = passwordEncoder.encode(password);
