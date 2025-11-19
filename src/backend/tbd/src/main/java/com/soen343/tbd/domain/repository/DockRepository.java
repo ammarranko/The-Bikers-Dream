@@ -8,6 +8,6 @@ import java.util.Optional;
 public interface DockRepository {
     Optional<Dock> findById(DockId dockId);
 
-    void save(Dock dock);
+    Dock save(Dock dock);
 }
 

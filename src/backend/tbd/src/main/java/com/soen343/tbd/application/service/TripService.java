@@ -315,6 +315,10 @@ public class TripService {
             
             // Restore the value after save (since mapper ignores regularCost when loading from DB)
             resultingBill.setRegularCost(regularCost);
+
+            // Assign the bill to the trip
+            currentTrip.setBillId(resultingBill.getBillId());
+            tripRepository.save(currentTrip);
             
             logger.info("Bill assigned and saved successfully");
         } catch (Exception e) {
