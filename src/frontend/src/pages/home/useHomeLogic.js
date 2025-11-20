@@ -446,11 +446,26 @@ export default function useHomeLogic() {
             try {
                 const response = await axios.post("http://localhost:8080/api/reservations/create", { bikeId, stationId, userEmail });
                 if (response.data) {
+                         // -----------------------------
+                // ADD TIER EXTRA TIME HERE
+                // -----------------------------
+                const userTier = localStorage.getItem('tier'); // Get user tier
+                let extraMs = 0;
+                if (userTier === 'SILVER') extraMs = 2 * 60 * 1000; // 2 min
+                if (userTier === 'GOLD') extraMs = 5 * 60 * 1000;   // 5 min
+
+                // Adjust expiry time with extra time
+                const originalExpiry = new Date(response.data.expiresAt);
+                const adjustedExpiry = new Date(originalExpiry.getTime() + extraMs);
+                // -----------------------------
+
+
                     setActiveReservation({
                         hasActiveReservation: true,
                         bikeId,
                         stationId,
-                        expiresAt: response.data.expiresAt,
+                        //expiresAt: response.data.expiresAt,
+                        expiresAt: adjustedExpiry.toISOString(), // <-- use adjusted time
                         reservationId: response.data.reservationId
                     });
                     setReservationSuccessPopup(true);

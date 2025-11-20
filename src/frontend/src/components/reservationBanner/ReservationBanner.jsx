@@ -22,7 +22,15 @@ const ReservationBanner = ({ activeReservation, timeLeft }) => {
                 </div>
                 <div className="detail-row time-remaining">
                     <span className="detail-label">Time Remaining:</span>
-                    <span className="detail-value countdown">{timeLeft}</span>
+                    <span className="detail-value countdown">{timeLeft}
+                    <span className="extra-time">
+                    {(() => {
+            const userTier = localStorage.getItem('tier'); // Get user tier
+            if (userTier === 'SILVER') return ' +2 min for Silver';
+            if (userTier === 'GOLD') return ' +5 min for Gold';
+            return '';
+        })()} </span>
+        </span>
                 </div>
             </div>
 
