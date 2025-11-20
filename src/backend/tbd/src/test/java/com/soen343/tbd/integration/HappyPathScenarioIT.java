@@ -8,9 +8,7 @@ import com.soen343.tbd.domain.model.enums.*;
 import com.soen343.tbd.domain.model.ids.BikeId;
 import com.soen343.tbd.domain.model.ids.DockId;
 import com.soen343.tbd.domain.model.ids.StationId;
-import com.soen343.tbd.domain.model.ids.UserId;
 import com.soen343.tbd.domain.model.pricing.PricingStrategy;
-import com.soen343.tbd.domain.model.user.Rider;
 import com.soen343.tbd.domain.model.user.User;
 import com.soen343.tbd.domain.repository.*;
 import org.junit.jupiter.api.Test;
@@ -27,11 +25,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @ActiveProfiles("test")
 @Transactional
-public class HappyPathScenario {
+public class HappyPathScenarioIT {
 
     // === Services under test ===
-    @Autowired
-    private BillingService billingService;
 
     @Autowired
     private ReservationService reservationService;
@@ -62,9 +58,6 @@ public class HappyPathScenario {
     @Autowired
     private StationRepository stationRepository;
 
-    /**
-     *
-     */
     @Test
     void riderReserves_UnlocksBike_ReturnsBike_BilledSuccessfully() {
         // Create initial entities
@@ -75,29 +68,29 @@ public class HappyPathScenario {
         StationId stationBId = null;
 
         //Create test rider:
-        User rider = initializeRider();
+        User rider = ITInitializer.initializeRider();
         userRepository.save(rider);
         rider = userRepository.findByEmail("IT@email.com").orElseThrow();
 
         // Create source test dock:
-        Dock dockAtStationA = initializeDock(dockIdAtStationA, null);
+        Dock dockAtStationA = ITInitializer.initializeDock(dockIdAtStationA, null);
         dockAtStationA.setStatus(DockStatus.OCCUPIED);
         dockAtStationA = dockRepository.save(dockAtStationA);
 
         //Create test bike:
-        Bike bike = initializeBike(bikeId, dockAtStationA.getDockId());
+        Bike bike = ITInitializer.initializeBike(bikeId, dockAtStationA.getDockId());
         bike = bikeRepository.save(bike);
 
         // Create target test dock:
-        Dock dockAtStationB = initializeDock(dockIdAtStationB, null);
+        Dock dockAtStationB = ITInitializer.initializeDock(dockIdAtStationB, null);
         dockAtStationB = dockRepository.save(dockAtStationB);
 
         // Create source test station:
-        Station stationA = initializeStation(stationAId, "Station A", List.of(dockAtStationA));
+        Station stationA = ITInitializer.initializeStation(stationAId, "Station A", List.of(dockAtStationA));
         stationA = stationRepository.save(stationA);
 
         // Create target test station:
-        Station stationB = initializeStation(stationBId, "Station B", List.of(dockAtStationB));
+        Station stationB = ITInitializer.initializeStation(stationBId, "Station B", List.of(dockAtStationB));
         stationB = stationRepository.save(stationB);
 
         // Link docks to stations:
@@ -130,9 +123,11 @@ public class HappyPathScenario {
                 rider.getUserId()
         );
 
-        // Step 2: Rider unlocks the reserved bike at Station A
+        // Step 2: Rider unlocks the reserved bike at Station A and completes the reservation
         Trip trip = tripService.rentBikeService(bike.getBikeId(), dockAtStationA.getDockId(),
                 rider.getUserId(), stationA.getStationId());
+
+        reservationService.completeReservation(reservation.getReservationId());
 
         // Step 3: Rider returns the bike to Station B
         Map<String, Object> serviceResponse = tripService.returnBikeService(trip.getTripId(), bike.getBikeId(), dockAtStationB.getDockId(),
@@ -163,18 +158,15 @@ public class HappyPathScenario {
         Bill billFromDb = billRepository.findById(tripFromDb.getBillId())
                 .orElseThrow();
 
-        assertThat(billFromDb.getUserId()).isEqualTo(rider.getUserId());
-        assertThat(billFromDb.getTripId()).isEqualTo(tripFromDb.getTripId());
-        assertThat(billFromDb.getDiscountedCost()).isGreaterThan(0.0);
-
         // E) Reservation state
         Reservation reservationFromDb = reservationRepository.findById(reservation.getReservationId())
                 .orElseThrow();
+        assertThat(reservationFromDb.getStatus()).isEqualTo(ReservationStatus.COMPLETED);
 
-//        assertThat(reservationFromDb.getUserId()).isEqualTo(rider.getUserId());
-//        assertThat(reservationFromDb.getBikeId()).isEqualTo(bike.getBikeId());
-//        assertThat(reservationFromDb.getStartStationId()).isEqualTo(stationAId);
-//        assertThat(reservationFromDb.getStatus()).isEqualTo(ReservationStatus.COMPLETED);
+
+        assertThat(billFromDb.getUserId()).isEqualTo(rider.getUserId());
+        assertThat(billFromDb.getTripId()).isEqualTo(tripFromDb.getTripId());
+        assertThat(billFromDb.getDiscountedCost()).isGreaterThan(0.0);
 
         trip = (Trip) serviceResponse.get("resultingTrip");
         Bill bill = (Bill) serviceResponse.get("resultingBill");
@@ -196,29 +188,5 @@ public class HappyPathScenario {
         System.out.println("Cost: " + bill.getDiscountedCost());
         System.out.println("-------------------------------");
 
-    }
-
-    private User initializeRider() {
-        User rider = new Rider(null, "John Doe", "IT@email.com",
-                "password", "123 Main St", "johndoe",
-                new java.sql.Timestamp(System.currentTimeMillis()), null);
-        return rider;
-    }
-
-    private Bike initializeBike(BikeId bikeId, DockId dockId) {
-        Bike bike = new Bike(bikeId, dockId, BikeStatus.AVAILABLE, BikeType.STANDARD, null);
-        return bike;
-    }
-
-    private Dock initializeDock(DockId dockId, StationId stationId) {
-        Dock dock = new Dock(dockId, stationId, DockStatus.EMPTY);
-        return dock;
-    }
-
-    private Station initializeStation(StationId stationId, String name, List<Dock> docks) {
-        Station station = new Station(stationId, name, StationAvailability.EMPTY,
-                StationStatus.ACTIVE,"test position " + name, "123 Main St " + name,
-                docks.size(), 0, docks);
-        return station;
     }
 }

@@ -234,7 +234,7 @@ public class TripServiceTest {
         verify(stationRepository).findById(endStationId);
         verify(stationRepository).findById(startStationId);
         verify(userService, times(2)).getUserById(userId);
-        verify(tripRepository).save(trip);
+        verify(tripRepository, times(2)).save(trip);
         verify(billRepository).save(any(Bill.class));
     }
 

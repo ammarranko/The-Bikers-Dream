@@ -21,7 +21,7 @@ spring:
 
 logging:
   level:
-    com.soen343.tbd: INFO
+    com.soen343.tbd: DEBUG
     #    org.hibernate.SQL: DEBUG
     #    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     com.zaxxer.hikari: INFO

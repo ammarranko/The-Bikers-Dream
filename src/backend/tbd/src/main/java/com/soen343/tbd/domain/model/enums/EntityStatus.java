@@ -37,9 +37,9 @@ public enum EntityStatus {
         }
             else if (status instanceof StationAvailability) {
             return switch ((StationAvailability) status) {
-                case STATION_EMPTY -> EMPTY;
-                case STATION_OCCUPIED -> OCCUPIED;
-                case STATION_FULL -> STATION_FULL;
+                case EMPTY -> STATION_EMPTY;
+                case OCCUPIED -> STATION_OCCUPIED;
+                case FULL -> STATION_FULL;
             };
         } else if (status instanceof ReservationStatus) {
             return switch ((ReservationStatus) status) {

@@ -259,7 +259,7 @@ public class TripService {
                     "Dock occupied by returned bike", previousStatus, newStatus,
                     "User_" + userId.value());
 
-            logger.info("Updated dock status to STATION_OCCUPIED");
+            logger.info("Updated dock status to OCCUPIED");
         } catch (Exception e) {
             logger.warn("Dock unable to be updated/saved", e);
             throw new RuntimeException("Failed to update dock during return", e);

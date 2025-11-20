@@ -341,7 +341,7 @@ public class OperatorService {
             eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(event));
         }
 
-        // Update dock status to STATION_OCCUPIED
+        // Update dock status to OCCUPIED
         Dock dock = dockRepository.findById(dockId)
             .orElseThrow(() -> new RuntimeException("Dock not found, ID: " + dockId.value()));
         dock.setStatus(DockStatus.OCCUPIED);
