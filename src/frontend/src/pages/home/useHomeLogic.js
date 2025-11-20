@@ -544,7 +544,7 @@ export default function useHomeLogic() {
                             reservationId: activeReservation.reservationId, 
                             userEmail
                         },
-                        { params: { type: 'CANCEL' } }
+                        { params: { type: 'COMPLETE' } }
                     );
                 }
 

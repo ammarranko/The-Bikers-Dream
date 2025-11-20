@@ -119,7 +119,7 @@ public class ReservationService {
             if (createReservationEvent != null) {
                 eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(createReservationEvent));
             }
-            
+
             // Create event for bike status change
             Event bikeStatusChangeEvent = eventService.createEventForEntity(
                 EntityType.BIKE,
@@ -128,7 +128,7 @@ public class ReservationService {
                 EntityStatus.AVAILABLE,
                 EntityStatus.RESERVED,
                 "User_"+userId.value());
-            
+
             // Notify all operators about bike status change event
             if (bikeStatusChangeEvent != null) {
                 eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(bikeStatusChangeEvent));
@@ -203,7 +203,7 @@ public class ReservationService {
             if (cancelEvent != null) {
                 eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(cancelEvent));
             }
-            
+
             // Create event for bike status change
             Event bikeStatusChangeEvent = eventService.createEventForEntity(
                     EntityType.BIKE,
@@ -211,8 +211,8 @@ public class ReservationService {
                     "Bike made available after reservation cancellation",
                     EntityStatus.RESERVED,
                     EntityStatus.AVAILABLE,
-                    "System");  
-            
+                    "System");
+
             // Notify all operators about bike status change event
             if (bikeStatusChangeEvent != null) {
                 eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(bikeStatusChangeEvent));
@@ -226,6 +226,45 @@ public class ReservationService {
             logger.warn("Failed to cancel reservation {}: {}", reservationId.value(), e.getMessage());
         }
     }
+
+    // -------------------------
+    // CANCEL RESERVATION
+    // -------------------------
+
+    @Transactional
+    public void completeReservation(ReservationId reservationId) {
+        logger.info("Attempting to complete reservation: ReservationId={}", reservationId.value());
+
+        Reservation completeReservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new RuntimeException("Reservation not found: " + reservationId.value()));
+
+        try {
+            completeReservation.complete();
+            reservationRepository.save(completeReservation);
+
+            // Create event for reservation cancellation
+            Event completeEvent = eventService.createEventForEntity(
+                    EntityType.RESERVATION,
+                    completeReservation.getReservationId().value(),
+                    "Reservation completed",
+                    EntityStatus.RES_ACTIVE,
+                    EntityStatus.RES_COMPLETED,
+                    "System");
+
+            // Notify all operators about reservation completed event
+            if (completeEvent != null) {
+                eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(completeEvent));
+            }
+
+            // Notify
+            notifyAllUsers(completeReservation.getStartStationId());
+
+            logger.info("Reservation {} completed successfully", reservationId.value());
+        } catch (Exception e) {
+            logger.warn("Failed to complete reservation {}: {}", reservationId.value(), e.getMessage());
+        }
+    }
+
 
     // -------------------------
     // EXPIRE RESERVATION

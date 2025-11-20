@@ -33,15 +33,6 @@ public class ReservationServiceTest {
     @Mock
     private StationRepository stationRepository;
 
-    @Mock
-    private StationService stationService;
-
-    @Mock
-    private StationSubject stationPublisher;
-
-    @Mock
-    private EventService eventService;
-
     @InjectMocks
     private ReservationService reservationService;
 
@@ -133,6 +124,7 @@ public class ReservationServiceTest {
 
         reservationService.cancelReservation(reservationId);
 
+        verify(reservationRepository).findById(reservationId);
         verify(reservationRepository).save(testReservation);
         verify(bikeRepository).findById(bikeId);
         verify(bikeRepository).save(testBike);
@@ -171,5 +163,33 @@ public class ReservationServiceTest {
         verify(reservationRepository).save(testReservation);
         verify(bikeRepository).findById(bikeId);
         verify(bikeRepository).save(testBike);
+    }
+
+    // ========== Tests for completeReservation ==========
+    /**
+     * Test ReservationService.completeReservation() for a successful reservation completion.
+     * Should mark the reservation as COMPLETED
+     */
+    @Test
+    void completeReservationTest_Successful() {
+        UserId userId = new UserId(123L);
+        BikeId bikeId = new BikeId(456L);
+        StationId stationId = new StationId(101L);
+        ReservationId reservationId = new ReservationId(100L);
+
+        Bike testBike = mock(Bike.class);
+
+        Reservation testReservation = new Reservation(reservationId, bikeId, stationId,
+                userId, new java.sql.Timestamp(System.currentTimeMillis()),
+                new java.sql.Timestamp(System.currentTimeMillis() + 15000));
+
+        when(reservationRepository.findById(reservationId)).thenReturn(Optional.of(testReservation));
+
+        reservationService.completeReservation(reservationId);
+
+        verify(reservationRepository).findById(reservationId);
+        verify(reservationRepository).save(testReservation);
+
+        assertThat(testReservation.getStatus()).isEqualTo(ReservationStatus.COMPLETED);
     }
 }
