@@ -88,12 +88,14 @@ const Auth = () => {
         localStorage.setItem("actual_user_role", role); // to keep track of actual role if switched
         localStorage.setItem("tier", tier || "NONE"); // Store user tier
 
-        const previousTier = localStorage.getItem("previousTier");
+        const previousTierKey = `previousTier_${email}`; // storing w email to differentiate users, otherwise will show popup anytime login w a different user when their tiers are different
+        const previousTier = localStorage.getItem(previousTierKey);
         const newTier = tier || "NONE";
+
         if (previousTier && previousTier !== newTier) {
           alert(`Your loyalty tier has changed: ${previousTier} → ${newTier}`);
         }
-        localStorage.setItem("previousTier", newTier);
+        localStorage.setItem(previousTierKey, newTier);
 
         // Set default header for future requests
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
