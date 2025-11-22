@@ -37,7 +37,7 @@ public class UserService {
         try {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId.value()));
-            ;
+
             return user.getEmail();
         } catch (Exception e) {
             return "Unknown User";

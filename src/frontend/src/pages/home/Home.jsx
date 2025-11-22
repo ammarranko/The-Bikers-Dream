@@ -27,7 +27,7 @@ const Home = () => {
     activeBikeRental,
     bikesUnderMaintenance,
     activeBikeMaintenanceRemoval,
-        tripSummaryData,
+    tripSummaryData,
     // popups & control
     confirmRental,
     rentalSuccessPopup,
@@ -35,9 +35,11 @@ const Home = () => {
     returnSuccessPopup,
     confirmReservation,
     reservationSuccessPopup,
+    reservationExpiredPopup,
     showCancelReservationPopup,
     // actions
     handleLogout,
+      handleSwitchRole,
     handleViewHistory,
     fetchStations,
     onClickShowConfirmRental,
@@ -50,6 +52,7 @@ const Home = () => {
     handleConfirmReservation,
     setConfirmReservation,
     setReservationSuccessPopup,
+    setReservationExpiredPopup,
     handleCancelActiveReservation,
     setShowCancelReservationPopup,
     handleConfirmRental,
@@ -90,6 +93,7 @@ const Home = () => {
         returnSuccessPopup,
         confirmReservation,
         reservationSuccessPopup,
+        reservationExpiredPopup,
         showCancelReservationPopup,
         activeBikeRental,
         tripSummaryData,
@@ -102,6 +106,7 @@ const Home = () => {
         handleConfirmReservation,
         setConfirmReservation,
         setReservationSuccessPopup,
+        setReservationExpiredPopup,
         handleCancelActiveReservation,
         setShowCancelReservationPopup
     };
@@ -127,6 +132,7 @@ const Home = () => {
                 fullName={fullName}
                 role={role}
                 handleLogout={handleLogout}
+                handleSwitchRole={handleSwitchRole}
                 handleViewHistory={handleViewHistory}
                 handleBillingClick={handleBillingClick}
                 handleHomeClick={handleHomeClick}

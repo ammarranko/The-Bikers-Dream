@@ -1,7 +1,6 @@
 package com.soen343.tbd.application.service;
 
 import java.util.HashMap;
-import java.util.List;
 
 import java.util.Map;
 
@@ -23,7 +22,6 @@ import com.soen343.tbd.domain.model.enums.EntityStatus;
 import com.soen343.tbd.domain.model.ids.*;
 import com.soen343.tbd.domain.model.helpers.Event;
 import com.soen343.tbd.domain.repository.*;
-import com.soen343.tbd.application.observer.StationSubject;
 
 @Service
 public class TripService {
@@ -37,6 +35,7 @@ public class TripService {
     private final StationSubject stationPublisher;
     private final StationService stationService;
     private final EventService eventService;
+    private final UserService userService;
     private final FlexMoneyService flexMoneyService;
     private final BillingService billingService;
 
@@ -48,8 +47,9 @@ public class TripService {
             StationSubject stationPublisher,
             StationService stationService, 
             EventService eventService, 
-            FlexMoneyService flexMoneyService
-            ,BillingService billingService
+            UserService userService, 
+            FlexMoneyService flexMoneyService,
+            BillingService billingService
         ) {
         this.billRepository = billRepository;
         this.tripRepository = tripRepository;
@@ -61,6 +61,7 @@ public class TripService {
         this.eventService = eventService;
         this.flexMoneyService = flexMoneyService;
         this.billingService = billingService;
+        this.userService = userService;
     }
 
     /**
@@ -301,10 +302,22 @@ public class TripService {
 
         // Complete the given trip and compute the bill
         Bill resultingBill = null;
+        double flexMoneyUsed = 0.0;
+        double discountRate = 0.0;
         try {
+            discountRate = userService.getUserById(userId).getCurrentDiscount();
+
             EntityStatus previousStatus = EntityStatus.fromSpecificStatus(currentTrip.getStatus());
-            resultingBill = currentTrip.endTrip(selectedStation.getStationId());
+            resultingBill = currentTrip.endTrip(selectedStation.getStationId(), discountRate);
+            
+            // Round the bill to 2 decimal places before applying FlexMoney to avoid precision issues
+            double roundedCost = Math.round(resultingBill.getDiscountedCost() * 100.0) / 100.0;
+            resultingBill.setDiscountedCost(roundedCost);
+
+            double costBeforeFlex = resultingBill.getDiscountedCost();
             resultingBill = billingService.applyFlexMoney(resultingBill, userId);
+            flexMoneyUsed = costBeforeFlex - resultingBill.getDiscountedCost();
+            
             tripRepository.save(currentTrip);
             EntityStatus newStatus = EntityStatus.fromSpecificStatus(currentTrip.getStatus());
 
@@ -312,7 +325,7 @@ public class TripService {
                     "Trip completed", previousStatus, newStatus,
                     "User_" + userId.value());
 
-            logger.info("Trip ended successfully");
+            logger.info("Trip ended successfully, discount rate applied: {}", userService.getUserById(userId).getCurrentDiscount());
         } catch (Exception e) {
             logger.warn("Unable to end trip", e);
             throw new RuntimeException("Failed to end trip during return", e);
@@ -320,7 +333,15 @@ public class TripService {
 
         // Persist the resulting bill
         try {
+            Double regularCost = resultingBill.getRegularCost();
+
             resultingBill = billRepository.save(resultingBill);
+            
+            // Restore the value after save (since mapper ignores regularCost when loading from DB)
+            resultingBill.setRegularCost(regularCost);
+            resultingBill.setFlexMoneyUsed(flexMoneyUsed);
+            resultingBill.setLoyaltyDiscount(discountRate);
+
             logger.info("Bill assigned and saved successfully");
         } catch (Exception e) {
             logger.warn("New Bill unable to be created", e);
@@ -328,8 +349,15 @@ public class TripService {
         }
 
         // check for flex money eligibility (after bill so it doesn't get applied to the trip immediately)
+        Integer flexMoneyEarned = 0;
         try {
-            flexMoneyService.addFlexMoneyIfEligible(userId, selectedStation);
+            flexMoneyEarned = flexMoneyService.addFlexMoneyIfEligible(userId, selectedStation, currentTrip.calculateDurationInMinutes());
+            if (flexMoneyEarned > 0) {
+                logger.info("User earned {} flex money points for returning at a low-fullness station", flexMoneyEarned);
+                resultingBill.setFlexMoneyEarned(flexMoneyEarned);
+            } else {
+                logger.info("User did not earn any flex money points for this trip");
+            }
         } catch (Exception e) {
             logger.warn("Failed giving flex money to user: {}", userId.value(), e);
         }

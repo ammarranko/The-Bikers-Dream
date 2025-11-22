@@ -1,20 +1,17 @@
 package com.soen343.tbd.infrastructure.persistence.adapter;
 
-import com.soen343.tbd.application.service.StationService;
 import com.soen343.tbd.domain.model.Dock;
 import com.soen343.tbd.domain.model.ids.DockId;
 import com.soen343.tbd.domain.repository.DockRepository;
-import com.soen343.tbd.infrastructure.persistence.entity.StationEntity;
 import com.soen343.tbd.infrastructure.persistence.mapper.DockMapper;
 import com.soen343.tbd.infrastructure.persistence.repository.JpaDockRepository;
 
 import jakarta.persistence.EntityManager;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.List;
 
 import com.soen343.tbd.infrastructure.persistence.entity.DockEntity;
 
@@ -24,12 +21,25 @@ public class DockRepositoryAdapter implements DockRepository {
     private final DockMapper dockMapper;
     private final EntityManager entityManager;
 
-    private static final Logger logger = LoggerFactory.getLogger(DockRepositoryAdapter.class);
-
     public DockRepositoryAdapter(JpaDockRepository jpa, DockMapper mapper, EntityManager entityManager) {
         this.jpaDockRepository = jpa;
         this.dockMapper = mapper;
         this.entityManager = entityManager;
+    }
+
+    @Override
+    public List<Dock> findAll() {
+        return jpaDockRepository.findAll()
+                .stream()
+                .map(dockMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public void saveAll(List<Dock> docks) {
+        for (Dock dock : docks) {
+            save(dock);
+        }
     }
 
     @Override

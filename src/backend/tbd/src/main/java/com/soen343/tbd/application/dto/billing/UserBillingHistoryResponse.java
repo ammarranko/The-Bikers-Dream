@@ -102,11 +102,12 @@ public class UserBillingHistoryResponse {
         private Double baseFare;
         private Double perMinuteRate;
         private Double totalAmount;
+        private Double regularCost; // Added field
 
         public TripBillDTO(Long tripId, Long bikeId, String startStationName, String endStationName,
                           Timestamp startTime, Timestamp endTime, Long durationMinutes,
                           Long billId, String billStatus, String pricingStrategy,
-                          Double baseFare, Double perMinuteRate, Double totalAmount) {
+                          Double baseFare, Double perMinuteRate, Double totalAmount, Double regularCost) { // Added parameter
             this.tripId = tripId;
             this.bikeId = bikeId;
             this.startStationName = startStationName;
@@ -120,6 +121,7 @@ public class UserBillingHistoryResponse {
             this.baseFare = baseFare;
             this.perMinuteRate = perMinuteRate;
             this.totalAmount = totalAmount;
+            this.regularCost = regularCost; // Added assignment
         }
 
         public Long getTripId() {
@@ -224,6 +226,14 @@ public class UserBillingHistoryResponse {
 
         public void setTotalAmount(Double totalAmount) {
             this.totalAmount = totalAmount;
+        }
+
+        public Double getRegularCost() {
+            return regularCost;
+        }
+
+        public void setRegularCost(Double regularCost) {
+            this.regularCost = regularCost;
         }
     }
 }

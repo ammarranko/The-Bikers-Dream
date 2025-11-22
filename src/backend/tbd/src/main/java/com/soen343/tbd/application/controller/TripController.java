@@ -2,6 +2,7 @@ package com.soen343.tbd.application.controller;
 
 import java.util.Map;
 
+import com.soen343.tbd.application.service.LoyaltyTierService;
 import com.soen343.tbd.domain.model.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,9 +41,12 @@ public class TripController {
     @Autowired
     private final UserService userService;
 
-    public TripController(TripService tripService, UserService userService){
+    private final LoyaltyTierService loyaltyTierService;
+
+    public TripController(TripService tripService, UserService userService, LoyaltyTierService loyaltyTierService){
         this.tripService = tripService;
         this.userService = userService;
+        this.loyaltyTierService = loyaltyTierService;
     }
 
     @PostMapping("/rent")
@@ -110,7 +114,16 @@ public class TripController {
         StationId sId = new StationId(request.getStationId());
 
         try {
-            ReturnResponse returnResponse = createReturnResponse(tripService.returnBikeService(tId, bId, dId, uId, sId));
+
+            Map<String, Object> serviceResponse = tripService.returnBikeService(tId, bId, dId, uId, sId);
+
+            // Update user's loyalty tier after completing trip (before creating response)
+            User user = userService.getUserById(uId);
+            loyaltyTierService.updateUserTier(user);
+            logger.info("Updated loyalty tier for user: {}", user.getEmail());
+
+            // Create response with updated tier
+            ReturnResponse returnResponse = createReturnResponse(serviceResponse);
 
             logger.info("Successfully Returned Bike with BikeId: {}", request.getBikeId());
             return ResponseEntity.ok(returnResponse);
@@ -129,11 +142,13 @@ public class TripController {
         PricingStrategy pricingStrategy = (PricingStrategy) response.get("pricingStrategy");
 
         // Use Trip's calculateDurationInMinutes method
-        double durationMinutes = trip.calculateDurationInMinutes();
+        Double durationMinutes = trip.calculateDurationInMinutes();
 
         User user = userService.getUserById(trip.getUserId());
         String userFullName = user.getFullName();
         String userEmail = user.getEmail();
+        String userTier= user.getTierType().name();
+        Integer flexMoneyBalance = user.getFlexMoney();
 
         return new ReturnResponse(
                 trip.getTripId().value(),
@@ -145,12 +160,18 @@ public class TripController {
                 endStationName,
                 trip.getStartTime(),
                 trip.getEndTime(),
-                Math.round(durationMinutes),
+                durationMinutes,
                 bill.getBillId().value(),
                 pricingStrategy.getPricingTypeName(),
                 pricingStrategy.getBaseFee(),
                 pricingStrategy.getPerMinuteRate(),
-                bill.getCost()
+                userTier,
+                bill.getRegularCost(),
+                bill.getDiscountedCost(),
+                bill.getFlexMoneyEarned(),
+                bill.getFlexMoneyUsed(),
+                bill.getLoyaltyDiscount(),
+                flexMoneyBalance
         );
     }
 }

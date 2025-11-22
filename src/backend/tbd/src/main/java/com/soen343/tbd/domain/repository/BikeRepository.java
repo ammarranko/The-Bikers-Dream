@@ -16,4 +16,10 @@ public interface BikeRepository {
     Optional<Bike> findByDockId(DockId dockId);
 
     List<Bike> findByStatus(BikeStatus status);
+
+    List<Bike> findAll();
+
+    void saveAll(List<Bike> bikes);
+
+    void flush();
 }

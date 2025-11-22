@@ -60,8 +60,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/login", "/api/register").permitAll()
                         .requestMatchers("/api/stations/stream", "/api/stations/subscribe").permitAll()
                         .requestMatchers("/api/stations/**").permitAll()
-                        // Allow all requests for now
-                        .anyRequest().permitAll())
+                        // Require authentication for all other requests
+                        .anyRequest().authenticated())
                 // If any exception occurs, this will handle it by redirecting to 401
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

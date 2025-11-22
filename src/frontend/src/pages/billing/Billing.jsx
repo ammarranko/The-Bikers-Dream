@@ -20,6 +20,8 @@ function Billing() {
     const [sortBy, setSortBy] = useState('date-desc'); // date-desc, date-asc, price-desc, price-asc
     const [filterStatus, setFilterStatus] = useState('all'); // all, pending, paid
     const [searchUserId, setSearchUserId] = useState(''); // Search by User ID (operator only)
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(5);
     const navigate = useNavigate();
 
     // Use the same localStorage keys as Home page
@@ -211,6 +213,15 @@ function Billing() {
         return filteredBills;
     };
 
+    // Pagination Logic
+    const filteredBills = getFilteredAndSortedBills();
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentBills = filteredBills.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredBills.length / itemsPerPage);
+
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
     return (
         <div className="home-container">
             {isLoading && <LoadingSpinner message={paymentProcessing ? "Processing payment..." : "Loading your billing history..."} />}
@@ -302,7 +313,7 @@ function Billing() {
 
                 <div className="dashboard-grid">
                     {/* Replace map-container with billing cards */}
-                    <div className="map-container">
+                    <div className="map-container billing-container">
                         <h2 className="map-title">
                             Bill History
                         </h2>
@@ -330,13 +341,13 @@ function Billing() {
                                     : billingData.tripBills?.length > 0
                             ) && (
                                 <div className="trip-bills-list">
-                                    {getFilteredAndSortedBills().length === 0 ? (
+                                    {filteredBills.length === 0 ? (
                                         <div className="empty-message">
                                             <i className="fas fa-filter"></i>
                                             <p>No bills match the selected filters.</p>
                                         </div>
                                     ) : (
-                                        getFilteredAndSortedBills().map((tripBill) => (
+                                        currentBills.map((tripBill) => (
                                             <div key={tripBill.tripId} className="trip-bill-card">
                                             {/* Card Header */}
                                             <div className="card-header">
@@ -453,7 +464,40 @@ function Billing() {
                                     )}
                                 </div>
                             )}
+                            
                         </div>
+                        {/* Pagination Controls */}
+                        {filteredBills.length > itemsPerPage && (
+                            <div className="pagination">
+                                <button
+                                    onClick={() => paginate(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                    className="pagination-btn"
+                                >
+                                    <i className="fas fa-chevron-left"></i> Previous
+                                </button>
+                                
+                                <div className="pagination-numbers">
+                                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
+                                        <button
+                                            key={number}
+                                            onClick={() => paginate(number)}
+                                            className={`pagination-number ${currentPage === number ? 'active' : ''}`}
+                                        >
+                                            {number}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <button
+                                    onClick={() => paginate(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                    className="pagination-btn"
+                                >
+                                    Next <i className="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        )}
                     </div>
 
                     {/* Sidebar with Payment Component */}
@@ -506,9 +550,20 @@ function Billing() {
                                         <span>${selectedBill.baseFare.toFixed(2)}</span>
                                     </div>
                                     <div className="breakdown-item">
-                                        <span>Time Charge ({selectedBill.durationMinutes} min × ${selectedBill.perMinuteRate.toFixed(2)})</span>
-                                        <span>${(selectedBill.durationMinutes * selectedBill.perMinuteRate).toFixed(2)}</span>
+                                        <span>
+                                            {selectedBill.durationMinutes === 0 
+                                                ? `Time Charge (${Math.round((new Date(selectedBill.endTime) - new Date(selectedBill.startTime)) / 1000)} sec × $${(selectedBill.perMinuteRate / 60).toFixed(4)})`
+                                                : `Time Charge (${selectedBill.durationMinutes} min × $${selectedBill.perMinuteRate.toFixed(2)})`
+                                            }
+                                        </span>
+                                        <span>${(selectedBill.regularCost - selectedBill.baseFare).toFixed(2)}</span>
                                     </div>
+                                    {selectedBill.regularCost > selectedBill.totalAmount && (
+                                        <div className="breakdown-item discount-row">
+                                            <span>Total Savings (Tier + FlexMoney)</span>
+                                            <span>-${(selectedBill.regularCost - selectedBill.totalAmount).toFixed(2)}</span>
+                                        </div>
+                                    )}
                                     <div className="breakdown-total">
                                         <span>Total Amount</span>
                                         <span>${selectedBill.totalAmount.toFixed(2)}</span>

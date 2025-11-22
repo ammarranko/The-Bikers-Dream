@@ -12,6 +12,7 @@ public class ReservationResponse {
     private boolean hasActiveReservation; // Used for /check only for frontend use
     private Long stationId;
     private LocalDateTime expiresAt;
+    private String userTier;      // User's loyalty tier after action
 
  
 
@@ -48,6 +49,12 @@ public class ReservationResponse {
     // Constructor for /cancel or error messages
     public ReservationResponse(String message) {
         this.message = message;
+    }
+
+    // Constructor for /end with tier information
+    public ReservationResponse(String message, String userTier) {
+        this.message = message;
+        this.userTier = userTier;
     }
 
     // Getters and setters
@@ -98,5 +105,13 @@ public class ReservationResponse {
 
     public void setExpiresAt(LocalDateTime expiresAt) {
         this.expiresAt = expiresAt;
+    }
+
+    public String getUserTier() {
+        return userTier;
+    }
+
+    public void setUserTier(String userTier) {
+        this.userTier = userTier;
     }
 }

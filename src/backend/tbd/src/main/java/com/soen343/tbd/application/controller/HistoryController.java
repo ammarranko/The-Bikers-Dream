@@ -81,7 +81,7 @@ public class HistoryController {
             if (trip.getBillId() != null) {
                 Optional<Bill> bill = historyService.getBillById(trip.getBillId().value());
                 if (bill.isPresent()) {
-                    billCost = bill.get().getCost();
+                    billCost = bill.get().getDiscountedCost();
                 }
             }
 

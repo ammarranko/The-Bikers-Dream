@@ -19,6 +19,36 @@ import jakarta.persistence.EntityManager;
 
 @Repository
 public class BillRepositoryAdapter implements BillRepository {
+
+    @Override
+    public List<Bill> findAll(List<Long> ids) {
+        return jpaBillRepository.findAllById(ids)
+                .stream()
+                .map(billMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<Bill> saveAll(List<Bill> bills) {
+        var billEntities = bills.stream()
+                .map(billMapper::toEntity)
+                .toList();
+
+        List<BillEntity> savedEntities = jpaBillRepository.saveAll(billEntities);
+        return savedEntities.stream()
+                .map(billMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public void deleteAll() {
+        jpaBillRepository.deleteAll();
+    }
+
+    @Override
+    public void deleteAllInBatch() {
+        jpaBillRepository.deleteAllInBatch();
+    }
     private final JpaBillRepository jpaBillRepository;
     private final BillMapper billMapper;
     private final EntityManager entityManager;

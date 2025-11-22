@@ -40,6 +40,8 @@ export default function useHomeLogic() {
     const [returnSuccessPopup, setReturnSuccessPopup] = useState(false);
     const [reservationSuccessPopup, setReservationSuccessPopup] = useState(false);
     const [tripSummaryData, setTripSummaryData] = useState(null);
+    const [reservationExpiredPopup, setReservationExpiredPopup] = useState(false);
+
 
     const fullName = localStorage.getItem('user_full_name');
     const role = localStorage.getItem('user_role');
@@ -62,9 +64,7 @@ export default function useHomeLogic() {
     const handleCancelEventRental = () => setRentalSuccessPopup(false);
     const onClickShowConfirmReturn = (dock, bike, station) => setConfirmReturn({ active: true, dock, bike, station });
     const handleCancelConfirmationReturn = () => setConfirmReturn({ active: false, dock: null, bike: null, station: null });
-    const handleCancelEventReturn = () => {
-        setReturnSuccessPopup(false);
-        setTripSummaryData(null);
+    const handleCancelEventReturn = () => {setReturnSuccessPopup(false); setTripSummaryData(null);
     };
     const handleShowReservation = (bike, station) => setConfirmReservation({ active: true, bike, station });
 
@@ -284,15 +284,25 @@ export default function useHomeLogic() {
                 clearInterval(interval);
                 setActiveReservation({ hasActiveReservation: false, bikeId: null, stationId: null, expiresAt: null, reservationId: null });
                 setTimeLeft(null);
+                // Show popup for expired reservation
+                setReservationExpiredPopup(true);
 
                 if (activeReservation.reservationId) {
-                    await axios.post("http://localhost:8080/api/reservations/end", 
-                        { 
+                    const response = await axios.post("http://localhost:8080/api/reservations/end",
+                        {
                             reservationId,  
                             userEmail
                         },
                         { params: { type: 'EXPIRE' } }
                     );
+
+                    // Update tier in localStorage if returned from backend
+                    if (response.data.userTier) {
+                        localStorage.setItem('tier', response.data.userTier);
+                        console.log('Tier updated after reservation expiration:', response.data.userTier);
+                        // Trigger custom event to notify other components
+                        window.dispatchEvent(new Event('tierUpdated'));
+                    }
                 }
 
                 await Promise.all([fetchStations(), fetchActiveRental()]);
@@ -436,11 +446,26 @@ export default function useHomeLogic() {
             try {
                 const response = await axios.post("http://localhost:8080/api/reservations/create", { bikeId, stationId, userEmail });
                 if (response.data) {
+                         // -----------------------------
+                // ADD TIER EXTRA TIME HERE
+                // -----------------------------
+                const userTier = localStorage.getItem('tier'); // Get user tier
+                let extraMs = 0;
+                if (userTier === 'SILVER') extraMs = 2 * 60 * 1000; // 2 min
+                if (userTier === 'GOLD') extraMs = 5 * 60 * 1000;   // 5 min
+
+                // Adjust expiry time with extra time
+                const originalExpiry = new Date(response.data.expiresAt);
+                const adjustedExpiry = new Date(originalExpiry.getTime() + extraMs);
+                // -----------------------------
+
+
                     setActiveReservation({
                         hasActiveReservation: true,
                         bikeId,
                         stationId,
-                        expiresAt: response.data.expiresAt,
+                        //expiresAt: response.data.expiresAt,
+                        expiresAt: adjustedExpiry.toISOString(), // <-- use adjusted time
                         reservationId: response.data.reservationId
                     });
                     setReservationSuccessPopup(true);
@@ -461,13 +486,14 @@ export default function useHomeLogic() {
                     alert("No reservation to cancel.");
                     return;
                 }
-                await axios.post("http://localhost:8080/api/reservations/end", 
-                    { 
+                await axios.post("http://localhost:8080/api/reservations/end",
+                    {
                         reservationId: activeReservation.reservationId, 
                         userEmail
                     },
                     { params: { type: 'CANCEL' } }
                 );
+
                 setActiveReservation({
                     hasActiveReservation: false,
                     bikeId: null,
@@ -493,6 +519,29 @@ export default function useHomeLogic() {
         navigate('/login?logout=1', { replace: true });
     };
 
+    const handleSwitchRole = async () => {
+
+
+
+            const actualRole = localStorage.getItem('actual_user_role');
+
+            // Only allow switching if the user is actually an OPERATOR in the database
+            if (actualRole !== 'OPERATOR') {
+                alert('Only operators can switch roles. You are a rider and cannot become an operator.');
+                return;
+            }
+
+            // If user is an operator, allow switching between OPERATOR and RIDER
+            const currentRole = localStorage.getItem('user_role');
+            if (currentRole === 'RIDER') {
+                localStorage.setItem('user_role', 'OPERATOR');
+            } else {
+                localStorage.setItem('user_role', 'RIDER');
+            }
+            navigate('/home', { replace: true });
+    };
+
+
     const handleViewHistory = () => {
         navigate('/history');
     };
@@ -506,8 +555,8 @@ export default function useHomeLogic() {
             try {
                 const reservationId = Number(activeReservation.reservationId);
                 if (reservationId) {
-                    await axios.post("http://localhost:8080/api/reservations/end", 
-                        { 
+                    await axios.post("http://localhost:8080/api/reservations/end",
+                        {
                             reservationId: activeReservation.reservationId, 
                             userEmail
                         },
@@ -552,6 +601,20 @@ export default function useHomeLogic() {
                     bikeId,
                     stationId
                 });
+                //set the updated tier in localStorage if returned from backend
+                if (response.data.userTier) {
+                    localStorage.setItem('tier', response.data.userTier);
+                    console.log('Tier updated after trip finished:', response.data.userTier);
+                    // Trigger custom event to notify other components
+                    window.dispatchEvent(new Event('tierUpdated'));
+                }
+
+                // Update FlexMoney balance in localStorage if returned
+                if (response.data.flexMoneyBalance !== undefined && response.data.flexMoneyBalance !== null) {
+                    localStorage.setItem('flexMoney', response.data.flexMoneyBalance);
+                    console.log('FlexMoney updated after trip finished:', response.data.flexMoneyBalance);
+                    window.dispatchEvent(new Event('flexMoneyUpdated'));
+                }
 
                 // Store trip summary data
                 setTripSummaryData(response.data);
@@ -643,8 +706,11 @@ export default function useHomeLogic() {
         confirmReservation,
         reservationSuccessPopup,
         showCancelReservationPopup,
+        reservationExpiredPopup,
+
         // Actions
         handleLogout,
+        handleSwitchRole,
         handleViewHistory,
         fetchStations,
         onClickShowConfirmRental: (dock, bike, station) => setConfirmRental({ active: true, dock, bike, station }),
@@ -656,6 +722,7 @@ export default function useHomeLogic() {
         handleConfirmReservation,
         setConfirmReservation,
         setReservationSuccessPopup,
+        setReservationExpiredPopup,
         handleCancelActiveReservation,
         setShowCancelReservationPopup,
         handleConfirmRental,
@@ -667,6 +734,6 @@ export default function useHomeLogic() {
         handleBikeMaintain,
         handleRemoveFromMaintenance,
         setActiveBikeMaintenanceRemoval,
-        operatorEvents
+        operatorEvents,
     };
 }

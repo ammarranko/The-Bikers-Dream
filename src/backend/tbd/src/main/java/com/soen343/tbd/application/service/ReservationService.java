@@ -27,6 +27,8 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import com.soen343.tbd.domain.model.user.User;
+
 
 @Service
 public class ReservationService {
@@ -40,6 +42,8 @@ public class ReservationService {
     private final StationService stationService;
     private final StationSubject stationPublisher;
     private final EventService eventService;
+    private final LoyaltyTierService loyaltyTierService;
+
 
     public ReservationService(ReservationRepository reservationRepository,
             BikeRepository bikeRepository,
@@ -47,7 +51,8 @@ public class ReservationService {
             StationRepository stationRepository,
             StationSubject stationPublisher,
             StationService stationService,
-            EventService eventService) {
+            EventService eventService,  
+            LoyaltyTierService loyaltyTierService) {
         this.reservationRepository = reservationRepository;
         this.bikeRepository = bikeRepository;
         this.userRepository = userRepository;
@@ -55,6 +60,7 @@ public class ReservationService {
         this.stationService = stationService;
         this.stationPublisher = stationPublisher;
         this.eventService = eventService;
+        this.loyaltyTierService = loyaltyTierService;
     }
 
     // -------------------------
@@ -91,7 +97,27 @@ public class ReservationService {
         // Create and save reservation
         try {
             Timestamp reservedAt = Timestamp.from(Instant.now());
-            Timestamp expiresAt = Timestamp.from(Instant.now().plus(15, ChronoUnit.SECONDS));
+            //Timestamp expiresAt = Timestamp.from(Instant.now().plus(15, ChronoUnit.SECONDS));
+
+//new calculation for tiers
+// Fetch user
+User user = userRepository.findById(userId)
+        .orElseThrow(() -> new RuntimeException("User not found: " + userId.value()));
+
+// Ensure the user's tier is up-to-date
+loyaltyTierService.updateUserTier(user);
+
+// Base reservation time in seconds
+int baseReservationSeconds = 15;
+int extraTimeSeconds = user.getExtraReservationTime();
+
+// Calculate expiration
+Timestamp expiresAt = Timestamp.from(
+    Instant.now().plus(baseReservationSeconds + extraTimeSeconds, ChronoUnit.SECONDS)
+);
+
+logger.info("Reservation will expire at: {}", expiresAt.toLocalDateTime());
+
 
             // Create reservation using domain constructor
             newReservation = new Reservation(bikeId, stationId, userId, reservedAt, expiresAt);
@@ -234,7 +260,8 @@ public class ReservationService {
     // EXPIRE RESERVATION
     // -------------------------
     @Transactional
-    public void expireReservation(ReservationId reservationId) {
+    //handles bike expiration logic and returns the user id for which a reservation has expired
+    public UserId expireReservation(ReservationId reservationId) {
         Reservation expiredReservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new RuntimeException("Reservation not found"));
 
@@ -281,6 +308,8 @@ public class ReservationService {
 
             logger.info("Reservation {} expired, bike set to AVAILABLE", reservationId.value());
         }
+
+        return expiredReservation.getUserId();
     }
 
     private void notifyAllUsers(StationId stationId) {

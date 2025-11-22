@@ -92,3 +92,23 @@
     background-color: #ddd;
     margin: 8px 0;
 }
+
+.discount-row {
+    color: #28a745;
+}
+
+.discount-value {
+    font-weight: 600;
+    color: #28a745;
+}
+
+.flex-earned-row {
+    margin-top: 5px;
+    padding-top: 5px;
+    border-top: 1px dashed #eee;
+}
+
+.flex-earned-value {
+    color: #27ae60;
+    font-weight: bold;
+}

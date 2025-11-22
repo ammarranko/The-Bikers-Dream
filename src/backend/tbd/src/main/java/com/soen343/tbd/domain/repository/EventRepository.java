@@ -15,4 +15,8 @@ public interface EventRepository {
     Optional<Event> findById(EventId eventId);
 
     Event save(Event event);
+
+    void deleteAll();
+
+    void deleteAllInBatch();
 }

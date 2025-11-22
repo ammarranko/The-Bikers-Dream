@@ -15,4 +15,12 @@ public interface BillRepository {
     List<Bill> findAllByUserId(UserId userId);
 
     List<Bill> findAll();
+
+    void deleteAll();
+
+    void deleteAllInBatch();
+
+    List<Bill> saveAll(List<Bill> bills);
+
+    List<Bill> findAll(List<Long> tripIds);
 }

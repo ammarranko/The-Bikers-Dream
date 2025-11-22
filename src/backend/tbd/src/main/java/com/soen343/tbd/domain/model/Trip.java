@@ -9,6 +9,7 @@ import com.soen343.tbd.domain.model.ids.StationId;
 import com.soen343.tbd.domain.model.ids.TripId;
 import com.soen343.tbd.domain.model.ids.UserId;
 import com.soen343.tbd.domain.model.pricing.PricingStrategy;
+import com.soen343.tbd.domain.model.user.loyalty.LoyaltyTier;
 
 
 public class Trip {
@@ -60,7 +61,7 @@ public class Trip {
      * Ends the trip, sets end time and station, creates a Bill automatically using the trip's pricing strategy,
      * and stores its BillId in this trip.
      */
-    public Bill endTrip(StationId endStationId) {
+    public Bill endTrip(StationId endStationId, double discountRate) {
         if (this.status == TripStatus.COMPLETED) {
             throw new IllegalStateException("Trip is already completed.");
         }
@@ -70,7 +71,7 @@ public class Trip {
         this.status = TripStatus.COMPLETED;
 
         // Create bill using the trip's pricing strategy
-        Bill bill = new Bill(this);
+        Bill bill = new Bill(this, discountRate);
         this.billId = bill.getBillId();
 
         return bill;

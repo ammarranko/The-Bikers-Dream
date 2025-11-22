@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import "./OperatorConsole.css";
 
 const OperatorConsole = ({ operatorEvents = [] }) => {
@@ -104,6 +105,19 @@ const OperatorConsole = ({ operatorEvents = [] }) => {
     return `${entity} #${id} changed to ${state}`;
   };
 
+  const handleReset = async () => {
+    if (window.confirm("Are you sure you want to reset the system? This will delete all bills, reservations, trips, and rebalance stations.")) {
+      try {
+        await axios.post("http://localhost:8080/api/admin/reset");
+        alert("System reset successfully.");
+        window.location.reload();
+      } catch (error) {
+        console.error("Failed to reset system:", error);
+        alert("Failed to reset system. See console for details.");
+      }
+    }
+  };
+
   return (
     <div className="operator-console">
       <div className="console-header">
@@ -112,6 +126,13 @@ const OperatorConsole = ({ operatorEvents = [] }) => {
           Events Console
         </h3>
         <div className="console-stats">
+          <button 
+            className="reset-system-btn"
+            onClick={handleReset}
+            title="Reset System"
+          >
+            Reset System
+          </button>
           <span className="event-count">{operatorEvents.length} events</span>
           {!autoScroll && (
             <button 

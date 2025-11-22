@@ -1,5 +1,6 @@
 package com.soen343.tbd.infrastructure.persistence.adapter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,16 @@ public class TripRepositoryAdapter implements TripRepository {
         this.jpaTripRepository = jpa;
         this.tripMapper = mapper;
         this.entityManager = entityManager;
+    }
+
+    @Override
+    public void deleteAll() {
+        jpaTripRepository.deleteAll();
+    }
+
+    @Override
+    public void deleteAllInBatch() {
+        jpaTripRepository.deleteAllInBatch();
     }
 
     @Override
@@ -130,4 +141,20 @@ public class TripRepositoryAdapter implements TripRepository {
                 .map(tripMapper::toDomain)
                 .toList();
     }
+
+    @Override
+    public int countTripsForUserByIdSince(UserId userId, LocalDateTime since) {
+        return jpaTripRepository.countTripsForUserByIdSince(userId.value(), since);
+    }
+
+    @Override
+    public int countUnreturnedBikesByUser(UserId userId) {
+        return jpaTripRepository.countByUserIdAndStatus(userId.value(), TripStatus.ONGOING);
+    }
+
+    @Override
+    public int countTripsForUserBetween(UserId userId, LocalDateTime start, LocalDateTime end) {
+        return jpaTripRepository.countTripsForUserBetween(userId.value(), start, end);
+    }
+
 }

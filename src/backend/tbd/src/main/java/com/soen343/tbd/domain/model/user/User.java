@@ -1,5 +1,6 @@
 package com.soen343.tbd.domain.model.user;
 
+import com.soen343.tbd.domain.model.enums.TierType;
 import com.soen343.tbd.domain.model.ids.UserId;
 
 import java.sql.Timestamp;
@@ -19,6 +20,7 @@ public abstract class User {
     private String expiryMonth;
     private String expiryYear;
     private String cvc;
+    private TierType tier = TierType.NONE;
     private Integer flexmoney;
 
     public User(UserId userId, String fullName, String email, String password,
@@ -132,6 +134,23 @@ public abstract class User {
 
     public void setCvc(String cvc) {
         this.cvc = cvc;
+    }
+
+    public TierType getTierType() {
+        return tier;
+    }
+
+    public void setTierType(TierType tier) {
+        this.tier = tier;
+    }
+
+    // Convenience methods for tier benefits
+    public double getCurrentDiscount() {
+        return tier.getLoyaltyTier().getDiscountRate();
+    }
+
+    public int getExtraReservationTime() {
+        return tier.getLoyaltyTier().getExtraReservationTime();
     }
 
     public Integer getFlexMoney() {

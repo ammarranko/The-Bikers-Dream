@@ -105,3 +105,67 @@
     color: #bdc3c7;
     margin: 0;
 }
+
+/* Tier Badge Styles */
+.tier-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75em;
+    font-weight: bold;
+    margin-top: 5px;
+    text-transform: uppercase;
+}
+
+.tier-badge i {
+    font-size: 0.9em;
+}
+
+.tier-none {
+    background: linear-gradient(135deg, #7f8c8d 0%, #95a5a6 100%);
+    color: white;
+    box-shadow: 0 2px 4px rgba(127, 140, 141, 0.3);
+}
+
+.tier-bronze {
+    background: linear-gradient(135deg, #cd7f32 0%, #a0522d 100%);
+    color: white;
+    box-shadow: 0 2px 4px rgba(205, 127, 50, 0.3);
+}
+
+.tier-silver {
+    background: linear-gradient(135deg, #c0c0c0 0%, #a8a8a8 100%);
+    color: #2c3e50;
+    box-shadow: 0 2px 4px rgba(192, 192, 192, 0.3);
+}
+
+.tier-gold {
+    background: linear-gradient(135deg, #ffd700 0%, #ffb700 100%);
+    color: #2c3e50;
+    box-shadow: 0 2px 4px rgba(255, 215, 0, 0.4);
+    animation: goldGlow 2s ease-in-out infinite;
+}
+
+@keyframes goldGlow {
+    0%, 100% {
+        box-shadow: 0 2px 4px rgba(255, 215, 0, 0.4);
+    }
+    50% {
+        box-shadow: 0 2px 8px rgba(255, 215, 0, 0.6);
+    }
+}
+
+/* Flex Money Badge Styles */
+.flex-money-badge {
+    font-size: 0.8em;
+    padding: 2px 8px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+    background: #27ae60;
+    color: white;
+}

@@ -54,6 +54,14 @@ const Auth = () => {
     }
   }, [navigate]);
 
+  useEffect(() => {
+    // Check for session expiration message
+    const params = new URLSearchParams(location.search);
+    if (params.get('expired')) {
+      setError("Your session has expired. Please login again.");
+    }
+  }, [location]);
+
   const handleInputChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -70,7 +78,7 @@ const Auth = () => {
           password: formData.password,
         });
 
-        const { token, email, fullName, role, username } = response.data || {};
+        const { token, email, fullName, role, username, tier, flexMoney } = response.data || {};
 
         // Ensure we actually received a valid token from the server
         if (!token || token === "undefined" || token === "null") {
@@ -84,6 +92,9 @@ const Auth = () => {
         localStorage.setItem("user_full_name", fullName);
         localStorage.setItem("user_role", role);
         localStorage.setItem("username", username);
+        localStorage.setItem("actual_user_role", role); // to keep track of actual role if switched
+        localStorage.setItem("tier", tier || 'NONE'); // Store user tier
+        localStorage.setItem("flexMoney", flexMoney || 0); // Store flex money
 
         // Set default header for future requests
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;

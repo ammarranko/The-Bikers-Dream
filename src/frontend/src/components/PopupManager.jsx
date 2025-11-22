@@ -10,6 +10,7 @@ const PopupManager = ({
     returnSuccessPopup,
     confirmReservation,
     reservationSuccessPopup,
+    reservationExpiredPopup,
     showCancelReservationPopup,
     activeBikeRental,
     tripSummaryData,
@@ -23,6 +24,7 @@ const PopupManager = ({
     handleConfirmReservation,
     setConfirmReservation,
     setReservationSuccessPopup,
+    setReservationExpiredPopup,
     handleCancelActiveReservation,
     setShowCancelReservationPopup,
 }) => {
@@ -80,6 +82,14 @@ const PopupManager = ({
                     onCancel={() => setShowCancelReservationPopup(false)}
                 />
             )}
+{reservationExpiredPopup && (
+    <EventPopup
+        message={`Your reservation has expired. Please make a new reservation if you still want to ride.`}
+        onCancel={() => setReservationExpiredPopup(false)}
+    />
+)}
+
+
         </>
     );
 };

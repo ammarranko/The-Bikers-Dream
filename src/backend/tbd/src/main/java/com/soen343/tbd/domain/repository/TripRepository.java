@@ -1,5 +1,6 @@
 package com.soen343.tbd.domain.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,4 +24,14 @@ public interface TripRepository {
     List<Trip> findAllByUserId(UserId userId);
 
     List<Trip> findAll();
+
+    int countTripsForUserByIdSince(UserId userId, LocalDateTime oneYearAgo);
+
+    int countUnreturnedBikesByUser(UserId userId);
+
+    int countTripsForUserBetween(UserId userId, LocalDateTime start, LocalDateTime end);
+
+    void deleteAll();
+
+    void deleteAllInBatch();
 }

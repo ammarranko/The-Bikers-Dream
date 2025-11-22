@@ -16,12 +16,15 @@ public interface BillMapper {
     @Mapping(target = "billId", expression = "java(e.getBillId() != null ? new BillId(e.getBillId()) : null)")
     @Mapping(target = "tripId", expression = "java(e.getTripId() != null ? new TripId(e.getTripId()) : null)")
     @Mapping(target = "userId", expression = "java(e.getUserId() != null ? new UserId(e.getUserId()) : null)")
+    @Mapping(target = "discountedCost", source = "cost")
+    @Mapping(target = "regularCost", ignore = true) // Not persisted, calculated at runtime
     Bill toDomain(BillEntity e);
 
     // Domain -> Entity
     @Mapping(target = "billId", expression = "java(d.getBillId() != null ? d.getBillId().value() : null)")
     @Mapping(target = "tripId", expression = "java(d.getTripId() != null ? d.getTripId().value() : null)")
     @Mapping(target = "userId", expression = "java(d.getUserId() != null ? d.getUserId().value() : null)")
+    @Mapping(target = "cost", source = "discountedCost") // Store the actual price paid
     @Mapping(target = "trip", ignore = true)
     @Mapping(target = "user", ignore = true)
     BillEntity toEntity(Bill d);

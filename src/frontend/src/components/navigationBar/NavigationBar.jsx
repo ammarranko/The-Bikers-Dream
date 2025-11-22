@@ -1,15 +1,37 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './NavigationBar.css';
 
-function NavigationBar({ fullName, role, handleLogout, handleBillingClick, handleHomeClick, activePage, handleViewHistory, handlePricingClick }) {
+function NavigationBar({ fullName, role, handleLogout, handleBillingClick, handleHomeClick, activePage, handleViewHistory, handlePricingClick,handleSwitchRole }) {
     const [isOpen, setIsOpen] = useState(false);
+    const [userTier, setUserTier] = useState(localStorage.getItem('tier') || 'NONE');
+    const [flexMoney, setFlexMoney] = useState(localStorage.getItem('flexMoney') || 0);
     const sidebarRef = useRef(null);
+    const actualUserRole = localStorage.getItem('actual_user_role');
     const initials = fullName
         .split(' ')
         .map(name => name[0])
         .join('')
         .toUpperCase();
     
+    // Listen for tier and flex money updates from other components
+    useEffect(() => {
+        const handleTierUpdate = () => {
+            setUserTier(localStorage.getItem('tier') || 'NONE');
+        };
+
+        const handleFlexMoneyUpdate = () => {
+            setFlexMoney(localStorage.getItem('flexMoney') || 0);
+        };
+
+        window.addEventListener('tierUpdated', handleTierUpdate);
+        window.addEventListener('flexMoneyUpdated', handleFlexMoneyUpdate);
+
+        return () => {
+            window.removeEventListener('tierUpdated', handleTierUpdate);
+            window.removeEventListener('flexMoneyUpdated', handleFlexMoneyUpdate);
+        };
+    }, []);
+
     // Toggle sidebar when clicking the button
     const handleToggle = (e) => {
         e.stopPropagation(); // prevent closing immediately
@@ -53,37 +75,49 @@ function NavigationBar({ fullName, role, handleLogout, handleBillingClick, handl
                         </li>
 
                         {role === "RIDER" && (
-                            <li className={`nav-item ${activePage === 'billing' ? 'active' : ''}`} onClick={handleBillingClick}>
+                            <li className={`nav-item ${activePage === 'billing' ? 'active' : ''}`}
+                                onClick={handleBillingClick}>
                                 <i className="fas fa-file-invoice-dollar"></i>
                                 My Bills
                             </li>
                         )}
 
                         {role === "OPERATOR" && (
-                            <li className={`nav-item ${activePage === 'billing' ? 'active' : ''}`} onClick={handleBillingClick}>
+                            <li className={`nav-item ${activePage === 'billing' ? 'active' : ''}`}
+                                onClick={handleBillingClick}>
                                 <i className="fas fa-file-invoice-dollar"></i>
                                 All Bills
                             </li>
                         )}
 
                         {role === "RIDER" && (
-                            <li className={`nav-item ${activePage === 'history' ? 'active' : ''}`} onClick={handleViewHistory}>
+                            <li className={`nav-item ${activePage === 'history' ? 'active' : ''}`}
+                                onClick={handleViewHistory}>
                                 <i className="fas fa-history"></i>
                                 History
                             </li>
-                        )}    
-                            
+                        )}
+
                         {role === "OPERATOR" && (
-                            <li className={`nav-item ${activePage === 'history' ? 'active' : ''}`} onClick={handleViewHistory}>
+                            <li className={`nav-item ${activePage === 'history' ? 'active' : ''}`}
+                                onClick={handleViewHistory}>
                                 <i className="fas fa-history"></i>
                                 All Trip Histories
                             </li>
                         )}
 
                         {role === "RIDER" && (
-                            <li className={`nav-item ${activePage === 'pricing' ? 'active' : ''}`} onClick={handlePricingClick}>
+                            <li className={`nav-item ${activePage === 'pricing' ? 'active' : ''}`}
+                                onClick={handlePricingClick}>
                                 <i className="fas fa-dollar-sign"></i>
                                 Pricing Plans
+                            </li>
+                        )}
+
+                        {actualUserRole === "OPERATOR" && (
+                            <li className="nav-item" onClick={handleSwitchRole}>
+                                <i className="fas fa-exchange-alt"></i>
+                                Switch Role
                             </li>
                         )}
 
@@ -100,6 +134,14 @@ function NavigationBar({ fullName, role, handleLogout, handleBillingClick, handl
                         <div className="profile-info">
                             <p className="profile-name">{fullName}</p>
                             <p className="profile-role">{role}</p>
+                            <div className={`tier-badge tier-${userTier.toLowerCase()}`}>
+                                <i className="fas fa-crown"></i>
+                                {userTier === "NONE" ? "BASIC" : userTier} TIER
+                            </div>
+                            <div className="flex-money-badge">
+                                <i className="fas fa-coins"></i>
+                                {(flexMoney / 100).toFixed(2)} FlexMoney
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -38,6 +38,21 @@ public class BikeRepositoryAdapter implements BikeRepository {
     }
 
     @Override
+    public List<Bike> findAll() {
+        return jpaBikeRepository.findAll()
+                .stream()
+                .map(bikeEntity -> bikeMapper.toDomain((BikeEntity) bikeEntity))
+                .toList();
+    }
+
+    @Override
+    public void saveAll(List<Bike> bikes) {
+        for (Bike bike : bikes) {
+            save(bike);
+        }
+    }
+
+    @Override
     public void save(Bike bike) {
         var bikeEntity = bikeMapper.toEntity(bike);
 
@@ -45,6 +60,8 @@ public class BikeRepositoryAdapter implements BikeRepository {
         if (bike.getDockId() != null) {
             var dockReference = entityManager.getReference(DockEntity.class, bike.getDockId().value());
             bikeEntity.setDock(dockReference);
+        } else {
+            bikeEntity.setDock(null);
         }
 
         jpaBikeRepository.save(bikeEntity);
@@ -62,5 +79,10 @@ public class BikeRepositoryAdapter implements BikeRepository {
                 .stream()
                 .map(bikeEntity -> bikeMapper.toDomain((BikeEntity) bikeEntity))
                 .toList();
+    }
+
+    @Override
+    public void flush() {
+        jpaBikeRepository.flush();
     }
 }

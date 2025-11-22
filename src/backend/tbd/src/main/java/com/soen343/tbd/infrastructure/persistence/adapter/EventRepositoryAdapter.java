@@ -33,6 +33,16 @@ public class EventRepositoryAdapter  implements EventRepository{
     }
 
     @Override
+    public void deleteAll() {
+        jpaEventRepository.deleteAll();
+    }
+
+    @Override
+    public void deleteAllInBatch() {
+        jpaEventRepository.deleteAllInBatch();
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<Event> findEventsByEntityId(Long entityId) {
         return jpaEventRepository.findAllByEntityId(entityId)

@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
     - checks if user is eligible for flex money obtention
     - can add flex money into user's balance
     - can automatically reduce bill of next trip using existing balance
-   >> todo: make it display for front end
  */
 
 @Service
@@ -31,7 +30,7 @@ public class FlexMoneyService {
     }
 
     @Transactional
-    public void addFlexMoneyIfEligible(UserId userId, Station station) {
+    public Integer addFlexMoneyIfEligible(UserId userId, Station station, double durationMinutes) {
         // bikes is count minus one since checking if it was
         // at <25% full before the docking of the bike return
         int bikes = station.getNumberOfBikesDocked() - 1;
@@ -39,9 +38,15 @@ public class FlexMoneyService {
         double fullness = (double) bikes / capacity;
 
         if (fullness < 0.25) {
-            Integer amount = 100;
+            // FlexMoney is now a function of time: 10 points per minute
+            int amount = (int) Math.ceil(durationMinutes * 10);
+            // Minimum reward of 10 points
+            if (amount < 10) amount = 10;
+            
             updateFlexMoneyBalance(userId, amount);
+            return amount;
         }
+        return 0;
     }
 
     @Transactional

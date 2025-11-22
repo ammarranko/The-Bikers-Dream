@@ -15,7 +15,11 @@ import java.util.Map;
 // Utility class for generating and validating JWT tokens
 public class JwtUtil {
 
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    // Use a fixed secret key for development to persist sessions across restarts
+    // In production, this should be in application.properties/yml
+    private static final String SECRET_STRING = "mySuperSecretKeyForDevelopmentThatIsLongEnoughToSatisfyHS256Requirements";
+    private final Key key = Keys.hmacShaKeyFor(SECRET_STRING.getBytes());
+    
     private final int jwtExpiration = 86400000; // 24 hours
 
     public String extractEmail(String token) {

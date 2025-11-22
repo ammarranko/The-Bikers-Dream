@@ -17,7 +17,6 @@ import com.soen343.tbd.domain.repository.UserRepository;
 import com.soen343.tbd.infrastructure.payment.PaymentGateway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -125,11 +124,11 @@ public class BillingService {
         }
 
         // Process payment through the payment gateway (which will validate payment information)
-        logger.debug("Calling payment gateway for bill ID: {}, amount: ${}", paymentRequest.billId(), bill.getCost());
+        logger.debug("Calling payment gateway for bill ID: {}, amount: ${}", paymentRequest.billId(), bill.getDiscountedCost());
         boolean paymentSuccess = paymentGateway.processPayment(
                 paymentRequest,
                 user,
-                bill.getCost()
+                bill.getDiscountedCost()
         );
 
         if (!paymentSuccess) {
@@ -152,10 +151,10 @@ public class BillingService {
     @Transactional
     public Bill applyFlexMoney(Bill bill, UserId userId) {
 
-        double originalCost = bill.getCost();
+        double originalCost = bill.getDiscountedCost();
         double reducedCost = flexMoneyService.reduceBillWithFlexMoney(userId, originalCost);
 
-        bill.setCost(reducedCost);
+        bill.setDiscountedCost(reducedCost);
 
         return bill;
 }
@@ -187,6 +186,12 @@ public class BillingService {
                     String startStationName = startStation != null ? startStation.getStationName() : "Unknown";
                     String endStationName = endStation != null ? endStation.getStationName() : "In Progress";
 
+                    // Calculate regular cost (without discount)
+                    double regularCost = 0.0;
+                    if (trip.getPricingStrategy() != null) {
+                        regularCost = trip.getPricingStrategy().calculateCost(trip.calculateDurationInMinutes());
+                    }
+
                     return new UserBillingHistoryResponse.TripBillDTO(
                             trip.getTripId().value(),
                             trip.getBikeId().value(),
@@ -200,14 +205,15 @@ public class BillingService {
                             trip.getPricingStrategy() != null ? trip.getPricingStrategy().getPricingTypeName() : "Standard Bike Pricing",
                             trip.getPricingStrategy() != null ? trip.getPricingStrategy().getBaseFee() : 0.0,
                             trip.getPricingStrategy() != null ? trip.getPricingStrategy().getPerMinuteRate() : 0.0,
-                            bill != null ? bill.getCost() : 0.0
+                            bill != null ? bill.getDiscountedCost() : 0.0,
+                            regularCost
                     );
                 })
                 .collect(Collectors.toList());
 
         // Calculate total amount spent
         Double totalAmountSpent = bills.stream()
-                .mapToDouble(Bill::getCost)
+                .mapToDouble(Bill::getDiscountedCost)
                 .sum();
 
         // Calculate outstanding bills (PENDING status only, PAID bills are already settled)
@@ -216,7 +222,7 @@ public class BillingService {
                 .toList();
 
         Double totalOutstandingAmount = outstandingBills.stream()
-                .mapToDouble(Bill::getCost)
+                .mapToDouble(Bill::getDiscountedCost)
                 .sum();
 
         Integer totalOutstandingBills = outstandingBills.size();
@@ -266,6 +272,12 @@ public class BillingService {
                     String startStationName = startStation != null ? startStation.getStationName() : "Unknown";
                     String endStationName = endStation != null ? endStation.getStationName() : "In Progress";
 
+                    // Calculate regular cost (without discount)
+                    double regularCost = 0.0;
+                    if (trip.getPricingStrategy() != null) {
+                        regularCost = trip.getPricingStrategy().calculateCost(trip.calculateDurationInMinutes());
+                    }
+
                     return new AllBillingHistoryResponse.SystemTripBillDTO(
                             trip.getTripId().value(),
                             trip.getUserId().value(),
@@ -282,14 +294,15 @@ public class BillingService {
                             trip.getPricingStrategy() != null ? trip.getPricingStrategy().getPricingTypeName() : "Standard Bike Pricing",
                             trip.getPricingStrategy() != null ? trip.getPricingStrategy().getBaseFee() : 0.0,
                             trip.getPricingStrategy() != null ? trip.getPricingStrategy().getPerMinuteRate() : 0.0,
-                            bill != null ? bill.getCost() : 0.0
+                            bill != null ? bill.getDiscountedCost() : 0.0,
+                            regularCost
                     );
                 })
                 .collect(Collectors.toList());
 
         // Calculate total system revenue (all bills)
         Double totalSystemRevenue = bills.stream()
-                .mapToDouble(Bill::getCost)
+                .mapToDouble(Bill::getDiscountedCost)
                 .sum();
 
         // Calculate outstanding bills (PENDING status only)
@@ -298,7 +311,7 @@ public class BillingService {
                 .toList();
 
         Double totalSystemOutstandingAmount = outstandingBills.stream()
-                .mapToDouble(Bill::getCost)
+                .mapToDouble(Bill::getDiscountedCost)
                 .sum();
 
         Integer totalSystemOutstandingBills = outstandingBills.size();

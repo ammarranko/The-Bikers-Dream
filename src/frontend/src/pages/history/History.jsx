@@ -15,8 +15,14 @@ const History = () => {
     const [toDate, setToDate] = useState('');
     const [expandedTrips, setExpandedTrips] = useState({});
     const [selectedBill, setSelectedBill] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(5);
 
+    // Get user info from localStorage
+    const fullName = localStorage.getItem('user_full_name');
+    const role = localStorage.getItem('user_role');
     const userRole = localStorage.getItem('user_role');
+    
     //Load all trips on page load (all users if operator, only user's trips if not)
     useEffect(() => {
         loadTrips();
@@ -168,10 +174,52 @@ const History = () => {
 
     const filtered = filterTrips();
 
+    // Pagination Logic
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filtered.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filtered.length / itemsPerPage);
+
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+    const handleLogout = () => {
+        localStorage.clear();
+        navigate('/');
+    };
+
+    const handleHomeClick = () => {
+        navigate('/home');
+    };
+
+    const handleBillingClick = () => {
+        navigate('/billing');
+    };
+
+    const handleViewHistory = () => {
+        window.location.reload();
+    };
+
+    const handlePricingClick = () => {
+        navigate('/pricing');
+    };
+
     return (
+        <>
+
+        <NavigationBar
+            fullName={fullName}
+            role={role}
+            handleLogout={handleLogout}
+            handleBillingClick={handleBillingClick}
+            handleHomeClick={handleHomeClick}
+            handleViewHistory={handleViewHistory}
+            handlePricingClick={handlePricingClick}
+            activePage="history"
+        />
+        
         <div className="history-container">
+            
             <h1>Trip History</h1>
-            <button onClick={() => navigate('/home')}>Back to Home</button>
 
             {/* Filters */}
             <div className="filters-section">
@@ -226,12 +274,12 @@ const History = () => {
 
             {loading ? (
                 <p>Loading...</p>
-            ) : filtered.length === 0 ? (
+            ) : currentItems.length === 0 ? (
                 <p>{allTrips.length === 0 ? 'No trips found' : 'No trips match filters'}</p>
             ) : (
                 <div>
-                    <p>{filtered.length} trip(s) {allTrips.length !== filtered.length && `of ${allTrips.length}`}</p>
-                    {filtered.map((trip) => (
+                    <p>{currentItems.length} trip(s) {allTrips.length !== currentItems.length && `of ${allTrips.length}`}</p>
+                    {currentItems.map((trip) => (
                         <div key={trip.tripId} className="trip-card">
                             <h3>Trip #{trip.tripId}</h3>
                             <p>User ID: {trip.userId}</p>
@@ -269,6 +317,37 @@ const History = () => {
                             </button>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+                <div className="pagination">
+                    <button 
+                        onClick={() => paginate(currentPage - 1)} 
+                        disabled={currentPage === 1}
+                        className="pagination-btn"
+                    >
+                        &laquo; Prev
+                    </button>
+                    
+                    {Array.from({ length: totalPages }, (_, i) => (
+                        <button
+                            key={i + 1}
+                            onClick={() => paginate(i + 1)}
+                            className={`pagination-btn ${currentPage === i + 1 ? 'active' : ''}`}
+                        >
+                            {i + 1}
+                        </button>
+                    ))}
+                    
+                    <button 
+                        onClick={() => paginate(currentPage + 1)} 
+                        disabled={currentPage === totalPages}
+                        className="pagination-btn"
+                    >
+                        Next &raquo;
+                    </button>
                 </div>
             )}
 
@@ -314,7 +393,8 @@ const History = () => {
                     </div>
                 </div>
             )}
-        </div>
+            </div>
+        </>
     );
 };
 
