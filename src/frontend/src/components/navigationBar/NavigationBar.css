@@ -156,3 +156,16 @@
         box-shadow: 0 2px 8px rgba(255, 215, 0, 0.6);
     }
 }
+
+/* Flex Money Badge Styles */
+.flex-money-badge {
+    font-size: 0.8em;
+    padding: 2px 8px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+    background: #27ae60;
+    color: white;
+}

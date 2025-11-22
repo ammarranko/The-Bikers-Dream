@@ -9,6 +9,9 @@ public class Bill {
     private BillId billId;
     private Double regularCost; // Not persisted - calculated for display only
     private Double discountedCost; // This is the actual cost paid, persisted as 'cost' in DB
+    private Double flexMoneyUsed; // Not persisted - calculated for display only
+    private Integer flexMoneyEarned; // Not persisted - calculated for display only
+    private Double loyaltyDiscount; // Not persisted - calculated for display only
     private TripId tripId;
     private UserId userId;
     private BillStatus status;
@@ -90,6 +93,30 @@ public class Bill {
 
     public void setStatus(BillStatus status) {
         this.status = status;
+    }
+
+    public Double getFlexMoneyUsed() {
+        return flexMoneyUsed;
+    }
+
+    public void setFlexMoneyUsed(Double flexMoneyUsed) {
+        this.flexMoneyUsed = flexMoneyUsed;
+    }
+
+    public Double getLoyaltyDiscount() {
+        return loyaltyDiscount;
+    }
+
+    public void setLoyaltyDiscount(Double loyaltyDiscount) {
+        this.loyaltyDiscount = loyaltyDiscount;
+    }
+
+    public Integer getFlexMoneyEarned() {
+        return flexMoneyEarned;
+    }
+
+    public void setFlexMoneyEarned(Integer flexMoneyEarned) {
+        this.flexMoneyEarned = flexMoneyEarned;
     }
 }
 

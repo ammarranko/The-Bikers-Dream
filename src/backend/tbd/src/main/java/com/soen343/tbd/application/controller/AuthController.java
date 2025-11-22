@@ -39,7 +39,7 @@ public class AuthController {
             String fullName = user.getFullName();
             String username = user.getUsername();
 
-            LoginResponse response = new LoginResponse(token, loginRequest.getEmail(), fullName, user.getRole(), username, user.getTierType().name());
+            LoginResponse response = new LoginResponse(token, loginRequest.getEmail(), fullName, user.getRole(), username, user.getTierType().name(), user.getFlexMoney());
 
             return ResponseEntity.ok(response);
         } else {

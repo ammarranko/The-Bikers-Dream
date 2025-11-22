@@ -142,12 +142,13 @@ public class TripController {
         PricingStrategy pricingStrategy = (PricingStrategy) response.get("pricingStrategy");
 
         // Use Trip's calculateDurationInMinutes method
-        double durationMinutes = trip.calculateDurationInMinutes();
+        Double durationMinutes = trip.calculateDurationInMinutes();
 
         User user = userService.getUserById(trip.getUserId());
         String userFullName = user.getFullName();
         String userEmail = user.getEmail();
         String userTier= user.getTierType().name();
+        Integer flexMoneyBalance = user.getFlexMoney();
 
         return new ReturnResponse(
                 trip.getTripId().value(),
@@ -159,14 +160,18 @@ public class TripController {
                 endStationName,
                 trip.getStartTime(),
                 trip.getEndTime(),
-                Math.round(durationMinutes),
+                durationMinutes,
                 bill.getBillId().value(),
                 pricingStrategy.getPricingTypeName(),
                 pricingStrategy.getBaseFee(),
                 pricingStrategy.getPerMinuteRate(),
                 userTier,
                 bill.getRegularCost(),
-                bill.getDiscountedCost()
+                bill.getDiscountedCost(),
+                bill.getFlexMoneyEarned(),
+                bill.getFlexMoneyUsed(),
+                bill.getLoyaltyDiscount(),
+                flexMoneyBalance
         );
     }
 }

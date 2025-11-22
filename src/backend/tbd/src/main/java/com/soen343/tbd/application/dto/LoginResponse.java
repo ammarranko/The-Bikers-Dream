@@ -7,14 +7,16 @@ public class LoginResponse {
     private String role;
     private String username;
     private String tier;
+    private Integer flexMoney;
 
-    public LoginResponse(String token, String email, String fullName, String role, String username, String tier){
+    public LoginResponse(String token, String email, String fullName, String role, String username, String tier, Integer flexMoney){
         this.token = token;
         this.email = email;
         this.fullName = fullName;
         this.role = role;
         this.username = username;
         this.tier = tier;
+        this.flexMoney = flexMoney;
     }
 
     public String getToken() {
@@ -59,5 +61,13 @@ public class LoginResponse {
     }
     public void setTier(String tier) {
         this.tier = tier;
+    }
+
+    public Integer getFlexMoney() {
+        return flexMoney;
+    }
+
+    public void setFlexMoney(Integer flexMoney) {
+        this.flexMoney = flexMoney;
     }
 }

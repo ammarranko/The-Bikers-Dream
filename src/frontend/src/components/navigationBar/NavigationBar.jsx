@@ -4,6 +4,7 @@ import './NavigationBar.css';
 function NavigationBar({ fullName, role, handleLogout, handleBillingClick, handleHomeClick, activePage, handleViewHistory, handlePricingClick,handleSwitchRole }) {
     const [isOpen, setIsOpen] = useState(false);
     const [userTier, setUserTier] = useState(localStorage.getItem('tier') || 'NONE');
+    const [flexMoney, setFlexMoney] = useState(localStorage.getItem('flexMoney') || 0);
     const sidebarRef = useRef(null);
     const actualUserRole = localStorage.getItem('actual_user_role');
     const initials = fullName
@@ -12,16 +13,22 @@ function NavigationBar({ fullName, role, handleLogout, handleBillingClick, handl
         .join('')
         .toUpperCase();
     
-    // Listen for tier updates from other components
+    // Listen for tier and flex money updates from other components
     useEffect(() => {
         const handleTierUpdate = () => {
             setUserTier(localStorage.getItem('tier') || 'NONE');
         };
 
+        const handleFlexMoneyUpdate = () => {
+            setFlexMoney(localStorage.getItem('flexMoney') || 0);
+        };
+
         window.addEventListener('tierUpdated', handleTierUpdate);
+        window.addEventListener('flexMoneyUpdated', handleFlexMoneyUpdate);
 
         return () => {
             window.removeEventListener('tierUpdated', handleTierUpdate);
+            window.removeEventListener('flexMoneyUpdated', handleFlexMoneyUpdate);
         };
     }, []);
 
@@ -130,6 +137,10 @@ function NavigationBar({ fullName, role, handleLogout, handleBillingClick, handl
                             <div className={`tier-badge tier-${userTier.toLowerCase()}`}>
                                 <i className="fas fa-crown"></i>
                                 {userTier === "NONE" ? "BASIC" : userTier} TIER
+                            </div>
+                            <div className="flex-money-badge">
+                                <i className="fas fa-coins"></i>
+                                {(flexMoney / 100).toFixed(2)} FlexMoney
                             </div>
                         </div>
                     </div>

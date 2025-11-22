@@ -542,7 +542,6 @@ export default function useHomeLogic() {
     };
 
 
-
     const handleViewHistory = () => {
         navigate('/history');
     };
@@ -608,6 +607,13 @@ export default function useHomeLogic() {
                     console.log('Tier updated after trip finished:', response.data.userTier);
                     // Trigger custom event to notify other components
                     window.dispatchEvent(new Event('tierUpdated'));
+                }
+
+                // Update FlexMoney balance in localStorage if returned
+                if (response.data.flexMoneyBalance !== undefined && response.data.flexMoneyBalance !== null) {
+                    localStorage.setItem('flexMoney', response.data.flexMoneyBalance);
+                    console.log('FlexMoney updated after trip finished:', response.data.flexMoneyBalance);
+                    window.dispatchEvent(new Event('flexMoneyUpdated'));
                 }
 
                 // Store trip summary data

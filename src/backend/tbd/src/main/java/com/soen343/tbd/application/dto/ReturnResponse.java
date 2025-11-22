@@ -7,14 +7,14 @@ public class ReturnResponse {
     private Long tripId;
     private Long bikeId;
     private Long userId;
-    private String  userFullName;
+    private String userFullName;
     private String userEmail;
     private String userTier;
     private String startStationName;
     private String endStationName;
     private Timestamp startTime;
     private Timestamp endTime;
-    private Long durationMinutes;
+    private Double durationMinutes;
 
     // Bill information
     private Long billId;
@@ -23,14 +23,17 @@ public class ReturnResponse {
     private Double perMinuteRate;
     private Double regularCost;
     private Double discountedCost;
-
-
+    private Integer flexMoneyEarned;
+    private Double flexMoneyUsed;
+    private Double loyaltyDiscount;
+    private Integer flexMoneyBalance;
 
     public ReturnResponse(Long tripId, Long bikeId, Long userId, String userFullName, String userEmail,
                           String startStationName, String endStationName,
-                          Timestamp startTime, Timestamp endTime, Long durationMinutes,
+                          Timestamp startTime, Timestamp endTime, Double durationMinutes,
                           Long billId, String pricingStrategy, Double baseFare, Double perMinuteRate,
-                          String userTier, Double regularCost, Double discountedCost) {
+                          String userTier, Double regularCost, Double discountedCost, Integer flexMoneyEarned, Double flexMoneyUsed,
+                          Double loyaltyDiscount, Integer flexMoneyBalance) { 
         this.tripId = tripId;
         this.bikeId = bikeId;
         this.userId = userId;
@@ -48,6 +51,10 @@ public class ReturnResponse {
         this.userTier = userTier;
         this.regularCost = regularCost;
         this.discountedCost = discountedCost;
+        this.flexMoneyEarned = flexMoneyEarned;
+        this.flexMoneyUsed = flexMoneyUsed;
+        this.loyaltyDiscount = loyaltyDiscount;
+        this.flexMoneyBalance = flexMoneyBalance;
     }
 
     public Long getTripId() {
@@ -122,11 +129,11 @@ public class ReturnResponse {
         this.endTime = endTime;
     }
 
-    public Long getDurationMinutes() {
+    public Double getDurationMinutes() {
         return durationMinutes;
     }
 
-    public void setDurationMinutes(Long durationMinutes) {
+    public void setDurationMinutes(Double durationMinutes) {
         this.durationMinutes = durationMinutes;
     }
 
@@ -184,5 +191,29 @@ public class ReturnResponse {
 
     public void setDiscountedCost(Double discountedCost) {
         this.discountedCost = discountedCost;
+    }
+
+    public Integer getFlexMoneyEarned() {
+        return flexMoneyEarned;
+    }
+
+    public void setFlexMoneyEarned(Integer flexMoneyEarned) {
+        this.flexMoneyEarned = flexMoneyEarned;
+    }
+
+    public Double getFlexMoneyUsed() {
+        return flexMoneyUsed;
+    }
+
+    public void setFlexMoneyUsed(Double flexMoneyUsed) {
+        this.flexMoneyUsed = flexMoneyUsed;
+    }
+
+    public Double getLoyaltyDiscount() {
+        return loyaltyDiscount;
+    }
+
+    public Integer getFlexMoneyBalance() {
+        return flexMoneyBalance;
     }
 }
