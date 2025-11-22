@@ -477,6 +477,11 @@
     text-align: right;
 }
 
+.discount-row span {
+    color: #27ae60 !important;
+    font-weight: 600;
+}
+
 .breakdown-total {
     display: flex;
     justify-content: space-between;

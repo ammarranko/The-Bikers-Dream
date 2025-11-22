@@ -165,6 +165,12 @@ public class BillingService {
                     String startStationName = startStation != null ? startStation.getStationName() : "Unknown";
                     String endStationName = endStation != null ? endStation.getStationName() : "In Progress";
 
+                    // Calculate regular cost (without discount)
+                    double regularCost = 0.0;
+                    if (trip.getPricingStrategy() != null) {
+                        regularCost = trip.getPricingStrategy().calculateCost(trip.calculateDurationInMinutes());
+                    }
+
                     return new UserBillingHistoryResponse.TripBillDTO(
                             trip.getTripId().value(),
                             trip.getBikeId().value(),
@@ -178,7 +184,8 @@ public class BillingService {
                             trip.getPricingStrategy() != null ? trip.getPricingStrategy().getPricingTypeName() : "Standard Bike Pricing",
                             trip.getPricingStrategy() != null ? trip.getPricingStrategy().getBaseFee() : 0.0,
                             trip.getPricingStrategy() != null ? trip.getPricingStrategy().getPerMinuteRate() : 0.0,
-                            bill != null ? bill.getDiscountedCost() : 0.0
+                            bill != null ? bill.getDiscountedCost() : 0.0,
+                            regularCost
                     );
                 })
                 .collect(Collectors.toList());
@@ -244,6 +251,12 @@ public class BillingService {
                     String startStationName = startStation != null ? startStation.getStationName() : "Unknown";
                     String endStationName = endStation != null ? endStation.getStationName() : "In Progress";
 
+                    // Calculate regular cost (without discount)
+                    double regularCost = 0.0;
+                    if (trip.getPricingStrategy() != null) {
+                        regularCost = trip.getPricingStrategy().calculateCost(trip.calculateDurationInMinutes());
+                    }
+
                     return new AllBillingHistoryResponse.SystemTripBillDTO(
                             trip.getTripId().value(),
                             trip.getUserId().value(),
@@ -260,7 +273,8 @@ public class BillingService {
                             trip.getPricingStrategy() != null ? trip.getPricingStrategy().getPricingTypeName() : "Standard Bike Pricing",
                             trip.getPricingStrategy() != null ? trip.getPricingStrategy().getBaseFee() : 0.0,
                             trip.getPricingStrategy() != null ? trip.getPricingStrategy().getPerMinuteRate() : 0.0,
-                            bill != null ? bill.getDiscountedCost() : 0.0
+                            bill != null ? bill.getDiscountedCost() : 0.0,
+                            regularCost
                     );
                 })
                 .collect(Collectors.toList());

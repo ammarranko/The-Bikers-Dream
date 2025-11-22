@@ -550,9 +550,20 @@ function Billing() {
                                         <span>${selectedBill.baseFare.toFixed(2)}</span>
                                     </div>
                                     <div className="breakdown-item">
-                                        <span>Time Charge ({selectedBill.durationMinutes} min × ${selectedBill.perMinuteRate.toFixed(2)})</span>
-                                        <span>${(selectedBill.durationMinutes * selectedBill.perMinuteRate).toFixed(2)}</span>
+                                        <span>
+                                            {selectedBill.durationMinutes === 0 
+                                                ? `Time Charge (${Math.round((new Date(selectedBill.endTime) - new Date(selectedBill.startTime)) / 1000)} sec × $${(selectedBill.perMinuteRate / 60).toFixed(4)})`
+                                                : `Time Charge (${selectedBill.durationMinutes} min × $${selectedBill.perMinuteRate.toFixed(2)})`
+                                            }
+                                        </span>
+                                        <span>${(selectedBill.regularCost - selectedBill.baseFare).toFixed(2)}</span>
                                     </div>
+                                    {selectedBill.regularCost > selectedBill.totalAmount && (
+                                        <div className="breakdown-item discount-row">
+                                            <span>Loyalty Discount ({Math.round((1 - selectedBill.totalAmount / selectedBill.regularCost) * 100)}%)</span>
+                                            <span>-${(selectedBill.regularCost - selectedBill.totalAmount).toFixed(2)}</span>
+                                        </div>
+                                    )}
                                     <div className="breakdown-total">
                                         <span>Total Amount</span>
                                         <span>${selectedBill.totalAmount.toFixed(2)}</span>
