@@ -363,6 +363,21 @@ public class TripService {
             throw new RuntimeException("Failed to save bill during return", e);
         }
 
+        Map<String, Object> tripData = new HashMap<>();
+        tripData.put("tripId", currentTrip.getTripId().value());
+        tripData.put("userId", userId.value());
+        tripData.put("userName", userRepository.findById(userId).map(User::getUsername).orElse("Unknown"));
+        tripData.put("bikeId", bikeId.value());
+        tripData.put("startStationId", currentTrip.getStartStationId().value());
+        tripData.put("endStationId", stationId.value());
+        tripData.put("startTime", currentTrip.getStartTime() != null ? currentTrip.getStartTime().toString() : null);
+        tripData.put("endTime", currentTrip.getEndTime() != null ? currentTrip.getEndTime().toString() : null);
+        tripData.put("bikeType", selectedBike.getBikeType().name());
+        tripData.put("status", currentTrip.getStatus().name());
+        tripData.put("billId", resultingBill != null ? resultingBill.getBillId().value() : null);
+        tripData.put("billCost", resultingBill != null ? resultingBill.getDiscountedCost() : null);
+        sseStationObserver.sendTripUpdate(tripData);
+
         // check for flex money eligibility (after bill so it doesn't get applied to the trip immediately)
         Integer flexMoneyEarned = 0;
         try {

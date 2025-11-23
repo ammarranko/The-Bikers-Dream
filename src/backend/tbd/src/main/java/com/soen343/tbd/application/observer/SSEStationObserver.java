@@ -174,4 +174,23 @@ public class SSEStationObserver implements StationObserver {
         }
     }
 
+    public void sendTripUpdate(Map<String, Object> tripData) {
+        List<SseEmitter> deadEmitters = new ArrayList<>();
+        emitters.forEach(emitter -> {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("trip-update")
+                        .data(tripData));
+                logger.debug("Sent trip update for trip ID: {}", tripData.get("tripId"));
+            } catch (IOException ioe) {
+                logger.error("Error sending trip update to SSE client: " + ioe.getMessage());
+                deadEmitters.add(emitter);
+            }
+        });
+        if (!deadEmitters.isEmpty()) {
+            emitters.removeAll(deadEmitters);
+            logger.debug("Removed {} dead SSE connections after trip update.", deadEmitters.size());
+        }
+    }
+
 }
