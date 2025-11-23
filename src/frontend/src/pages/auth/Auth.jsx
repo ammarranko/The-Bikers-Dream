@@ -3,6 +3,7 @@ import "./Auth.css";
 import logo from "../../assets/logo.png";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
+import TierChangePopup from "../../components/tierChangePopup/TierChangePopup";
 
 const initialForm = {
   fullName: "",
@@ -27,6 +28,8 @@ const Auth = () => {
   const [formData, setFormData] = useState(initialForm);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showTierPopup, setShowTierPopup] = useState(false);
+  const [tierChangeData, setTierChangeData] = useState({ oldTier: "", newTier: "" });
 
   const handleLogout = () => {
     // Clear stored auth info and axios header
@@ -34,6 +37,7 @@ const Auth = () => {
       localStorage.removeItem("jwt_token");
       localStorage.removeItem("user_email");
       localStorage.removeItem("user_full_name");
+      localStorage.removeItem("tier"); // Clear tier on logout
       delete axios.defaults.headers.common["Authorization"];
     } finally {
       // Reset UI state
@@ -78,7 +82,8 @@ const Auth = () => {
           password: formData.password,
         });
 
-        const { token, email, fullName, role, username, tier, flexMoney } = response.data || {};
+        const { token, email, fullName, role, username, tier, flexMoney } =
+          response.data || {};
 
         // Ensure we actually received a valid token from the server
         if (!token || token === "undefined" || token === "null") {
@@ -93,14 +98,26 @@ const Auth = () => {
         localStorage.setItem("user_role", role);
         localStorage.setItem("username", username);
         localStorage.setItem("actual_user_role", role); // to keep track of actual role if switched
-        localStorage.setItem("tier", tier || 'NONE'); // Store user tier
+        localStorage.setItem("tier", tier || "NONE"); // Store user tier
         localStorage.setItem("flexMoney", flexMoney || 0); // Store flex money
+
+        const previousTierKey = `previousTier_${email}`; // storing w email to differentiate users
+        const storedTier = localStorage.getItem(previousTierKey);
+        const newTier = tier || "NONE";
 
         // Set default header for future requests
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-        // Navigate to home page
-        navigate("/home");
+        // Only show popup if we have a record of a previous tier AND it's different
+        if (storedTier && storedTier !== newTier) {
+          setTierChangeData({ oldTier: storedTier, newTier: newTier });
+          setShowTierPopup(true);
+          localStorage.setItem(previousTierKey, newTier);
+        } else {
+          // First time on this device OR no change
+          localStorage.setItem(previousTierKey, newTier);
+          navigate("/home");
+        }
       }
       // For registration
       else {
@@ -142,8 +159,20 @@ const Auth = () => {
     setError("");
   };
 
+  const handlePopupClose = () => {
+    setShowTierPopup(false);
+    navigate("/home");
+  };
+
   return (
     <div>
+      {showTierPopup && (
+        <TierChangePopup
+          oldTier={tierChangeData.oldTier}
+          newTier={tierChangeData.newTier}
+          onClose={handlePopupClose}
+        />
+      )}
       <div className="header-bar">
         <img src={logo} className="corner-logo" alt="logo" />
       </div>
@@ -154,7 +183,6 @@ const Auth = () => {
               <h4>{isLogin ? "Login" : "Sign Up"}</h4>
             </div>
             <div className="card-body">
-
               {/* Back to Landing Page Button */}
               <div style={{ textAlign: "center", marginBottom: "15px" }}>
                 <button
@@ -167,7 +195,7 @@ const Auth = () => {
                     border: "none",
                     borderRadius: "8px",
                     cursor: "pointer",
-                    fontWeight: "600"
+                    fontWeight: "600",
                   }}
                 >
                   Back to Landing Page
@@ -339,6 +367,13 @@ const Auth = () => {
           </div>
         </div>
       </div>
+      {showTierPopup && (
+        <TierChangePopup
+          oldTier={tierChangeData.oldTier}
+          newTier={tierChangeData.newTier}
+          onClose={handlePopupClose}
+        />
+      )}
     </div>
   );
 };

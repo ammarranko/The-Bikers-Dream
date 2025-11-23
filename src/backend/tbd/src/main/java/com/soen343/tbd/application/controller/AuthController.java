@@ -28,6 +28,12 @@ public class AuthController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private com.soen343.tbd.application.service.LoyaltyTierService loyaltyTierService;
+
+    @Autowired
+    private com.soen343.tbd.application.service.ReservationService reservationService;
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         // Authenticate user
@@ -36,10 +42,37 @@ public class AuthController {
             String token = jwtUtil.generateToken(loginRequest.getEmail());
             // Fetch user details
             User user = userRepository.findByEmail(loginRequest.getEmail()).orElse(null);
+            
+            // Check for expired reservations immediately upon login
+            // This ensures that if a reservation expired while offline, the user is penalized BEFORE we build the response
+            try {
+                reservationService.checkAndExpireReservationsForUser(user.getUserId());
+                // Reload user to get updated tier/flag status
+                user = userRepository.findByEmail(loginRequest.getEmail()).orElse(user);
+            } catch (Exception e) {
+                System.err.println("Failed to check expired reservations on login: " + e.getMessage());
+            }
+
             String fullName = user.getFullName();
             String username = user.getUsername();
 
-            LoginResponse response = new LoginResponse(token, loginRequest.getEmail(), fullName, user.getRole(), username, user.getTierType().name(), user.getFlexMoney());
+            try {
+                com.soen343.tbd.domain.model.enums.TierType computed = loyaltyTierService.calculateUserTier(user);
+                // persist change if different
+                if (user.getTierType() == null || user.getTierType() != computed) {
+                    // now called upon login so that a message appears if tier has changed
+                    loyaltyTierService.updateUserTier(user);
+                    // reload user tier to ensure consistency
+                    user = userRepository.findByEmail(loginRequest.getEmail()).orElse(user);
+                }
+            } catch (Exception e) {
+                // If tier calculation fails, log and continue with existing tier so login isn't
+                // locked
+                System.err.println("Loyalty tier calculation failed: " + e.getMessage());
+            }
+
+            LoginResponse response = new LoginResponse(token, loginRequest.getEmail(), fullName, user.getRole(),
+                    username, user.getTierType().name(), user.getFlexMoney());
 
             return ResponseEntity.ok(response);
         } else {
@@ -58,17 +91,16 @@ public class AuthController {
 
         // Register the user
         authService.registerUser(
-            signupRequest.getFullName(),
-            signupRequest.getEmail(),
-            signupRequest.getPassword(),
-            signupRequest.getAddress(),
-            signupRequest.getUsername(),
-            signupRequest.getCardHolderName(),
-            signupRequest.getCardNumber(),
-            signupRequest.getExpiryMonth(),
-            signupRequest.getExpiryYear(),
-            signupRequest.getCvc()
-        );
+                signupRequest.getFullName(),
+                signupRequest.getEmail(),
+                signupRequest.getPassword(),
+                signupRequest.getAddress(),
+                signupRequest.getUsername(),
+                signupRequest.getCardHolderName(),
+                signupRequest.getCardNumber(),
+                signupRequest.getExpiryMonth(),
+                signupRequest.getExpiryYear(),
+                signupRequest.getCvc());
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "User registered successfully");

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -41,11 +41,16 @@ export default function useHomeLogic() {
     const [reservationSuccessPopup, setReservationSuccessPopup] = useState(false);
     const [tripSummaryData, setTripSummaryData] = useState(null);
     const [reservationExpiredPopup, setReservationExpiredPopup] = useState(false);
+    const [showTierPopup, setShowTierPopup] = useState(false);
+    const [tierChangeData, setTierChangeData] = useState({ oldTier: "", newTier: "" });
 
 
     const fullName = localStorage.getItem('user_full_name');
     const role = localStorage.getItem('user_role');
     let userEmail = localStorage.getItem('user_email');
+
+    // Ref to keep track of the last seen tier
+    const lastTierRef = useRef(localStorage.getItem('tier'));
 
     // Loading wrapper function
     const withLoading = async (message, operation) => {
@@ -316,6 +321,37 @@ export default function useHomeLogic() {
         return () => clearInterval(interval);
     }, [activeReservation]);
 
+    // Window alert upon tier change (while logged in)
+    // Added interval so that constantly checking
+    useEffect(() => {
+        const checkTierChange = () => {
+            const currentTier = localStorage.getItem('tier');
+            if (lastTierRef.current && currentTier && lastTierRef.current !== currentTier) {
+                setTierChangeData({ oldTier: lastTierRef.current, newTier: currentTier });
+                setShowTierPopup(true);
+                lastTierRef.current = currentTier;
+                if (userEmail) {
+                    localStorage.setItem(`previousTier_${userEmail}`, currentTier);
+                }
+            }
+        };
+
+        // Check periodically
+        const interval = setInterval(checkTierChange, 2000);
+        
+        // Also check immediately when we know it might have changed
+        window.addEventListener('tierUpdated', checkTierChange);
+
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener('tierUpdated', checkTierChange);
+        };
+    }, []);
+
+    const handleCloseTierPopup = () => {
+        setShowTierPopup(false);
+    };
+
     // API Operations
     const toggleStationStatus = async (stationId, currentStatus) => {
         await withLoading('Updating station status...', async () => {
@@ -515,6 +551,7 @@ export default function useHomeLogic() {
         localStorage.removeItem('user_email');
         localStorage.removeItem('user_full_name');
         localStorage.removeItem('user_role');
+        localStorage.removeItem('tier'); // Clear tier on logout
         delete axios.defaults.headers.common['Authorization'];
         navigate('/login?logout=1', { replace: true });
     };
@@ -710,6 +747,9 @@ export default function useHomeLogic() {
         reservationSuccessPopup,
         showCancelReservationPopup,
         reservationExpiredPopup,
+        showTierPopup,
+        tierChangeData,
+        handleCloseTierPopup,
 
         // Actions
         handleLogout,

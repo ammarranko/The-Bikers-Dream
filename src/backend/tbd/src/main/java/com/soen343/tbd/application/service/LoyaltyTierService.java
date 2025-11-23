@@ -48,5 +48,11 @@ public class LoyaltyTierService {
         }
         return false;
     }
+
+    // Resets the user's tier to NONE (e.g. penalty for expired reservation)
+    public void resetTierToNone(User user) {
+        user.setTierType(TierType.NONE);
+        userRepository.save(user);
+    }
 }
 

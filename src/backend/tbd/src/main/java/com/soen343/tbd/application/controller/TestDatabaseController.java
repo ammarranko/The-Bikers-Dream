@@ -234,33 +234,18 @@ public class TestDatabaseController {
         }
     }
 
-    @PostMapping("/generate-gold-trips/{email}")
+    @GetMapping("/generate-gold-trips/{email}")
     public ResponseEntity<Map<String, Object>> generateGoldTierTrips(@PathVariable String email) {
         return generateTripsForUser(email, "GOLD");
     }
 
-    @GetMapping("/generate-gold-trips/{email}")
-    public ResponseEntity<Map<String, Object>> generateGoldTierTripsGet(@PathVariable String email) {
-        return generateTripsForUser(email, "GOLD");
-    }
-
-    @PostMapping("/generate-silver-trips/{email}")
+    @GetMapping("/generate-silver-trips/{email}")
     public ResponseEntity<Map<String, Object>> generateSilverTierTrips(@PathVariable String email) {
         return generateTripsForUser(email, "SILVER");
     }
 
-    @GetMapping("/generate-silver-trips/{email}")
-    public ResponseEntity<Map<String, Object>> generateSilverTierTripsGet(@PathVariable String email) {
-        return generateTripsForUser(email, "SILVER");
-    }
-
-    @PostMapping("/generate-bronze-trips/{email}")
-    public ResponseEntity<Map<String, Object>> generateBronzeTierTrips(@PathVariable String email) {
-        return generateTripsForUser(email, "BRONZE");
-    }
-
     @GetMapping("/generate-bronze-trips/{email}")
-    public ResponseEntity<Map<String, Object>> generateBronzeTierTripsGet(@PathVariable String email) {
+    public ResponseEntity<Map<String, Object>> generateBronzeTierTrips(@PathVariable String email) {
         return generateTripsForUser(email, "BRONZE");
     }
 

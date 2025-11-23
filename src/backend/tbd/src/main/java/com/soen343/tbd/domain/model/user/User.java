@@ -22,6 +22,7 @@ public abstract class User {
     private String cvc;
     private TierType tier = TierType.NONE;
     private Integer flexmoney;
+    private boolean tierDowngradedNotificationPending = false;
 
     public User(UserId userId, String fullName, String email, String password,
                 String address, String username, String role, Timestamp createdAt, Integer flexmoney) {
@@ -159,6 +160,14 @@ public abstract class User {
 
     public void setFlexMoney(Integer flexmoney) {
         this.flexmoney = flexmoney;
+    }
+
+    public boolean isTierDowngradedNotificationPending() {
+        return tierDowngradedNotificationPending;
+    }
+
+    public void setTierDowngradedNotificationPending(boolean tierDowngradedNotificationPending) {
+        this.tierDowngradedNotificationPending = tierDowngradedNotificationPending;
     }
 
     @Override

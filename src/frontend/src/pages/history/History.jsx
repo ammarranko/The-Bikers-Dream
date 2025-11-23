@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import NavigationBar from '../../components/navigationBar/NavigationBar';
+import LoadingSpinner from "../../components/loadingSpinner/LoadingSpinner";
 import '../home/Home.css';
 import './History.css';
 
@@ -216,6 +217,12 @@ const History = () => {
             handlePricingClick={handlePricingClick}
             activePage="history"
         />
+
+        {loading && (
+            <LoadingSpinner
+            message={"Loading your billing history..."}
+            />
+        )}
         
         <div className="history-container">
             

@@ -9,6 +9,7 @@ import PopupManager from '../../components/PopupManager';
 import LoadingSpinner from '../../components/loadingSpinner/LoadingSpinner';
 import MaintenanceTracker from '../../components/maintenanceTracker/MaintenanceTracker';
 import OperatorConsole from "../../components/operatorConsole/OperatorConsole";
+import TierChangePopup from "../../components/tierChangePopup/TierChangePopup";
 import './Home.css';
 
 const Home = () => {
@@ -37,6 +38,9 @@ const Home = () => {
     reservationSuccessPopup,
     reservationExpiredPopup,
     showCancelReservationPopup,
+    showTierPopup,
+    tierChangeData,
+    handleCloseTierPopup,
     // actions
     handleLogout,
       handleSwitchRole,
@@ -222,6 +226,13 @@ const Home = () => {
                 </div>
             </div>
             <PopupManager {...popupProps} />
+            {showTierPopup && (
+                <TierChangePopup
+                    oldTier={tierChangeData.oldTier}
+                    newTier={tierChangeData.newTier}
+                    onClose={handleCloseTierPopup}
+                />
+            )}
         </div>
     );
 };

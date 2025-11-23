@@ -60,6 +60,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/login", "/api/register").permitAll()
                         .requestMatchers("/api/stations/stream", "/api/stations/subscribe").permitAll()
                         .requestMatchers("/api/stations/**").permitAll()
+                        .requestMatchers("/api/test/generate-gold-trips/**", "/api/test/generate-silver-trips/**", "/api/test/generate-bronze-trips/**").permitAll()
                         // Require authentication for all other requests
                         .anyRequest().authenticated())
                 // If any exception occurs, this will handle it by redirecting to 401

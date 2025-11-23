@@ -303,6 +303,14 @@ logger.info("Reservation will expire at: {}", expiresAt.toLocalDateTime());
                 eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(bikeStatusChangeEvent));
             }
 
+            // Reset user tier to NONE as penalty
+            userRepository.findById(expiredReservation.getUserId()).ifPresent(user -> {
+                loyaltyTierService.resetTierToNone(user);
+                user.setTierDowngradedNotificationPending(true); // Set flag
+                userRepository.save(user);
+                logger.info("User {} tier reset to NONE due to expired reservation", user.getUserId().value());
+            });
+
             // Notify
             notifyAllUsers(expiredReservation.getStartStationId());
 
@@ -310,6 +318,18 @@ logger.info("Reservation will expire at: {}", expiresAt.toLocalDateTime());
         }
 
         return expiredReservation.getUserId();
+    }
+
+    // Check for expired reservations for a specific user
+    @Transactional
+    public void checkAndExpireReservationsForUser(UserId userId) {
+        reservationRepository.checkActiveReservationByUserId(userId).ifPresent(reservation -> {
+            if (reservation.getExpiresAt().before(Timestamp.from(Instant.now()))) {
+                logger.info("Found expired reservation {} for user {} during login check", 
+                        reservation.getReservationId().value(), userId.value());
+                expireReservation(reservation.getReservationId());
+            }
+        });
     }
 
     private void notifyAllUsers(StationId stationId) {
