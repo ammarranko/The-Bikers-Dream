@@ -9,10 +9,10 @@ import java.util.List;
 public interface DockRepository {
     Optional<Dock> findById(DockId dockId);
 
-    void save(Dock dock);
-
     List<Dock> findAll();
 
     void saveAll(List<Dock> docks);
+
+    Dock save(Dock dock);
 }
 

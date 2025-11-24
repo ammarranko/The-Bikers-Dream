@@ -23,10 +23,12 @@ import com.soen343.tbd.domain.model.Bike;
 import com.soen343.tbd.domain.model.Station;
 import com.soen343.tbd.domain.model.helpers.Event;
 import com.soen343.tbd.application.dto.EventDTO;
+
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+
 import com.soen343.tbd.domain.model.user.User;
 
 
@@ -46,13 +48,13 @@ public class ReservationService {
 
 
     public ReservationService(ReservationRepository reservationRepository,
-            BikeRepository bikeRepository,
-            UserRepository userRepository,
-            StationRepository stationRepository,
-            StationSubject stationPublisher,
-            StationService stationService,
-            EventService eventService,  
-            LoyaltyTierService loyaltyTierService) {
+                              BikeRepository bikeRepository,
+                              UserRepository userRepository,
+                              StationRepository stationRepository,
+                              StationSubject stationPublisher,
+                              StationService stationService,
+                              EventService eventService,
+                              LoyaltyTierService loyaltyTierService) {
         this.reservationRepository = reservationRepository;
         this.bikeRepository = bikeRepository;
         this.userRepository = userRepository;
@@ -90,8 +92,8 @@ public class ReservationService {
         logger.info("Found bike: {}, station: {}",
                 selectedBike.getBikeId().value(),
                 selectedStation.getStationId().value());
-    
-        Reservation newReservation= null;
+
+        Reservation newReservation = null;
 
 
         // Create and save reservation
@@ -99,24 +101,24 @@ public class ReservationService {
             Timestamp reservedAt = Timestamp.from(Instant.now());
             //Timestamp expiresAt = Timestamp.from(Instant.now().plus(15, ChronoUnit.SECONDS));
 
-//new calculation for tiers
-// Fetch user
-User user = userRepository.findById(userId)
-        .orElseThrow(() -> new RuntimeException("User not found: " + userId.value()));
+            //new calculation for tiers
+            // Fetch user
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + userId.value()));
 
-// Ensure the user's tier is up-to-date
-loyaltyTierService.updateUserTier(user);
+            // Ensure the user's tier is up-to-date
+            loyaltyTierService.updateUserTier(user);
 
-// Base reservation time in seconds
-int baseReservationSeconds = 15;
-int extraTimeSeconds = user.getExtraReservationTime();
+            // Base reservation time in seconds
+            int baseReservationSeconds = 15;
+            int extraTimeSeconds = user.getExtraReservationTime();
 
-// Calculate expiration
-Timestamp expiresAt = Timestamp.from(
-    Instant.now().plus(baseReservationSeconds + extraTimeSeconds, ChronoUnit.SECONDS)
-);
+            // Calculate expiration
+            Timestamp expiresAt = Timestamp.from(
+                    Instant.now().plus(baseReservationSeconds + extraTimeSeconds, ChronoUnit.SECONDS)
+            );
 
-logger.info("Reservation will expire at: {}", expiresAt.toLocalDateTime());
+            logger.info("Reservation will expire at: {}", expiresAt.toLocalDateTime());
 
 
             // Create reservation using domain constructor
@@ -134,30 +136,30 @@ logger.info("Reservation will expire at: {}", expiresAt.toLocalDateTime());
             // Retrieve saved reservation
             newReservation = reservationRepository.checkActiveReservationByUserId(userId)
                     .orElse(null);
-            
+
             // Create event for reservation creation
             Event createReservationEvent = eventService.createEventForEntity(
-                EntityType.RESERVATION,
-                newReservation.getReservationId().value(),
-                "Reservation created",
-                EntityStatus.NONE,
-                EntityStatus.RES_ACTIVE,
-                "User_"+userId.value());
+                    EntityType.RESERVATION,
+                    newReservation.getReservationId().value(),
+                    "Reservation created",
+                    EntityStatus.NONE,
+                    EntityStatus.RES_ACTIVE,
+                    "User_" + userId.value());
 
             // Notify all operators about new reservation event
             if (createReservationEvent != null) {
                 eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(createReservationEvent));
             }
-            
+
             // Create event for bike status change
             Event bikeStatusChangeEvent = eventService.createEventForEntity(
-                EntityType.BIKE,
-                selectedBike.getBikeId().value(),
-                "Bike reserved",
-                EntityStatus.AVAILABLE,
-                EntityStatus.RESERVED,
-                "User_"+userId.value());
-            
+                    EntityType.BIKE,
+                    selectedBike.getBikeId().value(),
+                    "Bike reserved",
+                    EntityStatus.AVAILABLE,
+                    EntityStatus.RESERVED,
+                    "User_" + userId.value());
+
             // Notify all operators about bike status change event
             if (bikeStatusChangeEvent != null) {
                 eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(bikeStatusChangeEvent));
@@ -218,7 +220,7 @@ logger.info("Reservation will expire at: {}", expiresAt.toLocalDateTime());
                             () -> new RuntimeException("Bike not found: " + cancelReservation.getBikeId().value()));
             bike.setStatus(BikeStatus.AVAILABLE);
             bikeRepository.save(bike);
-            
+
             // Create event for reservation cancellation
             Event cancelEvent = eventService.createEventForEntity(
                     EntityType.RESERVATION,
@@ -227,12 +229,12 @@ logger.info("Reservation will expire at: {}", expiresAt.toLocalDateTime());
                     EntityStatus.RES_ACTIVE,
                     EntityStatus.CANCELLED,
                     "System");
-                
+
             // Notify all operators about reservation cancellation event
             if (cancelEvent != null) {
                 eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(cancelEvent));
             }
-            
+
             // Create event for bike status change
             Event bikeStatusChangeEvent = eventService.createEventForEntity(
                     EntityType.BIKE,
@@ -240,8 +242,8 @@ logger.info("Reservation will expire at: {}", expiresAt.toLocalDateTime());
                     "Bike made available after reservation cancellation",
                     EntityStatus.RESERVED,
                     EntityStatus.AVAILABLE,
-                    "System");  
-            
+                    "System");
+
             // Notify all operators about bike status change event
             if (bikeStatusChangeEvent != null) {
                 eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(bikeStatusChangeEvent));
@@ -257,64 +259,112 @@ logger.info("Reservation will expire at: {}", expiresAt.toLocalDateTime());
     }
 
     // -------------------------
+    // CANCEL RESERVATION
+    // -------------------------
+
+    @Transactional
+    public void completeReservation(ReservationId reservationId) {
+        logger.info("Attempting to complete reservation: ReservationId={}", reservationId.value());
+
+        Reservation completeReservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new RuntimeException("Reservation not found: " + reservationId.value()));
+
+        try {
+            completeReservation.complete();
+            reservationRepository.save(completeReservation);
+
+            // Create event for reservation cancellation
+            Event completeEvent = eventService.createEventForEntity(
+                    EntityType.RESERVATION,
+                    completeReservation.getReservationId().value(),
+                    "Reservation completed",
+                    EntityStatus.RES_ACTIVE,
+                    EntityStatus.RES_COMPLETED,
+                    "System");
+
+            // Notify all operators about reservation completed event
+            if (completeEvent != null) {
+                eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(completeEvent));
+            }
+
+            // Notify
+            notifyAllUsers(completeReservation.getStartStationId());
+
+            logger.info("Reservation {} completed successfully", reservationId.value());
+        } catch (Exception e) {
+            logger.warn("Failed to complete reservation {}: {}", reservationId.value(), e.getMessage());
+        }
+    }
+
+
+    // -------------------------
     // EXPIRE RESERVATION
     // -------------------------
     @Transactional
     //handles bike expiration logic and returns the user id for which a reservation has expired
     public UserId expireReservation(ReservationId reservationId) {
+        logger.info("Starting reservation expiration process for ReservationId = {}", reservationId.value());
         Reservation expiredReservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new RuntimeException("Reservation not found"));
 
-        expiredReservation.expire(); // Domain handles ACTIVE check and expiration
-        reservationRepository.save(expiredReservation);
+        try {
+            expiredReservation.expire(); // Domain handles ACTIVE check and expiration
+            logger.info("Reservation status set to EXPIRED for ReservationId = {}", reservationId.value());
+            reservationRepository.save(expiredReservation);
 
-        // Update bike status if expired
-        if (expiredReservation.getStatus() == ReservationStatus.EXPIRED) {
-            Bike bike = bikeRepository.findById(expiredReservation.getBikeId())
-                    .orElseThrow(() -> new RuntimeException("Bike not found"));
-            bike.setStatus(BikeStatus.AVAILABLE);
-            bikeRepository.save(bike);
+            // Update bike status if expired
+            if (expiredReservation.getStatus() == ReservationStatus.EXPIRED) {
+                Bike bike = bikeRepository.findById(expiredReservation.getBikeId())
+                        .orElseThrow(() -> new RuntimeException("Bike not found"));
+                bike.setStatus(BikeStatus.AVAILABLE);
+                logger.info("Bike status set to AVAILABLE for BikeId= {} ", bike.getBikeId().value());
+                bikeRepository.save(bike);
 
-            // Create event for reservation expiration
-            Event expireEvent = eventService.createEventForEntity(
-                    EntityType.RESERVATION,
-                    expiredReservation.getReservationId().value(),
-                    "Reservation expired",
-                    EntityStatus.RES_ACTIVE,
-                    EntityStatus.EXPIRED,
-                    "System");
+                // Create event for reservation expiration
+                Event expireEvent = eventService.createEventForEntity(
+                        EntityType.RESERVATION,
+                        expiredReservation.getReservationId().value(),
+                        "Reservation expired",
+                        EntityStatus.RES_ACTIVE,
+                        EntityStatus.EXPIRED,
+                        "System");
 
-            // Notify all operators about reservation expiration event
-            if (expireEvent != null) {  
-                eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(expireEvent));
+                // Notify all operators about reservation expiration event
+                if (expireEvent != null) {
+                    eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(expireEvent));
+                }
+
+                // Create event for bike status change
+                Event bikeStatusChangeEvent = eventService.createEventForEntity(
+                        EntityType.BIKE,
+                        bike.getBikeId().value(),
+                        "Bike made available after reservation expiration",
+                        EntityStatus.RESERVED,
+                        EntityStatus.AVAILABLE,
+                        "System");
+
+                // Notify all operators about bike status change event
+                if (bikeStatusChangeEvent != null) {
+                    eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(bikeStatusChangeEvent));
+                }
+
+                // Reset user tier to NONE as penalty
+                userRepository.findById(expiredReservation.getUserId()).ifPresent(user -> {
+                    loyaltyTierService.resetTierToNone(user);
+                    user.setTierDowngradedNotificationPending(true); // Set flag
+                    userRepository.save(user);
+                    logger.info("User {} tier reset to NONE due to expired reservation", user.getUserId().value());
+                });
+
+                // Notify
+                notifyAllUsers(expiredReservation.getStartStationId());
+
+                logger.info("Reservation expired successfully for ReservationId = {}", reservationId.value());
+            } else {
+                throw new RuntimeException("Failed to expire reservation.");
             }
-
-            // Create event for bike status change
-            Event bikeStatusChangeEvent = eventService.createEventForEntity(
-                    EntityType.BIKE,
-                    bike.getBikeId().value(),
-                    "Bike made available after reservation expiration",
-                    EntityStatus.RESERVED,
-                    EntityStatus.AVAILABLE,
-                    "System");
-            
-            // Notify all operators about bike status change event
-            if (bikeStatusChangeEvent != null) {
-                eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(bikeStatusChangeEvent));
-            }
-
-            // Reset user tier to NONE as penalty
-            userRepository.findById(expiredReservation.getUserId()).ifPresent(user -> {
-                loyaltyTierService.resetTierToNone(user);
-                user.setTierDowngradedNotificationPending(true); // Set flag
-                userRepository.save(user);
-                logger.info("User {} tier reset to NONE due to expired reservation", user.getUserId().value());
-            });
-
-            // Notify
-            notifyAllUsers(expiredReservation.getStartStationId());
-
-            logger.info("Reservation {} expired, bike set to AVAILABLE", reservationId.value());
+        } catch (Exception e) {
+            logger.warn("Failed to expire reservation {}: {}", reservationId.value(), e.getMessage());
         }
 
         return expiredReservation.getUserId();
@@ -325,7 +375,7 @@ logger.info("Reservation will expire at: {}", expiresAt.toLocalDateTime());
     public void checkAndExpireReservationsForUser(UserId userId) {
         reservationRepository.checkActiveReservationByUserId(userId).ifPresent(reservation -> {
             if (reservation.getExpiresAt().before(Timestamp.from(Instant.now()))) {
-                logger.info("Found expired reservation {} for user {} during login check", 
+                logger.info("Found expired reservation {} for user {} during login check",
                         reservation.getReservationId().value(), userId.value());
                 expireReservation(reservation.getReservationId());
             }

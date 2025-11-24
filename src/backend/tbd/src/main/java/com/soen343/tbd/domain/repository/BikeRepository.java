@@ -11,7 +11,7 @@ import java.util.List;
 public interface BikeRepository {
     Optional<Bike> findById(BikeId bikeId);
 
-    void save(Bike bike);
+    Bike save(Bike bike);
 
     Optional<Bike> findByDockId(DockId dockId);
 

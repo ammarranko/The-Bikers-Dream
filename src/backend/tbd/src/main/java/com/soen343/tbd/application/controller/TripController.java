@@ -7,6 +7,7 @@ import com.soen343.tbd.domain.model.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,6 +30,7 @@ import com.soen343.tbd.domain.model.ids.StationId;
 import com.soen343.tbd.domain.model.ids.TripId;
 import com.soen343.tbd.domain.model.ids.UserId;
 import com.soen343.tbd.domain.model.pricing.PricingStrategy;
+import com.soen343.tbd.application.exception.StationFullException;
 
 @RestController
 @RequestMapping("api/trips")
@@ -127,6 +129,9 @@ public class TripController {
 
             logger.info("Successfully Returned Bike with BikeId: {}", request.getBikeId());
             return ResponseEntity.ok(returnResponse);
+        } catch (StationFullException e) {
+            logger.warn("Failed to return bike. Station {} is full.", request.getStationId());
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         } catch (Exception e) {
             logger.warn("Bike unable to be returned, BikeId: {}", request.getBikeId());
             return ResponseEntity.notFound().build();

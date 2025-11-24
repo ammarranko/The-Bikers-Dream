@@ -67,6 +67,13 @@ const OperatorConsole = ({ operatorEvents = [] }) => {
     if (newState === "ACTIVE" || metadata.includes("active")) {
       return "event-active";
     }
+    if (newState === "STATION_EMPTY" || metadata.includes("alert")) {
+        return "event-stationempty";
+    }
+    if (newState === "STATION_FULL" || metadata.includes("alert")) {
+        return "event-stationfull";
+    }
+
     return "event-default";
   };
 

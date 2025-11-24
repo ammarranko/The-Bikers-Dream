@@ -21,17 +21,16 @@ spring:
 
 logging:
   level:
-    com.soen343.tbd: INFO
-#    org.hibernate.SQL: DEBUG
-#    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+#    com.soen343.tbd: DEBUG
+    #    org.hibernate.SQL: DEBUG
+    #    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     com.zaxxer.hikari: INFO
     com.zaxxer.hikari.pool.HikariPool: WARN
   pattern:
     console: "%d{HH:mm:ss} %-5level %logger{40} | %msg%n"
-    
+
 server:
   error:
     include-message: always
     include-binding-errors: always
     include-stacktrace: always
-    

@@ -9,6 +9,8 @@ public enum EntityStatus {
     ONGOING, COMPLETED,
     // StationStatus
     ACTIVE, OUT_OF_SERVICE,
+    // StationAvailability
+    STATION_EMPTY, STATION_OCCUPIED, STATION_FULL,
     // ReservationStatus
     RES_ACTIVE, RES_COMPLETED, CANCELLED, EXPIRED,
     // DockStatus
@@ -31,6 +33,13 @@ public enum EntityStatus {
             return switch ((StationStatus) status) {
                 case ACTIVE -> ACTIVE;
                 case OUT_OF_SERVICE -> OUT_OF_SERVICE;
+            };
+        }
+            else if (status instanceof StationAvailability) {
+            return switch ((StationAvailability) status) {
+                case EMPTY -> STATION_EMPTY;
+                case OCCUPIED -> STATION_OCCUPIED;
+                case FULL -> STATION_FULL;
             };
         } else if (status instanceof ReservationStatus) {
             return switch ((ReservationStatus) status) {

@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import java.util.Map;
 
-import com.soen343.tbd.domain.model.enums.BikeType;
+import com.soen343.tbd.domain.model.enums.*;
 import com.soen343.tbd.domain.model.pricing.EBikePricing;
 import com.soen343.tbd.domain.model.pricing.StandardBikePricing;
 import com.soen343.tbd.domain.model.user.User;
@@ -18,13 +18,10 @@ import com.soen343.tbd.application.observer.SSEStationObserver;
 import com.soen343.tbd.application.observer.StationSubject;
 import com.soen343.tbd.application.dto.EventDTO;
 import com.soen343.tbd.domain.model.*;
-import com.soen343.tbd.domain.model.enums.BikeStatus;
-import com.soen343.tbd.domain.model.enums.DockStatus;
-import com.soen343.tbd.domain.model.enums.EntityType;
-import com.soen343.tbd.domain.model.enums.EntityStatus;
 import com.soen343.tbd.domain.model.ids.*;
 import com.soen343.tbd.domain.model.helpers.Event;
 import com.soen343.tbd.domain.repository.*;
+import com.soen343.tbd.application.exception.StationFullException;
 
 @Service
 public class TripService {
@@ -44,15 +41,15 @@ public class TripService {
     private final SSEStationObserver sseStationObserver;
     private final UserRepository userRepository;
 
-    public TripService(BillRepository billRepository, 
-            TripRepository tripRepository, 
+    public TripService(BillRepository billRepository,
+            TripRepository tripRepository,
             BikeRepository bikeRepository,
-            DockRepository dockRepository, 
-            StationRepository stationRepository, 
+            DockRepository dockRepository,
+            StationRepository stationRepository,
             StationSubject stationPublisher,
-            StationService stationService, 
-            EventService eventService, 
-            UserService userService, 
+            StationService stationService,
+            EventService eventService,
+            UserService userService,
             FlexMoneyService flexMoneyService,
             BillingService billingService
         , SSEStationObserver sseStationObserver,
@@ -181,16 +178,23 @@ public class TripService {
 
         // Update station object
         try {
-            EntityStatus previousStatus = EntityStatus.fromSpecificStatus(selectedStation.getStationStatus());
+            EntityStatus previousStatus = EntityStatus.fromSpecificStatus(selectedStation.getStationAvailability());
             int currentBikes = selectedStation.getNumberOfBikesDocked();
             selectedStation.decrementBikesDocked();
             stationRepository.save(selectedStation);
-            EntityStatus newStatus = EntityStatus.fromSpecificStatus(selectedStation.getStationStatus());
+            EntityStatus newStatus = EntityStatus.fromSpecificStatus(selectedStation.getStationAvailability());
 
             if (previousStatus != newStatus) {
-                safelyCreateAndNotifyEvent(EntityType.STATION, stationId.value(),
-                        "Station status changed due to bike rental",
-                        previousStatus, newStatus, "User_" + userId.value());
+                if (newStatus == EntityStatus.STATION_EMPTY) {
+                    safelyCreateAndNotifyEvent(EntityType.STATION, stationId.value(),
+                            "ALERT! Station is empty! Rebalance Required!",
+                            previousStatus, newStatus, "User_" + userId.value());
+                } else if (newStatus == EntityStatus.STATION_OCCUPIED) {
+                    safelyCreateAndNotifyEvent(EntityType.STATION, stationId.value(),
+                            "Station status updated due to bike rental",
+                            previousStatus, newStatus, "User_" + userId.value());
+                }
+
             }
 
             // Notify all observers/users
@@ -215,7 +219,7 @@ public class TripService {
             logger.info("Trip saved successfully");
 
             newTrip = tripRepository.checkRentalsByUserId(userId).orElse(null);
-
+            
             if (newTrip != null) {
                 safelyCreateAndNotifyEvent(EntityType.TRIP, newTrip.getTripId().value(),
                         "New trip started", EntityStatus.NONE, EntityStatus.ONGOING,
@@ -242,14 +246,20 @@ public class TripService {
                 bikeId.value(), dockId.value(), userId.value(), stationId.value());
 
         // Fetch entities
+        Station selectedStation = stationRepository.findById(stationId)
+                .orElseThrow(() -> new RuntimeException("Station Not found with ID: " + stationId.value()));
+        // Check if station is full before proceeding
+        if (selectedStation.getStationAvailability() == StationAvailability.FULL) {
+            logger.warn("Cannot return bike: Station {} is full", stationId.value());
+            throw new StationFullException("Station is full: " + stationId.value());
+        }
         Trip currentTrip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new RuntimeException("Trip Not found with ID: " + tripId.value()));
         Bike selectedBike = bikeRepository.findById(bikeId)
                 .orElseThrow(() -> new RuntimeException("Bike Not found with ID: " + bikeId.value()));
         Dock selectedDock = dockRepository.findById(dockId)
                 .orElseThrow(() -> new RuntimeException("Dock Not found with ID: " + dockId.value()));
-        Station selectedStation = stationRepository.findById(stationId)
-                .orElseThrow(() -> new RuntimeException("Station Not found with ID: " + stationId.value()));
+
 
         logger.info("Found bike: {}, dock: {}, station: {}",
                 selectedBike.getBikeId().value(),
@@ -293,16 +303,22 @@ public class TripService {
 
         // Update station object
         try {
-            EntityStatus previousStatus = EntityStatus.fromSpecificStatus(selectedStation.getStationStatus());
+            EntityStatus previousStatus = EntityStatus.fromSpecificStatus(selectedStation.getStationAvailability());
             int currentBikes = selectedStation.getNumberOfBikesDocked();
             selectedStation.incrementBikesDocked();
             stationRepository.save(selectedStation);
-            EntityStatus newStatus = EntityStatus.fromSpecificStatus(selectedStation.getStationStatus());
+            EntityStatus newStatus = EntityStatus.fromSpecificStatus(selectedStation.getStationAvailability());
 
             if (previousStatus != newStatus) {
-                safelyCreateAndNotifyEvent(EntityType.STATION, stationId.value(),
-                        "Station status changed due to bike return",
-                        previousStatus, newStatus, "User_" + userId.value());
+                if (newStatus == EntityStatus.STATION_FULL) {
+                    safelyCreateAndNotifyEvent(EntityType.STATION, stationId.value(),
+                            "ALERT! Station is full! Rebalance Required!",
+                            previousStatus, newStatus, "User_" + userId.value());
+                } else if (newStatus == EntityStatus.STATION_OCCUPIED) {
+                    safelyCreateAndNotifyEvent(EntityType.STATION, stationId.value(),
+                            "Station status updated due to bike return",
+                            previousStatus, newStatus, "User_" + userId.value());
+                }
             }
 
             notifyAllUsers(selectedStation.getStationId());
@@ -322,7 +338,7 @@ public class TripService {
 
             EntityStatus previousStatus = EntityStatus.fromSpecificStatus(currentTrip.getStatus());
             resultingBill = currentTrip.endTrip(selectedStation.getStationId(), discountRate);
-            
+
             // Round the bill to 2 decimal places before applying FlexMoney to avoid precision issues
             double roundedCost = Math.round(resultingBill.getDiscountedCost() * 100.0) / 100.0;
             resultingBill.setDiscountedCost(roundedCost);
@@ -330,7 +346,7 @@ public class TripService {
             double costBeforeFlex = resultingBill.getDiscountedCost();
             resultingBill = billingService.applyFlexMoney(resultingBill, userId);
             flexMoneyUsed = costBeforeFlex - resultingBill.getDiscountedCost();
-            
+
             tripRepository.save(currentTrip);
             EntityStatus newStatus = EntityStatus.fromSpecificStatus(currentTrip.getStatus());
 
@@ -354,6 +370,10 @@ public class TripService {
             resultingBill.setRegularCost(regularCost);
             resultingBill.setFlexMoneyUsed(flexMoneyUsed);
             resultingBill.setLoyaltyDiscount(discountRate);
+
+            // Assign the bill to the trip
+            currentTrip.setBillId(resultingBill.getBillId());
+            tripRepository.save(currentTrip);
 
             logger.info("Bill assigned and saved successfully");
 
@@ -391,7 +411,7 @@ public class TripService {
         } catch (Exception e) {
             logger.warn("Failed giving flex money to user: {}", userId.value(), e);
         }
-        
+
 
         logger.info("Bike return completed successfully!");
 

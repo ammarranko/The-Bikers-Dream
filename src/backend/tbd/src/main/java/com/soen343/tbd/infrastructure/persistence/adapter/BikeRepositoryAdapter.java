@@ -53,7 +53,7 @@ public class BikeRepositoryAdapter implements BikeRepository {
     }
 
     @Override
-    public void save(Bike bike) {
+    public Bike save(Bike bike) {
         var bikeEntity = bikeMapper.toEntity(bike);
 
         // Set the dock relationship if dockId is present
@@ -64,7 +64,7 @@ public class BikeRepositoryAdapter implements BikeRepository {
             bikeEntity.setDock(null);
         }
 
-        jpaBikeRepository.save(bikeEntity);
+        return bikeMapper.toDomain(jpaBikeRepository.save(bikeEntity));
     }
 
     @Override

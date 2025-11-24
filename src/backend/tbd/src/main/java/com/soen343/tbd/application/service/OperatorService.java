@@ -54,6 +54,8 @@ public class OperatorService {
 
     // allows operator toggle between active/outOFservice for station
     public void updateStationStatus(StationId stationId, StationStatus newStatus) {
+        logger.info("Starting update of station ID: {} to new status: {}", stationId, newStatus);
+
         // get station
         Station station = stationRepository.findById(stationId)
             .orElseThrow(() -> new RuntimeException("Station not found, ID: " + stationId.value()));
@@ -64,14 +66,14 @@ public class OperatorService {
         switch (newStatus) {
             case ACTIVE:
                 station.activateStation();
-                logger.debug("Station: {} active", station.getStationId());
+                logger.debug("Station {} status set to: {} ", stationId, station.getStationStatus());
                 break;
             case OUT_OF_SERVICE:
                 station.deactivateStation();
-                logger.debug("Station: {} out of service", station.getStationId());
+                logger.debug("Station {} status set to: {} ", stationId, station.getStationStatus());
                 break;
             default:
-                logger.warn("Not a station status: {}", newStatus);
+                logger.warn("Invalid station status: {}", newStatus);
                 throw new IllegalArgumentException("Not a station status: " + newStatus);
         }
 
@@ -87,12 +89,16 @@ public class OperatorService {
 
         // save updated station
         stationRepository.save(station);
+        logger.debug("Station {} saved with new status: {} ", stationId, station.getStationStatus());
 
         // Observer updates
         notifyAllUsersByStation(station.getStationId());
-        eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(event));
-        
-        logger.info("Station ID: {} new status: {}", station.getStationId(), newStatus);
+
+        if(event != null){
+            eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(event));
+        }
+
+        logger.info("Station ID: {} successfully updated to new status: {}", stationId, newStatus);
     }
 
     // rebalance allows operator to move one bike at a time, doesn't create trips
@@ -140,8 +146,10 @@ public class OperatorService {
                 "System"
         );
 
-        // Notify all operators about dock status change event
-        eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(eventSourceDock));
+        if (eventSourceDock != null) {
+            // Notify all operators about dock status change event
+            eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(eventSourceDock));
+        }
 
         // target dock occupied
         targetDock.setStatus(DockStatus.OCCUPIED);
@@ -158,8 +166,10 @@ public class OperatorService {
                 "System"
         );
 
-        // Notify all operators about dock status change event
-        eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(eventTargetDock));
+        if(eventTargetDock != null) {
+            // Notify all operators about dock status change event
+            eventService.notifyAllOperatorsWithEvent(EventDTO.fromEvent(eventTargetDock));
+        }
 
         // decrease source station count
         // Deterimine previous status for event logging
@@ -193,14 +203,14 @@ public class OperatorService {
 
         // increase target station count
         // Determine previous status for event logging
-        previousStatus = EntityStatus.fromSpecificStatus(targetStation.getStationStatus());
+        previousStatus = EntityStatus.fromSpecificStatus(targetStation.getStationAvailability());
 
         targetStation.incrementBikesDocked();
         stationRepository.save(targetStation);
         logger.info("Target station {} bike count++", targetStationId.value());
 
         // Determine new status for event logging
-        newStatus = EntityStatus.fromSpecificStatus(targetStation.getStationStatus());
+        newStatus = EntityStatus.fromSpecificStatus(targetStation.getStationAvailability());
 
         Event eventTargetStation = null;
 

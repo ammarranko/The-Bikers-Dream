@@ -11,6 +11,6 @@ public interface StationRepository {
 
     List<Station> findAll();
 
-    void save(Station station);
+    Station save(Station station);
 }
 

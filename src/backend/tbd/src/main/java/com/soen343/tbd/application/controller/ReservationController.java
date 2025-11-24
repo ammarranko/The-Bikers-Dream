@@ -113,14 +113,14 @@ public class ReservationController {
         }
 
         ReservationId reservationId = new ReservationId(request.getReservationId());
-        boolean isExpired = "EXPIRE".equalsIgnoreCase(type);
+        final String endType = type.toUpperCase();
         
         logger.info("Received {} reservation request: ReservationId={}", 
-            isExpired ? "expire" : "cancel", 
+            endType,
             reservationId.value());
 
         try {
-            if (isExpired) {
+            if (endType.equals("EXPIRE")) {
                 UserId userId = reservationService.expireReservation(reservationId);
 
                 // Update user's loyalty tier after missing a reservation (expired)
@@ -129,16 +129,19 @@ public class ReservationController {
                 String updatedTier = user.getTierType().name();
                 logger.info("Reservation {} expired. Updated loyalty tier for user: {} to {}",
                     reservationId.value(), user.getEmail(), updatedTier);
-
                 return ResponseEntity.ok(new ReservationResponse("Reservation expired", updatedTier));
+            } else if (endType.equals("COMPLETE")) {
+                reservationService.completeReservation(reservationId);
+                logger.info("Reservation {} completed successfully", reservationId.value());
+                return ResponseEntity.ok(new ReservationResponse("Reservation cancelled successfully"));
             } else {
                 reservationService.cancelReservation(reservationId);
                 logger.info("Reservation {} cancelled successfully", reservationId.value());
                 return ResponseEntity.ok(new ReservationResponse("Reservation cancelled successfully"));
             }
         } catch (Exception e) {
-            logger.warn("{} reservation failed: {}", 
-                isExpired ? "Expire" : "Cancel",
+            logger.warn("{} reservation failed: {}",
+                endType,
                 e.getMessage());
             return ResponseEntity.notFound().build();
         }

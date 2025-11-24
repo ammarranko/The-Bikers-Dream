@@ -112,7 +112,7 @@ public class Station {
 
     public void decrementBikesDocked(){
         this.numberOfBikesDocked--;
-        if (this.numberOfBikesDocked < this.capacity) {
+        if (this.numberOfBikesDocked == 0) {
             this.stationAvailability = StationAvailability.EMPTY;
         } else if (this.numberOfBikesDocked > 0) {
             this.stationAvailability = StationAvailability.OCCUPIED;

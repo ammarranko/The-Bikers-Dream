@@ -27,9 +27,9 @@ public class StationRepositoryAdapter implements StationRepository {
     }
 
     @Override
-    public void save(Station station) {
+    public Station save(Station station) {
         var stationEntity = stationMapper.toEntity(station);
-        jpaStationRepository.save(stationEntity);
+        return stationMapper.toDomain(jpaStationRepository.save(stationEntity));
     }
 
     @Override
