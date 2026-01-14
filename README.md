@@ -1,5 +1,5 @@
 # The Bikers’ Dream – Interactive Bike Sharing Web App
-SOEN 343 Project ( Fall 2025 )
+SOEN 343 Project ( Concordia University - Fall 2025 )
 
 **The Bikers’ Dream** is a modern, secure, and interactive bike-sharing web application that delivers **real-time station updates, seamless rentals, transparent billing, and role-based management**.
 
