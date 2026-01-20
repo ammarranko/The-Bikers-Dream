@@ -9,15 +9,14 @@ The application combines a **responsive React frontend**, a **Java Spring Boot b
 ---
 
 ## Team Members
-| GitHub Username | Full Name           | Student ID |
-|-----------------|------------------|-----------|
-| @masspaol       | Massimo Paolini   | 40280323  |
-| @elif5446       | Elif Sag Sesen    | 40283343  |
-| @afkcya         | Ya Yi (Yuna) Chen | 40286042  |
-| @RyanCheung03   | Ryan Cheung       | 40282200  |
-| @ammarranko     | Ammar Ranko       | 40281232  |
-| @nicoledesigns  | Nicole Antoun     | 40284018  |
-
+| GitHub Username | Full Name          
+|-----------------|------------------
+| @masspaol       | Massimo Paolini   
+| @elif5446       | Elif Sag Sesen    
+| @afkcya         | Ya Yi (Yuna) Chen 
+| @RyanCheung03   | Ryan Cheung       
+| @ammarranko     | Ammar Ranko       
+| @nicoledesigns  | Nicole Antoun     
 ---
 
 
